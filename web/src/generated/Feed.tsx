@@ -55,6 +55,8 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
                   <Button onClick={() => onAction("follow")}>{data.followLabel}</Button>
                   <Button variant="secondary" onClick={() => onAction("block")}>Block / unblock</Button>
                   <Button variant="secondary" onClick={() => onAction("mute")}>Mute / unmute</Button>
+                  <Button variant="secondary" onClick={() => onAction("closeFriend")}>Close Friends / remove</Button>
+                  <Button variant="secondary" onClick={() => onAction("restrict")}>Restrict / unrestrict</Button>
                 </>
               )}
               {data.highlights.map((item, i) => (

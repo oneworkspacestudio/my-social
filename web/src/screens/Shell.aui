@@ -30,7 +30,7 @@ Page Shell
         Icon name=Grid2X2
       Link href="#notifications" variant=icon aria-label="Notifications"
         Icon name=Bell
-      Link href="#profile" variant=avatar $initials
+      Link href="#settings" variant=avatar aria-label="Account settings" $initials
     Stack variant=content
       If condition=$offline
         Alert tone=warning "You’re offline. Device drafts remain available. Publishing needs a connection."

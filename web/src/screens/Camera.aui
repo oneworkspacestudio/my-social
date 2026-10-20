@@ -7,7 +7,7 @@ Page Camera
     Section id=camera-video
     Row
       Button action=switchCamera variant=secondary "Switch camera"
-      Button action=shutter "Take photo"
+      Button action=shutter disabled=$captureDisabled "Take photo"
       Button action=record variant=danger $recordLabel
       If condition=$canPause
         Button action=pauseRecord variant=secondary "Pause / resume recording"

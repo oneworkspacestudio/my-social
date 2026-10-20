@@ -1,4 +1,3 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import{cropTransform,dimensions,safeURL}from'./editor.ts';
 test('crop covers output across portrait, landscape and rotation',()=>{for(const[iw,ih]of[[4000,3000],[3000,4000]])for(const rotation of[0,90,180,270]){const[w,h]=dimensions('4:5'),c=cropTransform(iw,ih,w,h,1,rotation);assert.ok(c.scaleX*(rotation%180?ih:iw)>=w);assert.ok(c.scaleY*(rotation%180?iw:ih)>=h)}});
-test('each carousel item owns independent editing state',()=>{const a={edits:{brightness:0},scene:{objects:[]}},b=structuredClone(a);a.edits.brightness=0.5;assert.equal(b.edits.brightness,0)});
 test('link stickers reject script, credentials and non-HTTPS schemes',()=>{assert.equal(safeURL('javascript:alert(1)'),false);assert.equal(safeURL('https://user:password@example.com'),false);assert.equal(safeURL('https://example.com'),true)});

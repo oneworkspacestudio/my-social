@@ -34,6 +34,8 @@ Page Feed
             Button action=follow $followLabel
             Button variant=secondary action=block "Block / unblock"
             Button variant=secondary action=mute "Mute / unmute"
+            Button variant=secondary action=closeFriend "Close Friends / remove"
+            Button variant=secondary action=restrict "Restrict / unrestrict"
           For each=$highlights
             Button action=highlight item=$item.id variant=secondary $item.title
       Stack variant=$feedStyle

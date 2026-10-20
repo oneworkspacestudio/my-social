@@ -13,7 +13,7 @@ export function Camera({ data, onAction }: { data: any; onAction: (name: string)
         <Section id="camera-video" />
         <Row>
           <Button onClick={() => onAction("switchCamera")} variant="secondary">Switch camera</Button>
-          <Button onClick={() => onAction("shutter")}>Take photo</Button>
+          <Button onClick={() => onAction("shutter")} disabled={data.captureDisabled}>Take photo</Button>
           <Button onClick={() => onAction("record")} variant="danger">{data.recordLabel}</Button>
           {data.canPause && (
             <Button onClick={() => onAction("pauseRecord")} variant="secondary">Pause / resume recording</Button>

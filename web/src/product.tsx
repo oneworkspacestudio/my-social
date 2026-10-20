@@ -11,6 +11,8 @@ export function Product(p:Props){
  const notice=p.setNotice,error=p.setError;
  const addFiles=useCallback((files:File[])=>{const valid=files.filter(x=>/^(image\/(jpeg|png|gif)|video\/(mp4|webm))/.test(x.type));if(files.length!==valid.length)error('Choose JPEG, PNG, GIF, MP4 or WebM files.');if(valid.some(x=>x.size>100*1024*1024)){error('Each file must be under 100 MiB.');return};setItems(xs=>{const added=valid.slice(0,10-xs.length).map(newItem);if(added[0])setSelected(added[0].id);return[...xs,...added]});setRenderedMedia('');location.hash='#create'},[]);
  const camera=useCamera(file=>addFiles([file]),error);
+ useEffect(()=>{const settings=camera.stream?.getVideoTracks()[0]?.getSettings() as any;if(settings?.zoom!==undefined)sf('cameraZoom',settings.zoom)},[camera.stream]);
+ useEffect(()=>{if(camera.stream&&f.cameraZoom!==undefined)camera.zoom(Number(f.cameraZoom)).catch((e:any)=>error('This camera could not apply zoom: '+e.message))},[f.cameraZoom]);
  useEffect(()=>{if(current){for(const[k,v]of Object.entries(current.edits))sf(k,v);sf('clipStart',current.start);sf('clipEnd',current.end);sf('clipSpeed',String(current.speed))}},[selected]);
  const keepScene=()=>{if(current&&editor.current)current.scene=editor.current.save()};
  const selectItem=(id:string)=>{keepScene();setSelected(id);const v=items.find(x=>x.id===id);if(v){for(const[k,x]of Object.entries(v.edits))sf(k,x);sf('clipStart',v.start);sf('clipEnd',v.end);sf('clipSpeed',String(v.speed))}};

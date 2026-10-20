@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-preview.2
+
+Connect capability-based camera zoom to the actual video-track constraints.
+Clear previous accounts' private device drafts when activating another account,
+and fence stale tabs from writing a draft for the previous identity. Existing
+server state and protected media remain compatible with Workspace47.
+
 ## 0.1.0-preview.1
 
 First functional Windows PWA preview: MyAccounts/native standalone identity,

@@ -40,3 +40,12 @@ package and verify preview1, integrate its exact public pin in Workspace47,
 test final full installer, pass suite CI, publish both immutable releases and
 use the normal backed-up updater for the authorized local installation. Preserve
 four unrelated untracked suite histories and the newest verified owner rollback.
+
+Preview1 published418292513/targeta7dfda3 with9 matching assets; Workspace47
+public418297021/target5b83518,21 matching assets, full104-package bundle. Normal
+owner47 update is underway via approved public-digest-equivalent local bytes.
+Current app follow-up2 fixes actual camera zoom binding and fences device draft
+storage by its active account. Browser capture/editor/Story/offline and old-account
+draft-removal checks passed locally; server schema remains1 and minimum manager47.
+Do not rewrite preview1/47 tags or assets. Publish2 as a compatible independent
+app update, then use the normal Social update group after owner47 completes.

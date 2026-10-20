@@ -1,4 +1,4 @@
-param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.1')
+param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.2',[string]$Rsrc='')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root
@@ -18,7 +18,8 @@ try {
  if($LASTEXITCODE){throw 'Go vet failed'}
  New-Item -ItemType Directory -Force $Out | Out-Null
  $Out=(Resolve-Path -LiteralPath $Out).Path
- & $Go run github.com/akavel/rsrc@v0.10.2 -ico docs/branding/my_social.ico -o cmd/my-social/rsrc_windows_amd64.syso
+ if($Rsrc){& $Rsrc -ico docs/branding/my_social.ico -o cmd/my-social/rsrc_windows_amd64.syso}
+ else {& $Go run github.com/akavel/rsrc@v0.10.2 -ico docs/branding/my_social.ico -o cmd/my-social/rsrc_windows_amd64.syso}
  if($LASTEXITCODE){throw 'Windows icon generation failed'}
  & $Go build -buildvcs=false -trimpath -ldflags "-s -w -X main.version=$Version" -o (Join-Path $Out 'MySocial.exe') ./cmd/my-social
  if($LASTEXITCODE){throw 'Windows executable build failed'}

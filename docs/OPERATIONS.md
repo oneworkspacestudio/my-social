@@ -73,7 +73,8 @@ before disk fills; configure 2 GiB/account quota changes in a reviewed release.
 An external media worker/object store, database migration and federation would
 need new contracts. Check healthz, app.log and Workspace app logs for readiness.
 Logs contain no original content or login tokens. An unhealthy My Photos guard
-fails closed; restore its denyAll policy rather than publishing the directory.
+fails closed; restore the dedicated private source and per-account scope mapping.
+Do not work around a guard failure by publishing the private directory.
 
 ## Scoped storage correction (Workspace48 / Social preview2)
 

@@ -10,9 +10,12 @@ Every media request checks the current user and the post audience. Originals,
 drafts, events, subscriptions and exports are owner scoped. Public means the
 signed-in community; anonymous public media links are not implemented.
 
-Managed originals reside in Private/photos-social/My Photos/My Social. Quantum's denyAll policy
-is verified through a loopback HMAC-derived capability; conflicting ancestor or
-descendant allows stop media access. Never expose this root as static files.
+Managed originals reside in Private/photos-social/My Photos/My Social, outside
+shared Files. A default-disabled native source grants only each verified
+MyAccounts subject's own read-only scope. Quantum's canonical physical scope
+containment protects originals; Social mediates audience-checked derivatives
+outside those scopes. A server-only loopback capability verifies this adapter.
+Never expose the root as static files or add an overlapping broad source.
 Administrators and Windows host owners are trusted and can read host storage.
 Standalone storage must be explicitly marked isolated and never be a web root.
 

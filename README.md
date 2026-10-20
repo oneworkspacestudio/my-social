@@ -16,7 +16,7 @@ See [acceptance and gaps](docs/ACCEPTANCE.md) before installation.
 ## Download and install
 
 Use the [One Workspace installer](https://github.com/oneworkspacestudio/one-workspace/releases)
-preview47 or later and select **My Social**, or download
+preview48 or later and select **My Social**, or download
 [My Social releases](https://github.com/oneworkspacestudio/my-social/releases).
 The single `MySocial.exe` embeds its React UI and SQLite runtime. No Docker,
 external database or Node runtime is required. FFmpeg/FFprobe are optional

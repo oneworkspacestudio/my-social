@@ -10,7 +10,7 @@ Every media request checks the current user and the post audience. Originals,
 drafts, events, subscriptions and exports are owner scoped. Public means the
 signed-in community; anonymous public media links are not implemented.
 
-Managed originals reside in Files/My Photos/My Social. Quantum's denyAll policy
+Managed originals reside in Private/photos-social/My Photos/My Social. Quantum's denyAll policy
 is verified through a loopback HMAC-derived capability; conflicting ancestor or
 descendant allows stop media access. Never expose this root as static files.
 Administrators and Windows host owners are trusted and can read host storage.

@@ -54,6 +54,11 @@ func (a *App) storageCheck(ctx context.Context) error {
 		return e
 	}
 	req.Header.Set("Authorization", "Bearer "+a.GuardToken)
+	user := apphost.Current((&http.Request{}).WithContext(ctx)).User
+	if user.Subject != "" {
+		req.Header.Set("X-Social-Subject", user.Subject)
+		req.Header.Set("X-Social-Issuer", user.Issuer)
+	}
 	c := http.Client{Timeout: 10 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	resp, e := c.Do(req)
 	if e != nil {
@@ -62,6 +67,12 @@ func (a *App) storageCheck(ctx context.Context) error {
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return errors.New("storage isolation not confirmed")
+	}
+	var contract struct {
+		Contract string `json:"contract"`
+	}
+	if json.NewDecoder(resp.Body).Decode(&contract) != nil || contract.Contract != "quantum-social-v2" {
+		return errors.New("Workspace 48 scoped storage is required")
 	}
 	return nil
 }

@@ -5,7 +5,12 @@
 Connect capability-based camera zoom to the actual video-track constraints.
 Clear previous accounts' private device drafts when activating another account,
 and fence stale tabs from writing a draft for the previous identity. Existing
-server state and protected media remain compatible with Workspace47.
+server state is retained. Workspace48 is required for scoped private media.
+
+Replace the original shared-folder ACL adapter: Windows path casing could bypass
+its native Drive deny rules. Originals now use a dedicated private source outside
+shared Files, with each MyAccounts subject bound to its own read-only native
+scope. Existing legacy media fails closed and requires explicit migration.
 
 ## 0.1.0-preview.1
 

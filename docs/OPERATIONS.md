@@ -1,6 +1,6 @@
 # Installation and operation
 
-One Workspace preview47+ installs My Social as an independent optional app.
+One Workspace preview48+ installs My Social as an independent optional app.
 Default listener 127.0.0.1:9013, route /social; installation-specific ports are
 allocated by Workspace. MyAccounts registers /social/auth/callback and supplies
 the confidential OIDC credentials only to the server process. Existing proxy
@@ -74,3 +74,23 @@ An external media worker/object store, database migration and federation would
 need new contracts. Check healthz, app.log and Workspace app logs for readiness.
 Logs contain no original content or login tokens. An unhealthy My Photos guard
 fails closed; restore its denyAll policy rather than publishing the directory.
+
+## Scoped storage correction (Workspace48 / Social preview2)
+
+Supersedes the preview1/Workspace47 shared-folder adapter. Native Quantum folder
+ACL keys preserve case on Windows; alternate casing can bypass a deny rule.
+Do not use preview1 for private uploads. No local owner media existed when this
+was discovered. Published predecessor artifacts remain immutable for provenance.
+
+The authoritative My Photos/My Social source now resides under
+`Private/photos-social/My Photos/My Social`, outside every broad Files source.
+`My Social Originals` is disabled by default. The server binds a verified
+MyAccounts issuer/subject to `/users/<sha256(issuer + NUL + subject)>`, with native
+view/download only. Native canonical physical scope containment protects other
+accounts, including casing and traversal variants. Generated derivatives stay
+outside all user scopes; Social applies post audiences. Shared My Drive remains
+unchanged. Never add a broad source overlapping this private source.
+
+Upgrades refuse a nonempty legacy Social folder: stop services, back up app state
+and both source roots, and perform a separately reviewed migration. Empty legacy
+markers may remain inert. Back up the new private source together with Social DB.

@@ -49,3 +49,16 @@ storage by its active account. Browser capture/editor/Story/offline and old-acco
 draft-removal checks passed locally; server schema remains1 and minimum manager47.
 Do not rewrite preview1/47 tags or assets. Publish2 as a compatible independent
 app update, then use the normal Social update group after owner47 completes.
+
+Security correction: Windows native logical ACLs preserve casing. An isolated
+real Drive probe returned404 for exact denied path but200 and identical marker
+for lower/upper-case paths. Earlier exact-path acceptance was insufficient.
+Do not use preview1/Workspace47 storage for private media. Published tags/assets
+remain immutable; release notes mark predecessors superseded. The local owner
+root contained only its marker, no media, and uploads were paused by renaming
+that marker. The new adapter uses Data/photos-social/My Photos/My Social outside
+all shared sources, default-disabled My Social Originals native source, and
+read-only per-subject scopes; physical native scope containment provides the
+boundary. Social2 requires Workspace48 and scoped-social-storage-v2.
+Existing legacy media is refused, never silently moved. Managed tests and final
+release48/publication/local update are pending this correction handoff.

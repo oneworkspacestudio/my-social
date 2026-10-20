@@ -1,0 +1,9 @@
+/dist/
+/web/node_modules/
+/internal/webui/dist/
+*.exe
+*.test
+*.syso
+go.work*
+test-results/
+playwright-report/

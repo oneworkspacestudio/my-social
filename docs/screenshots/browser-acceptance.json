@@ -1,0 +1,17 @@
+{
+  "checked": [
+    "Chrome fake-camera permission and capture without audio",
+    "independent two-image composition",
+    "layered text editing",
+    "undo/redo",
+    "private server draft reload and resume",
+    "preview/publish carousel",
+    "like/comment",
+    "390px navigation without horizontal overflow",
+    "Story poll/view/pause",
+    "PWA manifest/service worker"
+  ],
+  "physicalAndroid": false,
+  "physicalIOS": false,
+  "errors": []
+}

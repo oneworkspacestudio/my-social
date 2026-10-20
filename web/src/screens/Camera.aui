@@ -1,0 +1,23 @@
+Page Camera
+  Card variant=camera-panel
+    Row
+      Badge tone=warning $cameraStatus
+      Spacer
+      Button action=closeCamera variant=secondary "Close camera"
+    Section id=camera-video
+    Row
+      Button action=switchCamera variant=secondary "Switch camera"
+      Button action=shutter "Take photo"
+      Button action=record variant=danger $recordLabel
+      If condition=$canPause
+        Button action=pauseRecord variant=secondary "Pause / resume recording"
+    Row
+      Checkbox name=mic "Enable microphone before recording"
+      Field label="Aspect guide"
+        Select name=aspect options=$aspectOptions
+    If condition=$hasZoom
+      Field label="Camera zoom"
+        Input name=cameraZoom type=range min=$zoomMin max=$zoomMax step=$zoomStep
+    If condition=$hasTorch
+      Button action=torch variant=secondary "Toggle device torch"
+    Text variant=caption "The camera stops when you leave this screen or put the app in the background. Audio is captured only while Enable microphone is checked."

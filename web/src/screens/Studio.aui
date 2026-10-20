@@ -1,0 +1,47 @@
+Page Studio
+  Stack
+    Row
+      Stack gap=xs
+        Heading level=2 "Your creative space"
+        Text "Pick up an idea, see what’s scheduled, or revisit a moment."
+      Spacer
+      Button action=create "Create"
+    Grid columns=3
+      Card
+        Text variant=eyebrow "PUBLISHED MOMENTS"
+        Metric value=$publishedCount
+      Card
+        Text variant=eyebrow "LIKES RECEIVED"
+        Metric value=$likesCount
+      Card
+        Text variant=eyebrow "YOUR DRAFTS"
+        Metric value=$draftCount
+    Heading level=2 "Drafts"
+    For each=$drafts
+      Card variant=studio-row
+        Text $item.title
+        Text variant=caption $item.date
+        Spacer
+        Button action=resumeDraft item=$item.id "Continue editing"
+        Button action=deleteDraft item=$item.id variant=secondary "Delete draft"
+    Heading level=2 "Published, scheduled & archived"
+    For each=$posts
+      Card variant=studio-row
+        Text $item.caption
+        Badge tone=muted $item.state
+        Text variant=caption $item.date
+        Spacer
+        Button action=openPost item=$item.id variant=secondary "View"
+        Button action=restorePost item=$item.id variant=secondary "Restore"
+        Button action=addHighlight item=$item.id variant=secondary "Add to Highlight"
+        Button action=deletePost item=$item.id variant=danger "Delete"
+    Heading level=2 "Video processing"
+    For each=$jobs
+      Card variant=studio-row
+        Text $item.state
+        Text $item.progressText
+        Text $item.error
+    If condition=$empty
+      Card variant=empty
+        Heading level=3 "Every moment starts with an idea."
+        Text "Your drafts and published work will appear here."

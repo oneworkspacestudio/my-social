@@ -1,0 +1,92 @@
+Page Feed
+  Stack variant=feed-layout
+    Stack variant=feed-column
+      If condition=$isHome
+        Card variant=story-strip
+          Button variant=story-add action=createStory aria-label="Create a Story"
+            Icon name=Plus
+            Text "Your Story"
+          For each=$stories
+            Button variant=story item=$item.id action=viewStory aria-label=$item.profile.handle
+              Image src=$item.thumbnail alt="" width=56 height=56
+              Text $item.profile.handle
+        Row variant=feed-tabs
+          Link href="#home" variant=$homeVariant "For you"
+          Link href="#following" variant=$followingVariant "Following"
+          Spacer
+          Text variant=caption "A little closer, every day."
+      If condition=$isExplore
+        Row
+          Input name=query type=search placeholder="Search people, captions and #hashtags"
+          Button action=search "Search"
+        Row variant=people
+          For each=$people
+            Link href=$item.href variant=person
+              Text $item.handle
+              Text variant=caption $item.bio
+      If condition=$isProfile
+        Card variant=profile-header
+          Text variant=eyebrow $profile.handle
+          Heading level=2 $profile.name
+          Text $profile.bio
+          Text variant=caption $profile.counts
+          If condition=$otherProfile
+            Button action=follow $followLabel
+            Button variant=secondary action=block "Block / unblock"
+            Button variant=secondary action=mute "Mute / unmute"
+          For each=$highlights
+            Button action=highlight item=$item.id variant=secondary $item.title
+      Stack variant=$feedStyle
+        For each=$posts
+          Card variant=post
+            Row variant=post-header
+              Link href=$item.profile.href variant=avatar $item.profile.initials
+              Stack gap=xs
+                Link href=$item.profile.href variant=handle $item.profile.handle
+                Text variant=caption $item.date
+              Spacer
+              Badge tone=muted $item.visibility
+            Section id=post-media item=$item
+            Row variant=post-actions
+              Button item=$item.id action=like variant=$item.likeVariant aria-label="Like post"
+                Icon name=Heart
+              Button item=$item.id action=comments variant=icon aria-label="View comments"
+                Icon name=MessageCircle
+              Button item=$item.id action=share variant=icon aria-label="Share post"
+                Icon name=Send
+              Spacer
+              Button item=$item.id action=save variant=$item.saveVariant aria-label="Save post"
+                Icon name=Bookmark
+            Text variant=handle $item.likeText
+            Text variant=post-caption $item.caption
+            Button item=$item.id action=comments variant=text $item.commentText
+            If condition=$item.own
+              Row
+                Button item=$item.id action=archive variant=text "Archive"
+                Button item=$item.id action=editPost variant=text "Edit details"
+            Else
+              Button item=$item.id action=report variant=text "Report"
+      If condition=$empty
+        Card variant=empty
+          Icon name=Camera size=40
+          Heading level=2 $emptyTitle
+          Text $emptyText
+          Button action=create "Create your first moment"
+      If condition=$hasMore
+        Button action=more variant=secondary "Load more"
+    If condition=$isHome
+      Stack variant=right-rail
+        Card variant=welcome
+          Badge tone=success "YOUR OWN LITTLE CORNER"
+          Heading level=2 "Good moments deserve good company."
+          Text "Share something you made, somewhere you went, or a small part of your day."
+          Button action=create "Make a moment"
+        Card
+          Heading level=3 "People to know"
+          For each=$suggested
+            Row variant=suggestion
+              Link href=$item.href variant=avatar $item.initials
+              Stack gap=xs
+                Link href=$item.href variant=handle $item.handle
+                Text variant=caption $item.name
+        Text variant=caption "Made for your community. Hosted by you."

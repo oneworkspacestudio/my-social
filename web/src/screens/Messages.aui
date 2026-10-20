@@ -1,0 +1,9 @@
+Page Messages
+  Card variant=empty
+    Icon name=MessagesSquare size=48
+    Heading level=2 "Keep the conversation going."
+    Text "My Chat manages your Workspace conversations. Social-specific DMs, ephemeral messages and calling are not connected in this preview."
+    If condition=$workspace
+      Link href=$chatURL variant=button "Open My Chat"
+    Else
+      Text "Install My Chat through One Workspace to use community messaging."

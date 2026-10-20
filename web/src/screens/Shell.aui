@@ -1,0 +1,51 @@
+Page Shell
+  Stack variant=sidebar
+    Link href="#home" variant=brand
+      Image src=$logo alt="My Social" width=42 height=42
+      Stack gap=xs
+        Heading level=2 "My Social"
+        Text variant=eyebrow "ONE WORKSPACE"
+    For each=$nav
+      Link href=$item.href variant=$item.variant aria-label=$item.title
+        Icon name=$item.icon
+        Text $item.title
+    Spacer
+    Button variant=create action=create
+      Icon name=Plus
+      Text "Create a moment"
+    Link href="#settings" variant=nav
+      Icon name=Settings2
+      Text "Settings"
+    If condition=$workspace
+      Link href=$workspace variant=workspace-link "← One Workspace"
+  Stack variant=workspace
+    Row variant=topbar
+      Stack gap=xs
+        Text variant=eyebrow "YOUR MOMENTS. YOUR PEOPLE."
+        Heading level=1 $heading
+      Spacer
+      Button variant=icon action=theme aria-label="Toggle color theme"
+        Icon name=SunMoon
+      Button variant=icon action=apps aria-label="Open Workspace apps"
+        Icon name=Grid2X2
+      Link href="#notifications" variant=icon aria-label="Notifications"
+        Icon name=Bell
+      Link href="#profile" variant=avatar $initials
+    Stack variant=content
+      If condition=$offline
+        Alert tone=warning "You’re offline. Device drafts remain available. Publishing needs a connection."
+      If condition=$error
+        Alert tone=error $error
+      If condition=$notice
+        Alert tone=success $notice
+      If condition=$busy
+        Row
+          Spinner
+          Text $busy
+      Section id=screen-outlet
+    Text variant=footer $versionText
+  Row variant=bottomnav
+    For each=$mobileNav
+      Link href=$item.href variant=$item.variant aria-label=$item.title
+        Icon name=$item.icon
+        Text $item.title

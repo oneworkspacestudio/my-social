@@ -1,0 +1,79 @@
+Page Overlays
+  If condition=$commentsOpen
+    Card variant=dialog aria-label="Post comments"
+      Row
+        Heading level=2 "The conversation"
+        Spacer
+        Button action=closeModal variant=secondary "Close"
+      For each=$comments
+        Card variant=comment
+          Text variant=handle $item.profile.handle
+          Text $item.body
+          Text variant=caption $item.date
+          Button action=reply item=$item.id variant=text "Reply"
+      Field label=$replyLabel
+        Input name=comment multiline=true placeholder="Add a thoughtful comment…"
+      Button action=sendComment "Send comment"
+  If condition=$previewOpen
+    Card variant=dialog aria-label="Publication preview"
+      Row
+        Heading level=2 "Your moment, as they’ll see it"
+        Spacer
+        Button action=closeModal variant=secondary "Close"
+      Section id=preview-media
+      Text $caption
+      Badge tone=muted $visibility
+      Button action=publish "Publish moment"
+  If condition=$storyOpen
+    Card variant=story-dialog aria-label="Story viewer"
+      Row
+        Text variant=handle $storyHandle
+        Spacer
+        Button action=closeModal variant=secondary "Close"
+      Section id=story-media
+      Section id=story-progress
+      Text $storyCaption
+      If condition=$storyPoll
+        Heading level=3 $storyPoll
+        For each=$storyChoices
+          Button action=vote item=$item.value variant=secondary $item.value
+      If condition=$storyLink
+        Link href=$storyLink external=true "Open Story link ↗"
+      Row
+        Button action=storyPrevious variant=secondary "Previous"
+        Button action=storyPause variant=secondary $pauseLabel
+        Button action=storyNext variant=secondary "Next"
+      Field label="Reply to Story"
+        Input name=storyReply placeholder="Say something…"
+      Button action=storyReply "Send reply"
+  If condition=$libraryOpen
+    Card variant=dialog aria-label="My Photos picker"
+      Row
+        Heading level=2 "Your My Social media in My Photos"
+        Spacer
+        Button action=closeModal variant=secondary "Close"
+      Text "Only your protected My Social originals appear here. Choose an ordinary My Photos file below to import with its existing permissions."
+      Grid columns=3
+        For each=$library
+          Button action=pickMedia item=$item.id variant=media-pick
+            Image src=$item.url alt="Your media" width=120 height=120
+      If condition=$workspace
+        Field label="My Photos folder (inside your Drive scope)"
+          Input name=photosFolder placeholder="/Photos"
+        Button action=listPhotos variant=secondary "Browse ordinary My Photos"
+        For each=$photoFiles
+          Row
+            Text $item.name
+            Button action=importPhoto item=$item.path variant=secondary "Import photo"
+  If condition=$editOpen
+    Card variant=dialog aria-label="Edit post details"
+      Heading level=2 "Edit your moment"
+      Field label="Caption"
+        Input name=editCaption multiline=true
+      Field label="Alt text"
+        Input name=editAlt
+      Field label="Audience"
+        Select name=editVisibility options=$audienceOptions
+      Row
+        Button action=savePost "Save changes"
+        Button action=closeModal variant=secondary "Close"

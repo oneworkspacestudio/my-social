@@ -1,0 +1,40 @@
+name: Verify and build My Social
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.2'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: web
+      - run: node web/scripts/icons.mjs
+      - run: npm --prefix web run build
+      - run: npm --prefix web test
+      - run: go test ./...
+      - run: go vet ./...
+      - run: New-Item -ItemType Directory -Force dist; go build -trimpath -o dist/MySocial.exe ./cmd/my-social
+      - run: node scripts/browser-verify.mjs
+        env:
+          MYSOCIAL_TEST_EXE: ${{ github.workspace }}\dist\MySocial.exe
+          MYSOCIAL_TEST_ROOT: ${{ runner.temp }}\social-private
+          MYSOCIAL_TEST_ARTIFACTS: ${{ runner.temp }}\social-evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MySocial-windows-amd64
+          path: |
+            dist/MySocial.exe
+            docs/screenshots/

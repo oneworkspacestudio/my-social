@@ -1,0 +1,50 @@
+Page Settings
+  Stack variant=settings
+    Card
+      Heading level=2 "Your profile"
+      Field label="Handle"
+        Input name=handle
+      Field label="Bio"
+        Input name=bio multiline=true
+      Checkbox name=private "Private account — approve new followers"
+      Button action=profileSave "Save profile"
+    Card
+      Heading level=2 "Notifications"
+      Text "Push requires HTTPS and browser support. On iPhone or iPad, install My Social on your Home Screen first."
+      Checkbox name=push "Enable private push notifications"
+      Row
+        Field label="Quiet hours start (server time)"
+          Input name=quietStart type=time
+        Field label="Quiet hours end (server time)"
+          Input name=quietEnd type=time
+      Button action=pushSave "Save notifications"
+      Button action=testPush variant=secondary "Send test notification"
+    Card
+      Heading level=2 "Install My Social"
+      Text "Add this app to your Home Screen for an app-like experience. On iOS, use Share → Add to Home Screen."
+      Button action=install variant=secondary "Install / show instructions"
+      Button action=updateApp variant=secondary "Apply available update"
+    Card
+      Heading level=2 "People & privacy"
+      For each=$relations
+        Row
+          Text $item.label
+          Button action=approve item=$item.actor variant=secondary "Approve request"
+          Button action=reject item=$item.actor variant=secondary "Remove / reject"
+      Button action=export variant=secondary "Export my account & originals"
+      Button action=logout variant=secondary "Sign out"
+      Button action=deleteAccount variant=danger "Delete My Social account"
+    If condition=$owner
+      Card
+        Heading level=2 "Community moderation"
+        For each=$reports
+          Row
+            Text $item.reason
+            Button action=removeReport item=$item.id variant=danger "Remove content"
+            Button action=dismissReport item=$item.id variant=secondary "Dismiss"
+    Card
+      Heading level=2 "Connected services"
+      Text $storageText
+      Text $videoText
+      Text "Live, payments, licensed music, automatic captions and a My Chat messaging adapter are not available in this preview."
+      Text variant=caption $identityText

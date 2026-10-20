@@ -1,0 +1,27 @@
+Page Timeline
+  Stack
+    Heading level=3 "Your Reel timeline"
+    Text "Trim, reorder and adjust clip speed. Renders use 720 × 1280 H.264, up to 90 seconds. Multi-clip renders currently have no audio."
+    For each=$clips
+      Row variant=clip-row
+        Text $item.title
+        Text variant=caption $item.trim
+        Button action=selectClip item=$item.id variant=secondary "Edit clip"
+        Button action=clipEarlier item=$item.id variant=secondary "Move earlier"
+        Button action=clipRemove item=$item.id variant=secondary "Remove"
+    Row
+      Field label="Trim start (seconds)"
+        Input name=clipStart type=number min=0 step=0.1
+      Field label="Trim end (seconds)"
+        Input name=clipEnd type=number min=0.1 step=0.1
+      Field label="Playback speed"
+        Select name=clipSpeed options=$speedOptions
+    Row
+      Button action=clipApply variant=secondary "Apply trim"
+      Checkbox name=muteVideo "Mute original audio"
+      Field label="Video quality"
+        Select name=videoQuality options=$qualityOptions
+      Button action=renderVideo "Render Reel"
+    Field label="Captions (WebVTT, optional)"
+      Input name=captions multiline=true placeholder="WEBVTT"
+    Text variant=caption $renderStatus

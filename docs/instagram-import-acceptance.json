@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "version": "0.1.0-preview.5",
+  "sourceCommit": "40efe96675285f698791fba935080dcc3802757a",
+  "ci": "https://github.com/oneworkspacestudio/my-social/actions/runs/40028802687",
+  "exactReleaseExeMatchesNativeTestedCandidate": true,
+  "candidateSHA256": "860428231184d124fc48f73da7119e9f0105053369d181cb1e7f03ecbcc2cf4c",
+  "nativeBrowserFlowsPassed": true,
+  "sameDataExecutableRestartPassed": true,
+  "ownerDataUsed": false,
+  "physicalAndroidIOSTested": false,
+  "checks": [
+    "Instagram JSON ZIP preview without content writes",
+    "Post selection and Only me default",
+    "Original dates/captions/carousel order",
+    "Duplicate retry and audience preservation",
+    "Missing media and unsafe archives",
+    "Per-post rollback, quota and interrupted media recovery",
+    "Native FFmpeg mixed carousel and Reel import",
+    "Native FFmpeg rejects videos longer than 90 seconds",
+    "390px layout and reload persistence",
+    "Existing camera/editor/Story/PWA and profile-photo regression"
+  ],
+  "limits": "See INSTAGRAM-IMPORT.md",
+  "delivery": {
+    "schema": 1,
+    "social": "0.1.0-preview.5",
+    "workspace": "0.3.0-preview.74",
+    "release": "https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.5",
+    "sourceCommit": "40efe96675285f698791fba935080dcc3802757a",
+    "exeSHA256": "860428231184d124fc48f73da7119e9f0105053369d181cb1e7f03ecbcc2cf4c",
+    "normalBackedUpSocialOnlyUpdater": true,
+    "actualUpdaterExitCode": 0,
+    "installedBytesMatchPublishedNativeTestedRelease": true,
+    "allOtherAppContractsAndPayloadHashesPreserved": true,
+    "identityPathsPortsSelectionAutostartPreserved": true,
+    "servedFrontendAssetsMatchTestedBuild": [
+      "assets/index-flKgtwf3.js",
+      "assets/index-sGfHzgWz.css"
+    ],
+    "allLocalAndPublicServicesHealthy": true,
+    "healthyServiceCount": 25,
+    "rollbackManifestVerified": true,
+    "rollbackManifestSHA256": "9de24de2422e43835e571cdfbb916e66003ea3918cffcbcfb4ad258ba650061a",
+    "ownerDataUsedAsFixture": false,
+    "physicalAndroidIOSTested": false
+  },
+  "publicAssetsVerified": 12,
+  "anonymousPublicDownloadVerified": true,
+  "exactWorkspace74ManifestValidatorPassed": true,
+  "syntheticPreviewStoppedAndRemoved": true,
+  "concurrentSlicer7UpdatePreserved": true
+}

@@ -1,80 +1,88 @@
-# Instagram ZIP importer
+# Instagram ZIP importer — preview5 delivered
 
-User requests an importer that reads Instagram export ZIPs and applies content
-to My Social. Implementation only is authorized; no commit, push, release,
-owner installation update or import of personal data was requested/performed.
+Human requested the importer and then explicitly authorized commit/push, release
+and local installation. Implementation source40efe96675285f698791fba935080dcc3802757a
+is pushed to main and codex/instagram-import; public immutable release:
+https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.5
+Windows CI40028802687 passed. No personal Instagram export was supplied/imported.
 
-The conversation workspace clone at
-`C:/Users/fahim/Documents/ChatGPT/OneWorkspace/my-social` was stale at fdc8bab.
-Current canonical source is `I:/Projects/my-social`, clean at 108cfbc before this
-task, containing public preview4's profile-photo/restart fixes and delivery
-history. All implementation changes are uncommitted in that canonical checkout.
-Do not replace it with the older workspace clone or replay schema1 over schema2.
+Canonical source I:/Projects/my-social was based on108cfbc, retaining preview4's
+profile-photo and restart fixes. The conversation's workspace mirror was stale
+at fdc8bab; it was safely fast-forwarded from the public remote. Keep both source
+copies synchronized. Preserve migration2; never replay schema1 on a newer DB.
 
-Added authenticated/CSRF-protected multipart POST
-`/api/imports/instagram/preview` and `/apply`. Fields: `options` JSON first,
-then `archive` ZIP. Preview returns ZIP digest and per-post content keys/status;
-apply requires matching digest, selected keys (1–100), explicit audience. No
-schema migration. Existing posts.request_key uniqueness provides per-account
-deduplication using source kind, caption, original timestamp and media hashes.
-Repacked exports deduplicate; changing that content can create a new import.
+Authenticated/CSRF-protected multipart POST /api/imports/instagram/preview and
+/apply accept options JSON first, then archive ZIP. Preview returns ZIP digest
+and per-post content keys/status. Apply validates the digest,1–100 selected keys
+and explicit audience. No schema change. Existing posts.request_key uniqueness
+provides per-account deduplication from source kind, caption, original timestamp
+and media hashes. Repacking the same content deduplicates; changing it can create
+a different import. Each post/carousel commits atomically; partial results permit
+safe retry without altering existing audiences or notifying historical followers.
 
-Recognizes all numbered posts manifests in old content/ and newer
-your_instagram_activity/{content,media}/ layouts, with optional enclosing export
-directory, plus reels, stories and archived_posts wrappers. Preserves captions,
-dates/order, handles unambiguous Latin-1/UTF-8 caption repair, sanitizes images
-(including WebP), transcodes bounded video with aspect/audio, and displays mixed
-carousels using extras.instagram.mediaTypes. Stories/archived posts stay archived.
-No follower relationships, messages, reactions, comments or profile overwrite.
+All numbered posts manifests in content/ and your_instagram_activity/{content,
+media}/ are supported with an optional enclosing export directory, plus reels,
+stories and archived_posts wrappers. Captions/dates/order are retained and
+unambiguous Latin-1/UTF-8 caption encoding is repaired. Images include WebP and
+are sanitized to JPEG. Native FFmpeg converts bounded video preserving aspect
+and optional audio; extras.instagram.mediaTypes enables mixed carousels.
+Stories/archived posts stay archived. Followers, messages, likes, comments and
+profile details are excluded. No thumbnail preview; review shows captions,
+dates, media counts and availability. No silent dropping of carousel media.
 
-AUI source/generated InstagramImport screen is linked from Settings at
-`#instagram`; controller owns its own file/selection fields so ZIPs never enter
-unrelated editor/device drafts. Preview is captions/dates/media counts/status;
-no thumbnail preview. Starts with no posts selected and Only me audience.
-Up to 100 selected posts per request; detailed partial results permit safe retry.
-Each post/carousel commits atomically; historical imports send no notifications.
+AUI-generated screen at #instagram is linked from Settings. Its controller owns
+file/selection fields, keeping ZIPs out of editor/device drafts. Starts with no
+posts selected and Only me. ZIP is spooled only in the guarded adapter, removed
+on return, and never extracted using archive paths. Traversal, links, duplicate
+paths and oversized structures are rejected. Interrupted instagram-writing
+intents are recovered before the next import; crash-left ZIPs are removed by a
+later import after1hour. Requests serialize, budget15min; videos3min each.
 
-ZIP is spooled only under the configured guarded adapter, then removed per
-request; entries never become extraction paths. Rejects traversal, links,
-duplicate paths, unsupported ZIP structures, huge directories/files/expansion.
 Limits: ZIP512MiB, expanded2GiB, entries20k, metadata16MiB, posts1000,
-original100MiB, images24MP, videos90s, existing account2GiB quota. ZIP64,
-encrypted/multi-volume and joining split ZIPs are unsupported. Missing media is
-unavailable, never silently dropped from a carousel. Protected storage/identity,
-owner-only originals and existing media sharing checks remain mandatory.
-Import mutex serializes requests; uncommitted instagram-writing intents are
-recovered before next import. ZIPs left by process crash are removed by a later
-import after one hour. Apply reuploads the same ZIP; request processing15min,
-per-video3min. Lost responses are recovered by preview/retry, not a durable job UI.
+100 selected/request,1–10 media/post,100MiB/original, images24MP, videos90s,
+existing2GiB/account preview quota. ZIP64/encrypted/multi-volume and joining split
+ZIPs unsupported. Missing media is unavailable. Import requires the protected
+scoped My Photos/My Social adapter, immutable account identity and existing media
+authorization. Private originals never become raw shared-folder URLs.
 
-Verification passed: Go tests (including actual configured FFmpeg/FFprobe Reel,
-mixed carousel and >90s rejection), vet, frontend editor tests, TypeScript/Vite,
-and native Chrome3 workflows: existing camera/carousel/Story/PWA, profile photos,
-new ZIP preview/selection/private import/duplicates/reload/mobile. Added Go tests
-cover isolation, no preview content writes, captions/dates, numbered manifests,
-archive state, repack retry/audience preservation, unsafe archives, malformed
-JSON, digest/selection/CSRF/auth/guard, quota, partial rollback and crash recovery.
-Initial E2E locator matched another existing carousel; corrected to scope the
-imported card, then entire native harness passed. Same-data EXE restart healthy.
-Desktop/390px screenshots visually reviewed; no overflow in automated checks.
+Verification: module verification, Go tests/vet, TypeScript/Vite/frontend tests;
+native FFmpeg Reel/mixed-carousel import and >90s rejection; malformed ZIP/JSON,
+CSRF/auth/guard/audience, dates/captions, numbered manifests, archive state,
+repack retry/audience preservation, quota, whole-carousel rollback and crash
+recovery. Exact final packaged executable passed3Chrome flows (camera/editor/
+Story/PWA, profile photos, ZIP preview/selection/private import/duplicates/reload/
+390px layout), then restarted healthy against the same synthetic database.
+An initial broad carousel test locator was corrected to scope the imported card;
+final full harness passed. Desktop/mobile screenshots visually reviewed.
 
-Build/evidence: `I:/Projects/tooling/social-instagram-20261023/`, executable
-MySocial.exe; screenshots/ and browser-process.json/restart-verification.json.
-Only synthetic NTFS fixtures under C:/Projects/.cache/social-instagram-20261023.
-All preview processes stopped and that exact NTFS fixture tree was verified and
-removed after testing; cleanup.json records completion. I: evidence is retained.
-No owner installation or personal export used; no physical-phone acceptance.
-Usage/limits documented in docs/INSTAGRAM-IMPORT.md and README.
+Release5 has12verified asset digests/sizes; anonymous public ZIP download and tag
+target verified. Its4-owned-package manifest passed the exact public Workspace74
+validator before/after publication, preserved other apps and rejected an unowned
+contract. A derived public74 offline bundle verified all147payload hashes/sizes,
+changing only Social. Installed using the normal protected Social-only updater,
+with verified public74 installer bytes and full consistent rollback backup.
 
-Resume: review uncommitted source. A future explicitly authorized release/install
-must bump/package metadata, follow the existing release4/Workspace74 contracts,
-and use the protected normal updater. Never overwrite the running owner payload
-with this development executable. No source commit or external publication made.
+A concurrent Slicer7 update began just before our initial preflight. That attempt
+stopped BEFORE invoking a native updater or changing owner data. Waited for the
+other native updater's actual successful exit, then captured the new baseline.
+Our native updater and driver both exited0. Final verification preserved
+Workspace74, Slicer7, Mail18 and every other app contract/payload hash, immutable
+identity, paths, ports, selection and autostart. All25local/public services healthy;
+served JS/CSS match the tested build and contain the importer. Exact tested,
+published and installed Social5 SHA256:
+860428231184d124fc48f73da7119e9f0105053369d181cb1e7f03ecbcc2cf4c
+Latest rollback manifest verified9de24de2422e43835e571cdfbb916e66003ea3918cffcbcfb4ad258ba650061a.
+Normal cleanup removed the prior automatic backup and retained the latest
+verified one; some older files were conservatively kept by the updater. Do not
+sweep unrelated private state or remove the newest usable recovery copy.
 
-## Publication follow-up
+Evidence I:/Projects/tooling/social-instagram-20261023: release5/,
+native5/, publication-verification.json inside release5, anonymous-download5.json,
+offline-scope-verification5.json, owner-update5.log, updater-exit5.json and
+delivery-verification5.json. Synthetic NTFS release fixtures were stopped and
+removed; cleanup-release5.json. No owner data used as a development fixture;
+no physical Android/iOS, clean-host or reboot acceptance claimed. Public release
+assets/tag stay immutable. docs/instagram-import-acceptance.json records delivery.
 
-User explicitly authorizes committing/pushing, releasing and installing this
-importer. Target preview5, preserving Workspace74 and current other apps.
-Earlier implementation-only boundary above describes the previous turn.
-Use the normal protected Social-only updater and verify actual process exit,
-published/tested/installed hashes, frontend assets, rollback and suite health.
+Usage: Settings -> Import Instagram ZIP. No remaining implementation/publication/
+installation work. Future fixes require a new version and protected update.

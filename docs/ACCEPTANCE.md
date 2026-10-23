@@ -48,3 +48,5 @@ of videos over 90 seconds. The native Chrome importer flow covers preview,
 selection, private default, duplicates, persistence and 390px layout, followed by
 same-data executable restart. These are synthetic local development checks;
 publication and protected installation evidence is recorded separately.
+
+Preview5 delivery is verified in [Instagram import acceptance](instagram-import-acceptance.json): public assets/CI/native checks, exact installed executable and frontend files, normal backed-up Social-only update, preserved other apps and identity, and all25 local/public services healthy. This does not certify physical-device behavior.

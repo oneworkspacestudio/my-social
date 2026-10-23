@@ -1,6 +1,10 @@
 Page Settings
   Stack variant=settings
     Card
+      Heading level=2 "Import from Instagram"
+      Text "Bring your posts, captions, carousels and original dates across from an Instagram JSON export ZIP. Preview and select what to import."
+      Link href="#instagram" variant=button "Import Instagram ZIP"
+    Card
       Heading level=2 "Your profile"
       Row variant=profile-photo
         If condition=$photoPreview

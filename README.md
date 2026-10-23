@@ -29,6 +29,10 @@ renditions with the chosen audience. Public means signed-in community members.
 
 ## Create and connect
 
+Import an Instagram JSON export ZIP from **Settings → Import Instagram ZIP**.
+Preview and select posts, keep captions/dates/carousels, and choose the audience
+(default: Only me). See [import limits and supported content](docs/INSTAGRAM-IMPORT.md).
+
 - Mobile navigation, desktop rail, shared Workspace appearance and branded PWA.
 - Explicit camera/mic controls and capability-based fallbacks.
 - Editable Fabric scenes, crop/filters, multiline text, emoji, drawing and layers.

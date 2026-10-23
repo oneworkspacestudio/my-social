@@ -18,6 +18,7 @@ type App struct {
 	H                                        *apphost.Host
 	storageMu                                sync.Mutex
 	publishMu                                sync.Mutex
+	importMu                                 sync.Mutex
 	Root, Guard, GuardToken, FFmpeg, FFprobe string
 	now                                      func() time.Time
 	limitsMu                                 sync.Mutex
@@ -87,6 +88,13 @@ func (a *App) allowed(user string) bool {
 	return true
 }
 func (a *App) routes() {
+	a.route("POST", "/api/imports/instagram/{action}", func(w http.ResponseWriter, r *http.Request) {
+		if action := r.PathValue("action"); action != "preview" && action != "apply" {
+			http.NotFound(w, r)
+			return
+		}
+		a.instagram(w, r)
+	})
 	a.route("GET", "/api/social", a.bootstrap)
 	a.route("GET", "/api/feed", a.feed)
 	a.route("GET", "/api/posts/{id}", a.getPost)

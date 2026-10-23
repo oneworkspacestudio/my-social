@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-preview.5
+
+- Import Instagram JSON export ZIPs from Settings with preview, selection and an Only me default.
+- Preserve captions, original dates and carousels; support bounded videos and archived Stories.
+- Skip duplicate imports on retry and recover interrupted media writes.
+- Keep protected originals, existing accounts and profile photos intact.
+
 ## 0.1.0-preview.4
 
 - Keep profile photos and existing profiles available after restarting or updating another Workspace app.

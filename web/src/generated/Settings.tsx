@@ -1,10 +1,15 @@
 // Generated from screens/Settings.aui; edit the AUI source.
-import { Button, Card, Checkbox, Field, Heading, Image, Input, Page, Row, Stack, Text } from "@/components/ui"
+import { Button, Card, Checkbox, Field, Heading, Image, Input, Link, Page, Row, Stack, Text } from "@/components/ui"
 
 export function Settings({ data, onAction }: { data: any; onAction: (name: string) => void }) {
   return (
     <Page>
       <Stack variant="settings">
+        <Card>
+          <Heading level={2}>Import from Instagram</Heading>
+          <Text>Bring your posts, captions, carousels and original dates across from an Instagram JSON export ZIP. Preview and select what to import.</Text>
+          <Link href="#instagram" variant="button">Import Instagram ZIP</Link>
+        </Card>
         <Card>
           <Heading level={2}>Your profile</Heading>
           <Row variant="profile-photo">

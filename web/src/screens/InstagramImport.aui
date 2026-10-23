@@ -1,0 +1,48 @@
+Page InstagramImport
+  Stack variant=instagram-import
+    Card
+      Heading level=2 "Bring your Instagram moments"
+      Text "Import your photos, videos, captions, original dates and carousels into My Social."
+      Text "In Instagram, open Accounts Center → Your information and permissions → Export your information. Choose JSON, include posts and media, and download the ZIP."
+      Text variant=caption "ZIP up to 512 MiB · 1,000 posts per ZIP · import up to 100 selected posts at a time. For larger exports, choose a smaller date range."
+      Text variant=caption "JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · videos up to 90 seconds need FFmpeg and FFprobe."
+      Text variant=caption "Stories and archived posts stay archived in Creator Studio. Followers, messages, likes, comments and profile details are not imported."
+      Field label="Instagram export ZIP"
+        Input name=archive type=file accept=".zip,application/zip"
+      If condition=$filename
+        Text variant=caption $filename
+      Button action=preview disabled=$previewDisabled "Preview ZIP"
+      If condition=$busy
+        Alert $busy
+      If condition=$error
+        Alert tone=error $error
+      If condition=$notice
+        Alert tone=success $notice
+    If condition=$review
+      Card
+        Heading level=2 "Review your import"
+        Text $summary
+        Text "Select the posts you want to bring across. Missing or unsupported content is marked below. Videos are checked and converted during import."
+        Field label="Who can see imported posts?"
+          Select name=visibility options=$audiences
+        Text variant=caption "Only me is selected by default. Originals stay protected. Existing imports keep their audience and are skipped on retry."
+        Row variant=import-actions
+          Button action=selectAll variant=secondary "Select available posts"
+          Button action=selectNone variant=secondary "Clear selection"
+          Button action=apply disabled=$applyDisabled "Import selected posts"
+        Text variant=caption $selectionText
+        For each=$items
+          Card variant=import-item
+            Row variant=import-actions
+              Badge $item.kind
+              Text variant=caption $item.date
+              Badge tone=$item.tone $item.status
+              Text variant=caption $item.archiveText
+            Text variant=post-caption $item.caption
+            Text variant=caption $item.mediaText
+            If condition=$item.reason
+              Text variant=caption $item.reason
+            Button action=toggle item=$item.key variant=$item.variant disabled=$item.disabled aria-pressed=$item.selected $item.selectLabel
+    Row variant=import-actions
+      Link href="#settings" "Back to Settings"
+      Link href="#studio" "Open Creator Studio"

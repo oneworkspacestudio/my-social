@@ -114,4 +114,24 @@ func TestProfilePhotoAdditiveMigration(t *testing.T) {
 	if p.Bio != "Kept bio" || p.Avatar != "" {
 		t.Fatal("existing profile changed", p)
 	}
+	config := h.Config
+	if e = h.Close(); e != nil {
+		t.Fatal(e)
+	}
+	h, e = apphost.New(config, nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer h.Close()
+	a, e = New(h)
+	if e != nil {
+		t.Fatal("upgraded application must restart without replaying migration 1", e)
+	}
+	if p = a.getProfile(id); p.Bio != "Kept bio" || p.Handle != "existing" {
+		t.Fatal("restart changed existing profile", p)
+	}
+	var version int
+	if e = h.DB.QueryRow("SELECT max(version) FROM host_migrations").Scan(&version); e != nil || version != 2 {
+		t.Fatal("restart changed migration version", version, e)
+	}
 }

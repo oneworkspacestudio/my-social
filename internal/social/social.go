@@ -25,8 +25,16 @@ type App struct {
 }
 
 func New(h *apphost.Host) (*App, error) {
-	if e := h.Migrate(1, schema); e != nil {
+	// Migrate rejects downgrades, so do not replay an earlier migration once a
+	// later one has committed. Always call the latest migration for that guard.
+	var current int
+	if e := h.DB.QueryRow("SELECT coalesce(max(version),0) FROM host_migrations").Scan(&current); e != nil {
 		return nil, e
+	}
+	if current < 1 {
+		if e := h.Migrate(1, schema); e != nil {
+			return nil, e
+		}
 	}
 	if e := h.Migrate(2, `CREATE TABLE profile_photos(user_id TEXT PRIMARY KEY REFERENCES profiles(user_id),media_id TEXT NOT NULL REFERENCES media(id));`); e != nil {
 		return nil, e

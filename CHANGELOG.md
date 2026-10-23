@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-preview.4
+
+- Keep profile photos and existing profiles available after restarting or updating another Workspace app.
+- Correct automatic-update package ownership metadata.
+
 ## 0.1.0-preview.2
 
 Connect capability-based camera zoom to the actual video-track constraints.

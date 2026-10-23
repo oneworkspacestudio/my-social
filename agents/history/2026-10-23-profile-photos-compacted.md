@@ -7,7 +7,7 @@ No owner content or account used as test fixture. Preserve simultaneous suite,
 My3D, Drive and Slicer work; never downgrade the installed Workspace manager.
 
 Added additive migration2 profile_photos table; old profiles/posts preserved and
-old app schema remains readable. PUT/DELETE /api/profile/photo binds only an owned,
+existing profile/post tables remain intact. Older executables must not downgrade the host schema. PUT/DELETE /api/profile/photo binds only an owned,
 ready avatars image. Existing protected photo adapter stores originals; only the
 current sanitized512px JPEG derivative is visible to signed-in unblocked members.
 Replacing/removing revokes profile sharing; originals remain private for retention.
@@ -38,7 +38,24 @@ Release4 repair reads current migration version, applies initial schema only whe
 needed, always invokes latest migration to retain the future-version guard.
 Additive migration test now closes/reopens the database and checks profile/version;
 native browser harness also restarts the exact executable against its same fixture.
-Go tests/vet pass. Next: build/test/publish release4 with four-package metadata,
-coordinate owner updater hold with concurrent Slicer chat, apply normal protected
-Social-only update after its updater exits, verify same-data restart and service
-health. No actual personal photo was supplied; feature lets user choose one.
+Release4 source a346fcbc94d5d62c26cef29ae93aac64ce1f7771 pushed main/tag.
+Go module verification, tests/vet, frontend build/tests/notices passed. Windows CI
+39987921383 and local native browser flows plus same-data executable restart pass.
+Exact packaged/tested/installed SHA256:
+ccb7b352c112ea1350c399e1c27795c37446b7b3fab0dcc9ed3a187667bd914b.
+Public release4 eleven asset hashes/sizes verified; exact Workspace73 manifest
+validator run uncached against actual public metadata accepted all four owned
+packages and rejected the old unowned contract. Older3/3.1 release notes point4.
+
+After coordinated Slicer update exited, normal protected offline Social-only
+repair installed4, with a full consistent verified backup and actual updater
+exit0. Kept Workspace73, Slicer5, every non-Social contract/package hash, identity,
+paths, ports and selection. Final local/public services all running, exact served
+frontend hashes match tested build, autostart and latest recovery manifest verified.
+After Social updater exit, a separate authorized update installed Workspace74 and
+Mail18. Final verification accepts only those specific catalog/package changes
+against the verified public74 bundle. Social4 and Slicer5 actual executable hashes
+remain correct; all25 services and public Workspace health are healthy under74.
+No owner content used as fixtures; isolated previews stopped and own C caches
+removed. No physical phone/reboot acceptance claimed. No personal photo supplied;
+user chooses one at Profile -> Edit profile & photo. No remaining task work.

@@ -9,5 +9,21 @@
   "removal": true,
   "phone390NoOverflow": true,
   "browserErrors": [],
-  "ownerDataUsed": false
+  "ownerDataUsed": false,
+  "version": "0.1.0-preview.4",
+  "sameDataNativeExecutableRestart": true,
+  "upgradedDatabaseReopenPreservesProfile": true,
+  "windowsCI": "https://github.com/oneworkspacestudio/my-social/actions/runs/39987921383",
+  "release": "https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.4",
+  "sourceCommit": "a346fcbc94d5d62c26cef29ae93aac64ce1f7771",
+  "exactTestedPublishedExecutableInstalled": true,
+  "exeSHA256": "ccb7b352c112ea1350c399e1c27795c37446b7b3fab0dcc9ed3a187667bd914b",
+  "protectedSocialOnlyUpdateCompleted": true,
+  "otherAppsAndIdentityPreserved": true,
+  "localAndPublicServicesHealthy": true,
+  "verifiedRecoveryCopyRetained": true,
+  "physicalAndroidIOSTested": false,
+  "workspaceVersionPreservedBySocialUpdater": "0.3.0-preview.73",
+  "currentWorkspaceVersion": "0.3.0-preview.74",
+  "subsequentWorkspace74Mail18UpdateVerified": true
 }

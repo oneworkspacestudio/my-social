@@ -175,6 +175,10 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	mime := http.DetectContentType(original)
+	if kind == "avatars" && (len(original) > 10<<20 || !strings.HasPrefix(mime, "image/")) {
+		apphost.Problem(w, 415, "Choose a JPEG, PNG or GIF profile photo up to 10 MB")
+		return
+	}
 	ext := ".jpg"
 	state := "ready"
 	if strings.HasPrefix(mime, "image/") {
@@ -182,7 +186,11 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 		if len(rendered) > 0 {
 			source = rendered
 		}
-		rendered, e = safeImage(source)
+		if kind == "avatars" {
+			rendered, e = profileImage(source)
+		} else {
+			rendered, e = safeImage(source)
+		}
 		if e != nil {
 			apphost.Problem(w, 415, e.Error())
 			return
@@ -345,6 +353,10 @@ func (a *App) serveMedia(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, "media", info.ModTime(), f)
 }
 func (a *App) canSeeMedia(user, id string) bool {
+	var owner string
+	if a.H.DB.QueryRow("SELECT p.user_id FROM profile_photos p JOIN host_users u ON u.id=p.user_id WHERE p.media_id=? AND u.role<>'disabled'", id).Scan(&owner) == nil && !a.blocked(user, owner) {
+		return true
+	}
 	rows, e := a.H.DB.Query("SELECT id FROM posts WHERE EXISTS(SELECT 1 FROM json_each(posts.media) WHERE value=?)", id)
 	if e != nil {
 		return false

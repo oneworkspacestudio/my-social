@@ -20,3 +20,7 @@ carousel drafts and publishing, Story expiry/polls/Highlights, bounded Reel
 render queue, feed/profiles/follow approval/likes/saves/comments, Studio,
 moderation, export and opt-in notifications. See ACCEPTANCE.md for exact gates
 and feature gaps. No full Instagram parity or production acceptance claim.
+
+## 0.1.0-preview.3
+
+Add, replace and remove a profile photo in Edit profile & photo. Photos appear on profiles, posts, suggestions and the account button. Images are cropped to a small square; original files stay protected. Existing profiles and posts are preserved.

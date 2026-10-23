@@ -28,6 +28,9 @@ func New(h *apphost.Host) (*App, error) {
 	if e := h.Migrate(1, schema); e != nil {
 		return nil, e
 	}
+	if e := h.Migrate(2, `CREATE TABLE profile_photos(user_id TEXT PRIMARY KEY REFERENCES profiles(user_id),media_id TEXT NOT NULL REFERENCES media(id));`); e != nil {
+		return nil, e
+	}
 	a := &App{H: h, Root: os.Getenv("MYSOCIAL_PHOTOS_ROOT"), Guard: os.Getenv("MYSOCIAL_STORAGE_GUARD_URL"), GuardToken: os.Getenv("MYSOCIAL_STORAGE_GUARD_TOKEN"), FFmpeg: os.Getenv("MYSOCIAL_FFMPEG"), FFprobe: os.Getenv("MYSOCIAL_FFPROBE"), now: time.Now, limits: map[string][]time.Time{}}
 	if e := a.recoverJobs(); e != nil {
 		return nil, e
@@ -87,6 +90,8 @@ func (a *App) routes() {
 	a.route("GET", "/api/profiles", a.profiles)
 	a.route("GET", "/api/profiles/{id}", a.profile)
 	a.route("PATCH", "/api/profile", a.editProfile)
+	a.route("PUT", "/api/profile/photo", a.setProfilePhoto)
+	a.route("DELETE", "/api/profile/photo", a.removeProfilePhoto)
 	a.route("POST", "/api/profiles/{id}/relations", a.relation)
 	a.route("GET", "/api/relations", a.relations)
 	a.route("POST", "/api/media", a.upload)

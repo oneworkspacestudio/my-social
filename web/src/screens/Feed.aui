@@ -22,10 +22,16 @@ Page Feed
         Row variant=people
           For each=$people
             Link href=$item.href variant=person
+              If condition=$item.avatarURL
+                Image src=$item.avatarURL variant=profile-photo alt="Profile photo" width=40 height=40
               Text $item.handle
               Text variant=caption $item.bio
       If condition=$isProfile
         Card variant=profile-header
+          If condition=$profile.avatarURL
+            Image src=$profile.avatarURL variant=profile-photo alt="Profile photo" width=96 height=96
+          Else
+            Text variant=profile-avatar $profile.initials
           Text variant=eyebrow $profile.handle
           Heading level=2 $profile.name
           Text $profile.bio
@@ -36,13 +42,21 @@ Page Feed
             Button variant=secondary action=mute "Mute / unmute"
             Button variant=secondary action=closeFriend "Close Friends / remove"
             Button variant=secondary action=restrict "Restrict / unrestrict"
+          If condition=$otherProfile
+            Text variant=caption ""
+          Else
+            Link href="#settings" variant=edit-profile "Edit profile & photo"
           For each=$highlights
             Button action=highlight item=$item.id variant=secondary $item.title
       Stack variant=$feedStyle
         For each=$posts
           Card variant=post
             Row variant=post-header
-              Link href=$item.profile.href variant=avatar $item.profile.initials
+              Link href=$item.profile.href variant=avatar
+                If condition=$item.profile.avatarURL
+                  Image src=$item.profile.avatarURL variant=avatar alt="Profile photo" width=44 height=44
+                Else
+                  Text $item.profile.initials
               Stack gap=xs
                 Link href=$item.profile.href variant=handle $item.profile.handle
                 Text variant=caption $item.date
@@ -87,7 +101,11 @@ Page Feed
           Heading level=3 "People to know"
           For each=$suggested
             Row variant=suggestion
-              Link href=$item.href variant=avatar $item.initials
+              Link href=$item.href variant=avatar
+                If condition=$item.avatarURL
+                  Image src=$item.avatarURL variant=avatar alt="Profile photo" width=44 height=44
+                Else
+                  Text $item.initials
               Stack gap=xs
                 Link href=$item.href variant=handle $item.handle
                 Text variant=caption $item.name

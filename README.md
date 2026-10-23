@@ -66,3 +66,5 @@ Read [architecture and discovery](docs/PLAN.md), [operations and retention](docs
 
 Apache-2.0. Fabric.js, Lucide, Go and web dependencies retain their licences in
 release notices. Original branding; no Meta/Instagram code, logo or media.
+
+Choose **Profile → Edit profile & photo** to add or change your profile picture. You can remove it whenever you want.

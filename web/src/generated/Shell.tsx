@@ -41,7 +41,13 @@ export function Shell({ data, onAction }: { data: any; onAction: (name: string) 
           <Button variant="icon" onClick={() => onAction("theme")} aria-label="Toggle color theme"><Icon name="SunMoon" /></Button>
           <Button variant="icon" onClick={() => onAction("apps")} aria-label="Open Workspace apps"><Icon name="Grid2X2" /></Button>
           <Link href="#notifications" variant="icon" aria-label="Notifications"><Icon name="Bell" /></Link>
-          <Link href="#settings" variant="avatar" aria-label="Account settings">{data.initials}</Link>
+          <Link href="#settings" variant="avatar" aria-label="Account settings">
+            {data.avatarURL ? (
+              <Image src={data.avatarURL} variant="avatar" alt="Your profile photo" width={44} height={44} />
+            ) : (
+              <Text>{data.initials}</Text>
+            )}
+          </Link>
         </Row>
         <Stack variant="content">
           {data.offline && (

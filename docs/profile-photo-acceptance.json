@@ -1,0 +1,13 @@
+{
+  "realWindowsExecutable": true,
+  "isolatedSyntheticUser": true,
+  "upload": true,
+  "square512": true,
+  "reloadPersistence": true,
+  "profileAndHeader": true,
+  "replacement": true,
+  "removal": true,
+  "phone390NoOverflow": true,
+  "browserErrors": [],
+  "ownerDataUsed": false
+}

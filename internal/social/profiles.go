@@ -9,6 +9,7 @@ import (
 )
 
 type Profile struct {
+	Avatar         string          `json:"avatar,omitempty"`
 	ID             string          `json:"id"`
 	Handle         string          `json:"handle"`
 	Name           string          `json:"name"`
@@ -34,6 +35,7 @@ func (a *App) getProfile(id string) Profile {
 	a.H.DB.QueryRow("SELECT count(*) FROM relations WHERE target=? AND kind='follow' AND state='accepted'", id).Scan(&p.Followers)
 	a.H.DB.QueryRow("SELECT count(*) FROM relations WHERE actor=? AND kind='follow' AND state='accepted'", id).Scan(&p.Following)
 	a.H.DB.QueryRow("SELECT count(*) FROM posts WHERE owner=? AND state='published' AND kind<>'story'", id).Scan(&p.Posts)
+	a.H.DB.QueryRow("SELECT media_id FROM profile_photos WHERE user_id=?", id).Scan(&p.Avatar)
 	return p
 }
 func (a *App) profiles(w http.ResponseWriter, r *http.Request) {

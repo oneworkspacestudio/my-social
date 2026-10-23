@@ -37,6 +37,9 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
               <Row variant="people">
                 {data.people.map((item, i) => (
                   <Link key={i} href={item.href} variant="person">
+                    {item.avatarURL && (
+                      <Image src={item.avatarURL} variant="profile-photo" alt="Profile photo" width={40} height={40} />
+                    )}
                     <Text>{item.handle}</Text>
                     <Text variant="caption">{item.bio}</Text>
                   </Link>
@@ -46,6 +49,11 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
           )}
           {data.isProfile && (
             <Card variant="profile-header">
+              {data.profile.avatarURL ? (
+                <Image src={data.profile.avatarURL} variant="profile-photo" alt="Profile photo" width={96} height={96} />
+              ) : (
+                <Text variant="profile-avatar">{data.profile.initials}</Text>
+              )}
               <Text variant="eyebrow">{data.profile.handle}</Text>
               <Heading level={2}>{data.profile.name}</Heading>
               <Text>{data.profile.bio}</Text>
@@ -59,6 +67,11 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
                   <Button variant="secondary" onClick={() => onAction("restrict")}>Restrict / unrestrict</Button>
                 </>
               )}
+              {data.otherProfile ? (
+                <Text variant="caption" />
+              ) : (
+                <Link href="#settings" variant="edit-profile">Edit profile & photo</Link>
+              )}
               {data.highlights.map((item, i) => (
                 <Button key={i} onClick={() => onAction("highlight")} item={item.id} variant="secondary">{item.title}</Button>
               ))}
@@ -68,7 +81,13 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
             {data.posts.map((item, i) => (
               <Card key={i} variant="post">
                 <Row variant="post-header">
-                  <Link href={item.profile.href} variant="avatar">{item.profile.initials}</Link>
+                  <Link href={item.profile.href} variant="avatar">
+                    {item.profile.avatarURL ? (
+                      <Image src={item.profile.avatarURL} variant="avatar" alt="Profile photo" width={44} height={44} />
+                    ) : (
+                      <Text>{item.profile.initials}</Text>
+                    )}
+                  </Link>
                   <Stack gap="xs">
                     <Link href={item.profile.href} variant="handle">{item.profile.handle}</Link>
                     <Text variant="caption">{item.date}</Text>
@@ -122,7 +141,13 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
               <Heading level={3}>People to know</Heading>
               {data.suggested.map((item, i) => (
                 <Row key={i} variant="suggestion">
-                  <Link href={item.href} variant="avatar">{item.initials}</Link>
+                  <Link href={item.href} variant="avatar">
+                    {item.avatarURL ? (
+                      <Image src={item.avatarURL} variant="avatar" alt="Profile photo" width={44} height={44} />
+                    ) : (
+                      <Text>{item.initials}</Text>
+                    )}
+                  </Link>
                   <Stack gap="xs">
                     <Link href={item.href} variant="handle">{item.handle}</Link>
                     <Text variant="caption">{item.name}</Text>

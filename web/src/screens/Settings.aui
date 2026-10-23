@@ -2,6 +2,20 @@ Page Settings
   Stack variant=settings
     Card
       Heading level=2 "Your profile"
+      Row variant=profile-photo
+        If condition=$photoPreview
+          Image src=$photoPreview variant=profile-photo alt="Your profile photo preview" width=96 height=96
+        Else
+          Text variant=profile-avatar $profileInitials
+        Stack
+          Field label="Choose a profile photo"
+            Input name=avatarPhoto type=file accept="image/jpeg,image/png,image/gif"
+          Text variant=caption "JPEG, PNG or GIF · up to 10 MB. Your photo is cropped to a square."
+          Text variant=caption "Your profile photo is visible to signed-in members. Your original stays private."
+          If condition=$photoSelected
+            Button action=photoSave "Save profile photo"
+          If condition=$hasPhoto
+            Button action=photoRemove variant=secondary "Remove profile photo"
       Field label="Handle"
         Input name=handle
       Field label="Bio"

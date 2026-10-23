@@ -1,5 +1,5 @@
 // Generated from screens/Settings.aui; edit the AUI source.
-import { Button, Card, Checkbox, Field, Heading, Input, Page, Row, Stack, Text } from "@/components/ui"
+import { Button, Card, Checkbox, Field, Heading, Image, Input, Page, Row, Stack, Text } from "@/components/ui"
 
 export function Settings({ data, onAction }: { data: any; onAction: (name: string) => void }) {
   return (
@@ -7,6 +7,24 @@ export function Settings({ data, onAction }: { data: any; onAction: (name: strin
       <Stack variant="settings">
         <Card>
           <Heading level={2}>Your profile</Heading>
+          <Row variant="profile-photo">
+            {data.photoPreview ? (
+              <Image src={data.photoPreview} variant="profile-photo" alt="Your profile photo preview" width={96} height={96} />
+            ) : (
+              <Text variant="profile-avatar">{data.profileInitials}</Text>
+            )}
+            <Stack>
+              <Field label="Choose a profile photo"><Input name="avatarPhoto" type="file" accept="image/jpeg,image/png,image/gif" /></Field>
+              <Text variant="caption">JPEG, PNG or GIF · up to 10 MB. Your photo is cropped to a square.</Text>
+              <Text variant="caption">Your profile photo is visible to signed-in members. Your original stays private.</Text>
+              {data.photoSelected && (
+                <Button onClick={() => onAction("photoSave")}>Save profile photo</Button>
+              )}
+              {data.hasPhoto && (
+                <Button onClick={() => onAction("photoRemove")} variant="secondary">Remove profile photo</Button>
+              )}
+            </Stack>
+          </Row>
           <Field label="Handle"><Input name="handle" /></Field>
           <Field label="Bio"><Input name="bio" multiline={true} /></Field>
           <Checkbox name="private">Private account — approve new followers</Checkbox>

@@ -86,3 +86,28 @@ assets/tag stay immutable. docs/instagram-import-acceptance.json records deliver
 
 Usage: Settings -> Import Instagram ZIP. No remaining implementation/publication/
 installation work. Future fixes require a new version and protected update.
+
+
+## Preview7 progress and compact review (2026-10-24)
+
+User requests visible progress and a five-post preview followed by one Import
+click for all available posts. Opt-in NDJSON events report ZIP checking and
+per-post/media import; XHR reports actual upload bytes. Elapsed timer, native
+progress bar and Stop are shown. Existing nonstream JSON API remains compatible.
+UI renders first five rows only, keeps Only me default, and automatically applies
+all ready keys in batches of100. Completed posts survive cancellation/retry;
+existing dedupe and per-post atomic commit remain. No schema or identity change.
+AUI source regenerated; capture ZIP link points to public Chrome0.1.2.
+
+Go1.27.3 full tests/vet, frontend build/editor tests, exact packaged native7
+five-flow Chromium harness and same-private-data restart pass. Synthetic 101-post
+case proves requests100+1 and all101 imported despite only five review rows.
+Throttled preview verifies checking progress before final review; mobile390px
+no horizontal overflow. Initial multipart request observer missed Chrome's omitted
+file bodies; fixed test instrumentation observes sent FormData, no runtime change.
+Desktop/mobile screenshots reviewed. Owner media/data never fixtures.
+
+Next: publish native7, validate fresh five-package and legacy four-package Social
+contracts with exact Workspace83, promote public channel, normal backed-up
+Social-only installation preserving manager83 and every other app. Evidence
+I:/Projects/tooling/social-import-progress-20261024. Do not mutate old releases.

@@ -39,13 +39,14 @@ full Instagram parity certification should be inferred from a passing build.
 
 Profile-photo checks cover the additive upgrade of existing profiles, owner-only originals, selected derivative visibility, cross-account selection denial, blocks, replacement/removal and 512px bounds. Packaged Chrome phone tests cover upload, reload, profile/header/post display, replacement/removal and no horizontal overflow. They use synthetic users and images; physical Android/iOS photo-library acceptance remains open.
 
-Instagram ZIP import supports selected posts, carousels, bounded videos/Reels
+Instagram ZIP import supports posts, carousels, bounded videos/Reels
 and archived Stories with captions and original dates. [Supported layouts and
 limits](INSTAGRAM-IMPORT.md) apply. Local Go tests include malformed/unsafe ZIPs,
 CSRF/account/storage checks, per-post rollback, retry deduplication, quota and
 interruption recovery. Native FFmpeg checks cover mixed carousels and rejection
-of videos over 90 seconds. The native Chrome importer flow covers preview,
-selection, private default, duplicates, persistence and 390px layout, followed by
+of videos over 90 seconds. The native Chrome importer flow covers live progress,
+a five-post sample, one-click import of all available posts (including 101 posts
+in automatic batches), private default, duplicates, persistence and 390px layout, followed by
 same-data executable restart. These are synthetic local development checks;
 publication and protected installation evidence is recorded separately.
 

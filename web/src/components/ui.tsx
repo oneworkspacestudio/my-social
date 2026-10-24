@@ -27,5 +27,5 @@ export const Select=(p:Props)=>{const ctx=useContext(Fields),label=useContext(Fi
 export const Checkbox=(p:Props)=>{const ctx=useContext(Fields);return React.createElement('label',{className:'checkbox'},React.createElement('input',{name:p.name,type:'checkbox',checked:!!ctx.fields[p.name],disabled:ctx.disabled,onChange:(e:React.ChangeEvent<any>)=>ctx.setField(p.name,e.target.checked)}),React.createElement('span',{},p.label||children(p)));};
 export const Badge=(p:Props)=>React.createElement('span',{className:`badge badge--${p.tone||'muted'}`},children(p));
 export const Alert=(p:Props)=>children(p)?React.createElement('div',{className:`alert alert--${p.tone||'info'}`,role:p.tone==='error'?'alert':'status'},children(p)):null;
-export const Spinner=()=>React.createElement('span',{className:'spinner',role:'status','aria-label':'Working'});
+export const Spinner=(p:Props)=>p.variant==='import-progress'?React.createElement('progress',{className:'import-progress',max:100,value:p.value==null?undefined:p.value,'aria-label':p.label||'Import progress'}):React.createElement('span',{className:'spinner',role:'status','aria-label':'Working'});
 export const Metric=(p:Props)=>React.createElement('strong',{className:'metric'},p.value??0);

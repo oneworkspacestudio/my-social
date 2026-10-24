@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-preview.7
+
+- Show upload bytes, ZIP checking and import progress with elapsed time and Stop.
+- Preview at most five posts and import all available posts with one click.
+- Automatically batch larger imports and keep completed posts safe on retry.
+
 ## 0.1.0-preview.6
 
 - Add a personal-use Chrome extension that captures accessible Instagram tab content into self-contained My Social import ZIPs.

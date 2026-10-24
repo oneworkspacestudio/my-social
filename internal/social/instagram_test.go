@@ -347,3 +347,79 @@ func TestInstagramRecoversInterruptedFilesAndHonorsQuota(t *testing.T) {
 		t.Fatal("quota ignored", w.Body.String())
 	}
 }
+
+func instagramPackets(t *testing.T, w *httptest.ResponseRecorder) []map[string]json.RawMessage {
+	t.Helper()
+	if w.Code != 200 || !strings.Contains(w.Header().Get("Content-Type"), "application/x-ndjson") || !w.Flushed {
+		t.Fatal("progress was not flushed", w.Code, w.Header())
+	}
+	out := []map[string]json.RawMessage{}
+	decoder := json.NewDecoder(w.Body)
+	for {
+		var p map[string]json.RawMessage
+		e := decoder.Decode(&p)
+		if e == io.EOF {
+			break
+		}
+		if e != nil {
+			t.Fatal(e)
+		}
+		out = append(out, p)
+	}
+	return out
+}
+func TestInstagramStreamingProgressAndResultPreserveImportContract(t *testing.T) {
+	f := setup(t)
+	data := instagramZIP(t, map[string][]byte{"content/posts_1.json": []byte(`[{"title":"Progress one","creation_timestamp":1600000000,"media":[{"uri":"media/posts/a.png"}]},{"title":"Progress two","creation_timestamp":1600000001,"media":[{"uri":"media/posts/a.png"}]}]`), "media/posts/a.png": sample()})
+	packets := instagramPackets(t, f.instagramCall(t, "preview", "alice", data, map[string]any{"stream": true}))
+	var preview instagramPreview
+	checks := 0
+	for _, p := range packets {
+		if string(p["type"]) == `"progress"` {
+			checks++
+			if string(p["phase"]) != `"checking"` {
+				t.Fatal(p)
+			}
+		}
+		if string(p["type"]) == `"result"` {
+			if e := json.Unmarshal(p["result"], &preview); e != nil {
+				t.Fatal(e)
+			}
+		}
+	}
+	if checks < 3 || len(preview.Items) != 2 {
+		t.Fatal("missing live checks/final preview", checks, preview)
+	}
+	packets = instagramPackets(t, f.instagramCall(t, "apply", "alice", data, map[string]any{"stream": true, "digest": preview.Digest, "keys": []string{preview.Items[0].Key, preview.Items[1].Key}, "visibility": "private"}))
+	completed := 0
+	result := false
+	for _, p := range packets {
+		if string(p["phase"]) == `"importing"` {
+			var done int
+			json.Unmarshal(p["done"], &done)
+			if done < completed {
+				t.Fatal("progress moved backward")
+			}
+			completed = done
+		}
+		if string(p["type"]) == `"result"` {
+			var v struct {
+				Imported int `json:"imported"`
+			}
+			json.Unmarshal(p["result"], &v)
+			result = v.Imported == 2
+		}
+	}
+	if completed != 2 || !result {
+		t.Fatal("missing actual post completion/result")
+	}
+	assertNoImportTemps(t, f)
+	// Streamed validation failures remain explicit, rather than false successes.
+	bad := instagramZIP(t, map[string][]byte{"content/posts_1.json": []byte("broken")})
+	packets = instagramPackets(t, f.instagramCall(t, "preview", "alice", bad, map[string]any{"stream": true}))
+	last := packets[len(packets)-1]
+	if string(last["type"]) != `"error"` || string(last["status"]) != "400" {
+		t.Fatal("stream validation failure hidden", last)
+	}
+	assertNoImportTemps(t, f)
+}

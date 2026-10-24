@@ -35,6 +35,7 @@ jobs:
           Expand-Archive -LiteralPath $zip -DestinationPath dist
       - run: node scripts/browser-verify.mjs
         env:
+          MYSOCIAL_TEST_GREP: "real extension captures"
           MYSOCIAL_TEST_EXE: ${{ github.workspace }}\dist\MySocial.exe
           MYSOCIAL_TEST_ROOT: ${{ runner.temp }}\social-capture-private
           MYSOCIAL_TEST_ARTIFACTS: ${{ runner.temp }}\social-capture-evidence

@@ -3,10 +3,10 @@ Page InstagramImport
     Card
       Heading level=2 "Bring your Instagram moments"
       Text "Import your photos, videos, captions, original dates and carousels into My Social."
-      Link href="https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.6/my-social-instagram-capture-0.1.0.zip" external=true "Download Chrome capture extension"
+      Link href="https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.6-capture.2/my-social-instagram-capture-0.1.2.zip" external=true "Download Chrome capture extension"
       Text variant=caption "The extension can capture accessible posts from an open Instagram tab and create import ZIPs. Extract it, then use Chrome → Extensions → Developer mode → Load unpacked."
       Text "In Instagram, open Accounts Center → Your information and permissions → Export your information. Choose JSON, include posts and media, and download the ZIP."
-      Text variant=caption "ZIP up to 512 MiB · 1,000 posts per ZIP · import up to 100 selected posts at a time. For larger exports, choose a smaller date range."
+      Text variant=caption "ZIP up to 512 MiB · 1,000 posts per ZIP · import all available posts with one click. For larger exports, choose a smaller date range."
       Text variant=caption "JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · videos up to 90 seconds need FFmpeg and FFprobe."
       Text variant=caption "Stories and archived posts stay archived in Creator Studio. Followers, messages, likes, comments and profile details are not imported."
       Field label="Instagram export ZIP"
@@ -16,6 +16,9 @@ Page InstagramImport
       Button action=preview disabled=$previewDisabled "Preview ZIP"
       If condition=$busy
         Alert $busy
+        Spinner variant=import-progress value=$progress label=$busy
+        Text variant=caption $elapsedText
+        Button action=stop cancel=true variant=secondary "Stop"
       If condition=$error
         Alert tone=error $error
       If condition=$notice
@@ -24,15 +27,12 @@ Page InstagramImport
       Card
         Heading level=2 "Review your import"
         Text $summary
-        Text "Select the posts you want to bring across. Missing or unsupported content is marked below. Videos are checked and converted during import."
+        Text "A small sample is shown below. Import brings across every available post in this ZIP. Unavailable files and existing imports are skipped."
         Field label="Who can see imported posts?"
           Select name=visibility options=$audiences
         Text variant=caption "Only me is selected by default. Originals stay protected. Existing imports keep their audience and are skipped on retry."
-        Row variant=import-actions
-          Button action=selectAll variant=secondary "Select available posts"
-          Button action=selectNone variant=secondary "Clear selection"
-          Button action=apply disabled=$applyDisabled "Import selected posts"
-        Text variant=caption $selectionText
+        Text variant=caption $sampleText
+        Button action=apply disabled=$applyDisabled $applyLabel
         For each=$items
           Card variant=import-item
             Row variant=import-actions
@@ -44,7 +44,6 @@ Page InstagramImport
             Text variant=caption $item.mediaText
             If condition=$item.reason
               Text variant=caption $item.reason
-            Button action=toggle item=$item.key variant=$item.variant disabled=$item.disabled aria-pressed=$item.selected $item.selectLabel
     Row variant=import-actions
       Link href="#settings" "Back to Settings"
       Link href="#studio" "Open Creator Studio"

@@ -57,6 +57,7 @@ type instagramItem struct {
 	types      []string
 }
 type instagramOptions struct {
+	Stream     bool     `json:"stream"`
 	Digest     string   `json:"digest"`
 	Keys       []string `json:"keys"`
 	Visibility string   `json:"visibility"`
@@ -177,7 +178,12 @@ func instagramManifest(name string) (prefix, kind, wrapper string, archived, ok 
 	return
 }
 
-func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string) ([]instagramItem, error) {
+func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string, progress ...func(string, int, int)) ([]instagramItem, error) {
+	report := func(label string, done, total int) {
+		for _, update := range progress {
+			update(label, done, total)
+		}
+	}
 	if len(z.File) > 20000 {
 		return nil, errors.New("ZIP has too many files (maximum 20,000)")
 	}
@@ -212,7 +218,7 @@ func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string) ([
 	items := []instagramItem{}
 	seen := map[string]bool{}
 	inspected := map[*zip.File]instagramFileInfo{}
-	for _, f := range manifests {
+	for collection, f := range manifests {
 		if e := ctx.Err(); e != nil {
 			return nil, e
 		}
@@ -242,6 +248,8 @@ func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string) ([
 			return nil, errors.New("Import at most 1,000 posts per ZIP; export a smaller date range")
 		}
 		for index, entry := range entries {
+			label := fmt.Sprintf("Checking posts · collection %d of %d", collection+1, len(manifests))
+			report(label, index, len(entries))
 			item := instagramItem{Kind: kind, Archived: archived, Caption: instagramText(entry.Title), Created: entry.Created, MediaCount: len(entry.Media), Status: "ready"}
 			if len(entry.Media) > 0 {
 				if item.Caption == "" {
@@ -262,7 +270,8 @@ func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string) ([
 			}
 			hashes := []string{}
 			used := map[string]bool{}
-			for _, m := range entry.Media {
+			for mediaIndex, m := range entry.Media {
+				report(fmt.Sprintf("Checking post %d of %d · media %d of %d", index+1, len(entries), mediaIndex+1, len(entry.Media)), index, len(entries))
 				if item.Reason != "" {
 					break
 				}
@@ -304,6 +313,7 @@ func (a *App) instagramPlan(ctx context.Context, z *zip.Reader, owner string) ([
 			}
 			seen[item.Key] = true
 			items = append(items, item)
+			report(label, index+1, len(entries))
 		}
 	}
 	return items, nil
@@ -401,24 +411,56 @@ func (a *App) instagram(w http.ResponseWriter, r *http.Request) {
 		apphost.Problem(w, 409, "The ZIP changed. Preview it again before importing")
 		return
 	}
+	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Minute)
+	defer cancel()
+	if options.Stream {
+		w.Header().Set("Content-Type", "application/x-ndjson")
+		w.Header().Set("Cache-Control", "no-store, no-transform")
+		w.Header().Set("X-Accel-Buffering", "no")
+	}
+	send := func(value any) {
+		if e := json.NewEncoder(w).Encode(value); e != nil {
+			cancel()
+			return
+		}
+		_ = http.NewResponseController(w).Flush()
+	}
+	update := func(phase, label string, done, total int) {
+		if options.Stream {
+			send(map[string]any{"type": "progress", "phase": phase, "label": label, "done": done, "total": total})
+		}
+	}
+	problem := func(status int, message string) {
+		if options.Stream {
+			send(map[string]any{"type": "error", "status": status, "error": message})
+		} else {
+			apphost.Problem(w, status, message)
+		}
+	}
+	respond := func(result any) {
+		if options.Stream {
+			send(map[string]any{"type": "result", "result": result})
+		} else {
+			apphost.JSON(w, 200, result)
+		}
+	}
+	update("checking", "Opening and checking your ZIP", 0, 0)
 	if e = instagramDirectory(f, size); e != nil {
-		apphost.Problem(w, 400, e.Error())
+		problem(400, e.Error())
 		return
 	}
 	z, e := zip.NewReader(f, size)
 	if e != nil {
-		apphost.Problem(w, 400, "This is not a readable ZIP archive")
+		problem(400, "This is not a readable ZIP archive")
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Minute)
-	defer cancel()
-	items, e := a.instagramPlan(ctx, z, uid(r))
+	items, e := a.instagramPlan(ctx, z, uid(r), func(label string, done, total int) { update("checking", label, done, total) })
 	if e != nil {
-		apphost.Problem(w, 400, e.Error())
+		problem(400, e.Error())
 		return
 	}
 	if !apply {
-		apphost.JSON(w, 200, map[string]any{"digest": digest, "items": items})
+		respond(map[string]any{"digest": digest, "items": items})
 		return
 	}
 	byKey := map[string]instagramItem{}
@@ -431,16 +473,23 @@ func (a *App) instagram(w http.ResponseWriter, r *http.Request) {
 	for _, key := range options.Keys {
 		item, ok := byKey[key]
 		if !ok || selected[key] || item.Status == "unavailable" {
-			apphost.Problem(w, 400, "Selection is invalid. Preview the ZIP again")
+			problem(400, "Selection is invalid. Preview the ZIP again")
 			return
 		}
 		selected[key] = true
 	}
 	results := []map[string]string{}
 	imported, duplicates, failed := 0, 0, 0
-	for _, key := range options.Keys {
+	for index, key := range options.Keys {
+		if ctx.Err() != nil {
+			problem(408, "Import stopped. Completed posts are kept; preview and retry this ZIP safely")
+			return
+		}
 		item := byKey[key]
-		id, duplicate, err := a.importInstagramPost(ctx, root, uid(r), options.Visibility, item)
+		update("importing", fmt.Sprintf("Importing post %d of %d", index+1, len(options.Keys)), index, len(options.Keys))
+		id, duplicate, err := a.importInstagramPost(ctx, root, uid(r), options.Visibility, item, func(media, total int) {
+			update("importing", fmt.Sprintf("Importing post %d of %d · media %d of %d", index+1, len(options.Keys), media, total), index, len(options.Keys))
+		})
 		status, message := "imported", "Imported"
 		if err != nil {
 			status, message = "failed", err.Error()
@@ -452,11 +501,12 @@ func (a *App) instagram(w http.ResponseWriter, r *http.Request) {
 			imported++
 		}
 		results = append(results, map[string]string{"key": key, "status": status, "message": message, "post": id})
+		update("importing", "Importing posts", index+1, len(options.Keys))
 	}
-	apphost.JSON(w, 200, map[string]any{"imported": imported, "duplicates": duplicates, "failed": failed, "results": results})
+	respond(map[string]any{"imported": imported, "duplicates": duplicates, "failed": failed, "results": results})
 }
 
-func (a *App) importInstagramPost(ctx context.Context, root *os.Root, owner, visibility string, item instagramItem) (id string, duplicate bool, err error) {
+func (a *App) importInstagramPost(ctx context.Context, root *os.Root, owner, visibility string, item instagramItem, progress ...func(int, int)) (id string, duplicate bool, err error) {
 	a.storageMu.Lock()
 	defer a.storageMu.Unlock()
 	a.publishMu.Lock()
@@ -495,6 +545,9 @@ func (a *App) importInstagramPost(ctx context.Context, root *os.Root, owner, vis
 		}
 	}()
 	for i, file := range item.files {
+		for _, update := range progress {
+			update(i+1, len(item.files))
+		}
 		b, e := readInstagramFile(file, instagramMediaLimit)
 		if e != nil {
 			return "", false, errors.New("Media is damaged; request a fresh export")

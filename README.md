@@ -32,7 +32,7 @@ renditions with the chosen audience. Public means signed-in community members.
 Import an Instagram JSON export ZIP from **Settings → Import Instagram ZIP**.
 You can also use the [Chrome capture extension](extensions/instagram-capture/README.md)
 to collect accessible posts from an open Instagram tab and create import ZIPs.
-Preview and select posts, keep captions/dates/carousels, and choose the audience
+Review a five-post sample, import all available posts with live progress, and choose the audience
 (default: Only me). See [import limits and supported content](docs/INSTAGRAM-IMPORT.md).
 
 - Mobile navigation, desktop rail, shared Workspace appearance and branded PWA.

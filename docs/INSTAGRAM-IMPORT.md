@@ -2,8 +2,11 @@
 
 Open **Settings → Import Instagram ZIP**. In Instagram's Accounts Center,
 request an export in **JSON** format, including your posts and media. Upload
-the downloaded ZIP, preview the captions, dates, carousel sizes and availability,
-select posts, choose an audience, and select **Import selected posts**.
+the downloaded ZIP and review a sample of up to five posts with captions, dates,
+carousel sizes and availability. Choose an audience and select **Import N posts**
+to import all available posts, including those beyond the sample. Upload bytes,
+checking counts, import counts and elapsed time show progress. **Stop** cancels
+the current operation while keeping completed posts.
 The default audience is **Only me**. You can view imported posts on your profile
 and manage them in Creator Studio. Stories and archived posts remain archived;
 importing an old Story does not publish it again for another 24 hours.
@@ -24,7 +27,7 @@ import, with a 90-second limit and no silent trimming. Mixed image/video
 carousels are supported. No external media URLs are fetched.
 
 Limits: 512 MiB ZIP, 2 GiB expanded ZIP, 20,000 entries, 16 MiB combined content
-metadata, 1,000 posts in a ZIP, 100 selected posts per request, 1–10 media items
+metadata, 1,000 posts in a ZIP, 100 posts per request (automatically batched after one Import click), 1–10 media items
 per post, 100 MiB per original, 24 megapixels per image, and the existing 2 GiB
 per-account preview media quota. Export smaller date ranges for larger accounts.
 ZIP64, encrypted and multi-volume archives are unsupported. Media absent from a

@@ -45,18 +45,19 @@ export async function fetchMedia(url,signal){
 
 // Each ZIP contains its own complete manifest/media. Download one part before
 // releasing its buffers; all parts stay below the existing 512 MiB importer cap.
-/** @param {Array<any>} posts @param {any} options */
-export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProgress=(_message)=>{},profile={},now=Math.floor(Date.now()/1000),partLimit=PART_LIMIT}={}){
- let files=[],entries=[],report=[],bytes=0,part=0,importable=0,failed=0,mediaFiles=0,photos=0,videos=0;
+/** @param {Iterable<any>|AsyncIterable<any>} posts @param {any} options */
+export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProgress=(_message)=>{},profile={},now=Math.floor(Date.now()/1000),partLimit=PART_LIMIT,checkpointPosts=Infinity}={}){
+ let files=[],entries=[],report=[],bytes=0,part=0,importable=0,failed=0,mediaFiles=0,photos=0,videos=0,index=0,sinceCheckpoint=0;
  const flush=async()=>{
   if(!files.length&&!report.length)return;
   const archive=zipBlob([...files,jsonFile('content/posts_1.json',entries.filter(x=>x.kind!=='reel'&&x.kind!=='story').map(x=>x.entry)),jsonFile('content/reels.json',{ig_reels_media:entries.filter(x=>x.kind==='reel').map(x=>x.entry)}),jsonFile('content/stories.json',{ig_stories:entries.filter(x=>x.kind==='story').map(x=>x.entry)}),jsonFile('capture/report.json',{format:'my-social-instagram-capture-v1',capturedAt:now,profile,posts:report,limitations:['Only accessible tab/page content was captured. Missing items are reported.','Dates marked capture-time are not original publication dates.','Carousels larger than 10 items are split into multiple My Social posts.','Long captions are shortened for import; full captions remain in this report.','My Social video import requires FFmpeg/FFprobe and videos up to 90 seconds.']} )]);
-  await emit(archive,++part,{posts:entries.length,bytes:archive.size});files=[];entries=[];report=[];bytes=0;
+  const info={posts:entries.length,bytes:archive.size};files=[];entries=[];report=[];bytes=0;
+  await emit(archive,++part,info);
  };
- for(let index=0;index<posts.length;index++){
+ try{for await(const post of posts){
   if(signal?.aborted)break;
-  const post=posts[index],downloaded=[],errors=[];
-  onProgress('Downloading post '+(index+1)+' of '+posts.length);
+  const downloaded=[],errors=[];
+  onProgress('Downloading media for upload '+(index+1));
   for(let i=0;i<post.media.length;i++){
    if(signal?.aborted){errors.push('Cancelled');break}
    try{const f=await fetchFile(post.media[i].url,signal);if(f.data.length>MEDIA_LIMIT||!mediaType(f.data))throw Error('Unsupported or oversized file');if(downloaded.reduce((n,x)=>n+x.data.length,0)+f.data.length>350*1024*1024){errors.push('Post exceeds the 350 MiB capture budget; remaining media was not fetched');break}downloaded.push({...f,index:i})}
@@ -78,7 +79,9 @@ export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProg
   };
   for(const f of downloaded){if(group.length>=10||groupBytes+f.data.length>Math.min(partLimit,350*1024*1024))await commit();group.push(f);groupBytes+=f.data.length}
   if(!downloaded.length){if(report.length>=100)await flush();report.push({permalink:post.permalink,importable:false,expectedMedia:post.media.length,capturedMedia:0,errors})}
-  await commit();if(signal?.aborted)break;
- }
+  await commit();index++;sinceCheckpoint++;
+  if(sinceCheckpoint>=checkpointPosts){await flush();sinceCheckpoint=0}
+  if(signal?.aborted)break;
+ }}catch(e){await flush();throw e}
  await flush();return {parts:part,importable,failed,mediaFiles,photos,videos,cancelled:!!signal?.aborted};
 }

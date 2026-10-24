@@ -1,10 +1,12 @@
 # Privacy
 
-Capture begins only after clicking Capture content. The extension reads the
+Capture begins only after clicking Scan and download my uploads. The extension reads the
 selected Instagram tab and, if enabled, scrolls it and requests discovered post
 pages using that tab's normal Instagram session. Media downloads omit credentials
 and use only HTTPS Instagram CDN hosts. Captures are kept in memory in the export
-tab and saved to local ZIP downloads when requested. Closing the export tab clears
+tab and, by default, downloaded immediately after each post is read. Local ZIP
+parts save every 10 uploads or 400 MiB, plus at completion or Stop. Optional manual
+review mode saves only after clicking Download my media ZIPs. Closing the export tab clears
 its capture state. Already downloaded files remain under your control.
 
 Nothing is sent to My Social or another server by this extension. Importing a ZIP

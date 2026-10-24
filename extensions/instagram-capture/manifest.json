@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "My Social Instagram Capture",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "minimum_chrome_version": "120",
   "description": "Download your Instagram profile uploads, photos, videos and carousels into ZIPs compatible with My Social.",
   "permissions": [

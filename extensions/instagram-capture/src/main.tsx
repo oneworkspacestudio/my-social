@@ -17,7 +17,7 @@ async function saveZIP(blob:Blob,part:number,stamp:string,username:string){
  }finally{URL.revokeObjectURL(url)}
 }
 function App(){
- const[fields,setFields]=useState<any>({username:'',scroll:true,scrolls:'100',reels:true,enrich:true}),[source,setSource]=useState(''),[posts,setPosts]=useState<any[]>([]),[selected,setSelected]=useState<string[]>([]),[busy,setBusy]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[warnings,setWarnings]=useState<string[]>([]),[downloads,setDownloads]=useState<any[]>([]),[discovered,setDiscovered]=useState(0);
+ const[fields,setFields]=useState<any>({username:'',scroll:true,scrolls:'100',reels:true,enrich:true,autoDownload:true}),[source,setSource]=useState(''),[posts,setPosts]=useState<any[]>([]),[selected,setSelected]=useState<string[]>([]),[busy,setBusy]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[warnings,setWarnings]=useState<string[]>([]),[downloads,setDownloads]=useState<any[]>([]),[discovered,setDiscovered]=useState(0);
  const controller=useRef<AbortController|null>(null),running=useRef(false),choice=useRef(''),profile=useRef<any>({}),capturedAt=useRef(0);
  const tabID=Number(new URL(location.href).searchParams.get('tab'));
  const tab=async(id=tabID)=>{
@@ -51,6 +51,12 @@ function App(){
     }catch{/* Navigation has not committed its accessible document yet. */}
    }
    throw Error(signal.aborted?'Scan stopped':'Instagram page did not become readable.');
+  };
+  const download=async(items:any,checkpointPosts=Infinity)=>{
+   setDownloads([]);const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+    const result=await exportPosts(items,{checkpointPosts,signal,profile:profile.current,now:capturedAt.current,onProgress:setBusy,emit:async(blob:Blob,part:number,info:any)=>{setBusy('Saving media ZIP '+part+'…');const saved=await saveZIP(blob,part,stamp,username);setDownloads(xs=>[...xs,{...saved,label:saved.filename+' · '+info.posts+' complete uploads'}])}});
+    setNotice(`${result.photos} photos and ${result.videos} videos saved in ${result.parts} ZIP files · ${result.failed} uploads incomplete. Unzip into media/posts/ to see your files. My Social can also import these same ZIPs.${result.cancelled?' Download stopped; completed ZIPs are kept.':''}`);
+    if(!result.mediaFiles)setError('No photos or videos could be downloaded. The ZIP contains a failure report, not a media backup.');
   };
   try{
    if(name==='capture'){
@@ -86,33 +92,33 @@ function App(){
      try{await scanGrid(await renderPage('https://www.instagram.com/'+username+'/reels/'),'Reels')}
      catch(e:any){notes.add('Reels grid could not be read; continuing with the uploads already found. '+e.message)}
     }
-    if(fields.enrich){
-     const discoveredLinks=[...links];
+    const readUploads=async function*(){
+     const candidates=new Map(links);for(const[code,p]of found)if(!candidates.has(code))candidates.set(code,p.permalink);
+     const discoveredLinks=fields.enrich?[...candidates]:[...found].map(([code,p])=>[code,p.permalink]);
      for(let i=0;i<discoveredLinks.length&&!signal.aborted;i++){
       const[code,url]=discoveredLinks[i];setBusy(`Reading your upload ${i+1} of ${discoveredLinks.length} · photos, videos and carousel slides`);
-      try{
+      try{if(fields.enrich){
        const bits=new URL(url).pathname.split('/').filter(Boolean),trustedProfileCode=(bits.length===3&&bits[0].toLowerCase()===username)||!!found.get(code)?.ownerVerified;
        add(await call({username,url,trustedProfileCode}));const p=found.get(code);
        if(!p||p.incompleteMedia||!['page-data','structured-data'].includes(p.origin)){
         const id=await renderPage(url);add(await call({username,wait:true,carousel:true,trustedProfileCode},id));
        }
-      }catch(e:any){notes.add('An upload could not be read: '+e.message);if(/HTTP (403|429)/.test(e.message)){notes.add('Instagram limited page reads. Download the available files and try again later.');break}}
-      await pause(750);
+      }}catch(e:any){notes.add('An upload could not be read: '+e.message);if(/HTTP (403|429)/.test(e.message)){notes.add('Instagram limited page reads. Completed downloads are kept; try again later.');break}}
+      const ready=found.get(code);if(ready)yield ready;
+      if(fields.enrich)await pause(750);
      }
-    }
-    setWarnings([...notes]);setNotice((signal.aborted?'Scan stopped. ':'')+found.size+' uploads found. Photos and videos are downloaded when you click “Download my media ZIPs”.');
+    };
+    if(fields.autoDownload)await download(readUploads(),10);else for await(const _ of readUploads()){}
+    setWarnings([...notes]);if(!fields.autoDownload)setNotice((signal.aborted?'Scan stopped. ':'')+found.size+' uploads found. Photos and videos are downloaded when you click “Download my media ZIPs”.');
     if(!found.size){notes.add('No media was found. Check that your profile is loaded and signed in, then scan again.');setWarnings([...notes])}
    }else if(name==='export'){
-    setDownloads([]);const stamp=new Date().toISOString().replace(/[:.]/g,'-');
-    const result=await exportPosts(posts.filter(p=>selected.includes(p.permalink)),{signal,profile:profile.current,now:capturedAt.current,onProgress:setBusy,emit:async(blob:Blob,part:number,info:any)=>{setBusy('Saving media ZIP '+part+'…');const saved=await saveZIP(blob,part,stamp,username);setDownloads(xs=>[...xs,{...saved,label:saved.filename+' · '+info.posts+' complete uploads'}])}});
-    setNotice(`${result.photos} photos and ${result.videos} videos saved in ${result.parts} ZIP files · ${result.failed} uploads incomplete. Unzip into media/posts/ to see your files. My Social can also import these same ZIPs.${result.cancelled?' Download stopped; completed ZIPs are kept.':''}`);
-    if(!result.mediaFiles)setError('No photos or videos could be downloaded. The ZIP contains a failure report, not a media backup.');
+    await download(posts.filter(p=>selected.includes(p.permalink)));
    }
   }catch(e:any){setError(e.message+' Any completed ZIP downloads remain in Chrome Downloads.');}
   finally{if(workerID!==undefined)try{await chrome.tabs.remove(workerID)}catch{}running.current=false;setBusy('')}
  };
  const photos=posts.reduce((n,p)=>n+(p.incompleteMedia?0:p.media.filter((m:any)=>m.type==='image').length),0),videos=posts.reduce((n,p)=>n+(p.incompleteMedia?0:p.media.filter((m:any)=>m.type==='video').length),0);
- const data={source,busy,error,notice,noSource:!source,hasPosts:!!posts.length,noSelection:!selected.length,summary:`${discovered} uploads discovered · ${photos} photos · ${videos} videos · ${selected.length} uploads selected`,scrollOptions:['10','25','50','100'],posts:posts.map(p=>({...p,hasPreview:!!(p.media.find((m:any)=>m.type==='image')?.url||p.media[0]?.poster),preview:p.media.find((m:any)=>m.type==='image')?.url||p.media[0]?.poster,caption:p.caption||'(No caption available)',date:p.created?new Date(p.created*1000).toLocaleString():'Date unavailable',details:p.media.length+' media files',warning:p.incompleteMedia?'Only a preview or part of this upload was accessible. Recovered files are kept separately and marked incomplete.':p.origin==='page-preview'?'Preview only: the original carousel or video may be incomplete.':!p.created?'Original publication date unavailable.':'',selected:selected.includes(p.permalink),variant:selected.includes(p.permalink)?'selected':'secondary',label:selected.includes(p.permalink)?'Selected · remove':'Select upload'})),hasWarnings:!!warnings.length,warnings:warnings.map(text=>({text})),hasDownloads:!!downloads.length,downloads};
+ const data={manual:!fields.autoDownload,captureLabel:fields.autoDownload?'Scan and download my uploads':'Scan my uploads',source,busy,error,notice,noSource:!source,hasPosts:!!posts.length,noSelection:!selected.length,summary:`${discovered} uploads discovered · ${photos} photos · ${videos} videos${fields.autoDownload?'':' · '+selected.length+' uploads selected'}`,scrollOptions:['10','25','50','100'],posts:posts.map(p=>({...p,hasPreview:!!(p.media.find((m:any)=>m.type==='image')?.url||p.media[0]?.poster),preview:p.media.find((m:any)=>m.type==='image')?.url||p.media[0]?.poster,caption:p.caption||'(No caption available)',date:p.created?new Date(p.created*1000).toLocaleString():'Date unavailable',details:p.media.length+' media files',warning:p.incompleteMedia?'Only a preview or part of this upload was accessible. Recovered files are kept separately and marked incomplete.':p.origin==='page-preview'?'Preview only: the original carousel or video may be incomplete.':!p.created?'Original publication date unavailable.':'',selected:selected.includes(p.permalink),variant:selected.includes(p.permalink)?'selected':'secondary',label:selected.includes(p.permalink)?'Selected · remove':'Select upload'})),hasWarnings:!!warnings.length,warnings:warnings.map(text=>({text})),hasDownloads:!!downloads.length,downloads};
  return React.createElement(Fields.Provider,{value:{fields,setField:(key:string,value:any)=>{setFields((f:any)=>({...f,[key]:value}));if(key==='username'){setPosts([]);setSelected([]);setDownloads([]);setDiscovered(0)}},disabled:!!busy,select:(key:string)=>{choice.current=key}}},React.createElement(Export,{data,onAction:(name:string)=>void action(name)}));
 }
 createRoot(document.getElementById('root')!).render(React.createElement(App));

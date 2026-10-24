@@ -6,7 +6,7 @@ Page Export
         Text variant=eyebrow "INSTAGRAM → YOUR COMPUTER → MY SOCIAL"
         Heading level=1 "Download my Instagram uploads"
     Card
-      Heading level=2 "1. Find my photos and videos"
+      Heading level=2 "Back up my photos and videos"
       Text "Keep your own Instagram profile open. This scans its uploads, including carousel photos and videos. Feed, saved, tagged and other accounts’ posts are excluded."
       Field label="My Instagram username"
         Input name=username placeholder="Your Instagram username"
@@ -16,9 +16,10 @@ Page Export
         Select name=scrolls options=$scrollOptions
       Checkbox name=reels "Scan my Reels grid too"
       Checkbox name=enrich "Open each discovered upload to find its photos, videos and carousel slides"
-      Text variant=caption "Scanning finds media first. Click Download below to save the actual files. Scanning a large profile can take several minutes; keep this tab open."
+      Checkbox name=autoDownload "Download each upload immediately (recommended)"
+      Text variant=caption "After finding your upload links, reads each post and downloads its media before opening the next. Saves ZIP parts every 10 uploads or 400 MiB. Keep this tab open. Turn off immediate downloading to review a selection first."
       Row
-        Button action=capture disabled=$noSource "Scan my uploads"
+        Button action=capture disabled=$noSource $captureLabel
         If condition=$busy
           Button action=stop cancel=true variant=secondary "Stop"
       If condition=$busy
@@ -29,12 +30,13 @@ Page Export
         Alert $notice
     If condition=$hasPosts
       Card
-        Heading level=2 "2. Download my media"
+        Heading level=2 "My uploads"
         Text $summary
-        Row
-          Button action=all variant=secondary "Select all uploads"
-          Button action=none variant=secondary "Clear selection"
-          Button action=export disabled=$noSelection "Download my media ZIPs"
+        If condition=$manual
+          Row
+            Button action=all variant=secondary "Select all uploads"
+            Button action=none variant=secondary "Clear selection"
+            Button action=export disabled=$noSelection "Download my media ZIPs"
         Text "Your photos and videos go into Chrome Downloads → MySocial. Unzip a downloaded file and open media/posts/ to see them. Each ZIP also works with My Social’s Instagram importer."
         Text variant=caption "A profile scan is best effort, not proof that every upload is backed up. Incomplete media is marked below. Stories/archives and unavailable uploads need Instagram’s account export. Videos over 90 seconds can be downloaded but cannot be imported unchanged into My Social."
         For each=$posts
@@ -50,7 +52,8 @@ Page Export
             If condition=$item.warning
               Alert tone=warning $item.warning
             Link href=$item.permalink external=true "View my upload on Instagram"
-            Button action=toggle item=$item.permalink variant=$item.variant aria-pressed=$item.selected $item.label
+            If condition=$manual
+              Button action=toggle item=$item.permalink variant=$item.variant aria-pressed=$item.selected $item.label
     If condition=$hasDownloads
       Card
         Heading level=2 "My downloaded photos and videos"

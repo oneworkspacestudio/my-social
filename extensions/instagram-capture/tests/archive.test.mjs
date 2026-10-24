@@ -39,3 +39,25 @@ test('preview-only media is recovered without pretending it is a complete upload
  const files=await unzip(archives[0]);assert.equal(JSON.parse(files['content/posts_1.json']).length,0);
  const report=JSON.parse(files['capture/report.json']);assert(report.posts[0].files[0].startsWith('capture/incomplete/'));assert(files[report.posts[0].files[0]]);
 });
+
+test('reads and downloads one upload before reading the next, saving checkpoints along the way',async()=>{
+ const events=[],archives=[];
+ async function* read(){for(const code of ['ONE','TWO','THREE']){events.push('read '+code);yield post(code,2)}}
+ const result=await exportPosts(read(),{checkpointPosts:2,fetchFile:async url=>{events.push('fetch '+url.split('/').at(-1));return{data:image(),ext:'png'}},emit:async b=>{events.push('save');archives.push(await unzip(b))}});
+ assert.deepEqual(events,['read ONE','fetch ONE0','fetch ONE1','read TWO','fetch TWO0','fetch TWO1','save','read THREE','fetch THREE0','fetch THREE1','save']);
+ assert.equal(result.photos,6);assert.equal(result.parts,2);
+ assert.deepEqual(archives.map(f=>JSON.parse(f['content/posts_1.json']).length),[2,1]);
+});
+
+test('stopping a streaming capture keeps completed media without reading more uploads',async()=>{
+ const controller=new AbortController(),archives=[];let reads=0;
+ async function* read(){reads++;yield post('DONE');if(!controller.signal.aborted){reads++;yield post('LATER')}}
+ const result=await exportPosts(read(),{signal:controller.signal,fetchFile:async()=>{controller.abort();return{data:image(),ext:'png'}},emit:async b=>archives.push(await unzip(b))});
+ assert.equal(reads,1);assert(result.cancelled);assert.equal(result.photos,1);assert.equal(archives.length,1);assert.equal(JSON.parse(archives[0]['content/posts_1.json']).length,1);
+});
+
+test('a reader failure flushes completed uploads before reporting the error',async()=>{
+ const archives=[];async function* read(){yield post('DONE');throw Error('Page closed')}
+ await assert.rejects(exportPosts(read(),{fetchFile:async()=>({data:image(),ext:'png'}),emit:async b=>archives.push(await unzip(b))}),/Page closed/);
+ assert.equal(archives.length,1);assert.equal(JSON.parse(archives[0]['content/posts_1.json']).length,1);
+});

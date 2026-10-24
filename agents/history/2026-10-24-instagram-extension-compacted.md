@@ -179,3 +179,24 @@ points to its original immutable0.1.0 extension asset. The new patch release lis
 the correct0.1.1 asset and current source guide. Update that convenience link in a
 future native release; do not mutate already-public preview6 assets or needlessly
 install a different native server for this browser-component correction.
+
+## Immediate media downloads0.1.2
+
+User requested downloading media while each upload is read, avoiding a second
+manual pass. Default now Scan and download my uploads. After grid discovery, an
+async generator yields one enriched upload to the archive writer; its media is
+fetched before the reader advances. Deduplicated candidate codes include records
+found in structured data even without a grid link. Manual selection remains an
+optional checkbox mode. ZIP checkpoints save every10 uploads or bounded part size;
+final buffers flush on Stop and reader failure. Already saved ZIPs remain usable.
+Closing the tab can still lose buffers; keep it open until saving completes.
+
+Nine unit checks pass, including read/fetch ordering, early ZIP checkpoints, Stop
+and reader-error preservation. All4 native browser flows plus same-data restart
+pass against the unchanged public native6. Real MV3 test verifies the first post's
+media fetch precedes the second page read, default one-click ZIP download4photos,
+private2post native import, owner exclusions and390px layout. Synthetic data only.
+AUI regenerated; permission set and archive format unchanged.
+Next: push, verify CI, publish component patch capture.2 with unchanged native6
+and validated Workspace manifest; replace matching installed public files and
+leave Chrome Reload/refresh to user due to the extension-page browser restriction.

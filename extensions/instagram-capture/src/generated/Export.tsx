@@ -13,7 +13,7 @@ export function Export({ data, onAction }: { data: any; onAction: (name: string)
           </Stack>
         </Row>
         <Card>
-          <Heading level={2}>1. Find my photos and videos</Heading>
+          <Heading level={2}>Back up my photos and videos</Heading>
           <Text>Keep your own Instagram profile open. This scans its uploads, including carousel photos and videos. Feed, saved, tagged and other accounts’ posts are excluded.</Text>
           <Field label="My Instagram username"><Input name="username" placeholder="Your Instagram username" /></Field>
           <Text variant="caption">{data.source}</Text>
@@ -21,9 +21,10 @@ export function Export({ data, onAction }: { data: any; onAction: (name: string)
           <Field label="Maximum scroll steps per grid"><Select name="scrolls" options={data.scrollOptions} /></Field>
           <Checkbox name="reels">Scan my Reels grid too</Checkbox>
           <Checkbox name="enrich">Open each discovered upload to find its photos, videos and carousel slides</Checkbox>
-          <Text variant="caption">Scanning finds media first. Click Download below to save the actual files. Scanning a large profile can take several minutes; keep this tab open.</Text>
+          <Checkbox name="autoDownload">Download each upload immediately (recommended)</Checkbox>
+          <Text variant="caption">After finding your upload links, reads each post and downloads its media before opening the next. Saves ZIP parts every 10 uploads or 400 MiB. Keep this tab open. Turn off immediate downloading to review a selection first.</Text>
           <Row>
-            <Button onClick={() => onAction("capture")} disabled={data.noSource}>Scan my uploads</Button>
+            <Button onClick={() => onAction("capture")} disabled={data.noSource}>{data.captureLabel}</Button>
             {data.busy && (
               <Button onClick={() => onAction("stop")} cancel={true} variant="secondary">Stop</Button>
             )}
@@ -40,13 +41,15 @@ export function Export({ data, onAction }: { data: any; onAction: (name: string)
         </Card>
         {data.hasPosts && (
           <Card>
-            <Heading level={2}>2. Download my media</Heading>
+            <Heading level={2}>My uploads</Heading>
             <Text>{data.summary}</Text>
-            <Row>
-              <Button onClick={() => onAction("all")} variant="secondary">Select all uploads</Button>
-              <Button onClick={() => onAction("none")} variant="secondary">Clear selection</Button>
-              <Button onClick={() => onAction("export")} disabled={data.noSelection}>Download my media ZIPs</Button>
-            </Row>
+            {data.manual && (
+              <Row>
+                <Button onClick={() => onAction("all")} variant="secondary">Select all uploads</Button>
+                <Button onClick={() => onAction("none")} variant="secondary">Clear selection</Button>
+                <Button onClick={() => onAction("export")} disabled={data.noSelection}>Download my media ZIPs</Button>
+              </Row>
+            )}
             <Text>Your photos and videos go into Chrome Downloads → MySocial. Unzip a downloaded file and open media/posts/ to see them. Each ZIP also works with My Social’s Instagram importer.</Text>
             <Text variant="caption">A profile scan is best effort, not proof that every upload is backed up. Incomplete media is marked below. Stories/archives and unavailable uploads need Instagram’s account export. Videos over 90 seconds can be downloaded but cannot be imported unchanged into My Social.</Text>
             {data.posts.map((item, i) => (
@@ -65,7 +68,9 @@ export function Export({ data, onAction }: { data: any; onAction: (name: string)
                   <Alert tone="warning">{item.warning}</Alert>
                 )}
                 <Link href={item.permalink} external={true}>View my upload on Instagram</Link>
-                <Button onClick={() => onAction("toggle")} item={item.permalink} variant={item.variant} aria-pressed={item.selected}>{item.label}</Button>
+                {data.manual && (
+                  <Button onClick={() => onAction("toggle")} item={item.permalink} variant={item.variant} aria-pressed={item.selected}>{item.label}</Button>
+                )}
               </Card>
             ))}
           </Card>

@@ -11,6 +11,7 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
  await writeFile(path.join(profile,'Default','Preferences'),JSON.stringify({download:{default_directory:downloads,prompt_for_download:false},profile:{default_content_setting_values:{automatic_downloads:1}}}));
  const context=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,acceptDownloads:true,downloadsPath:downloads,args:['--disable-extensions-except='+extension,'--load-extension='+extension,'--disable-background-networking']});
  try{
+  const sequence:string[]=[];context.on('request',request=>{if(request.resourceType()!=='fetch')return;const u=new URL(request.url());if(u.pathname==='/p/SYNTHETIC2/')sequence.push('read second');if(u.hostname==='fixture.cdninstagram.com'&&u.pathname==='/b.png')sequence.push('download first');});
   const png=await sharp({create:{width:64,height:48,channels:3,background:'#468da5'}}).png().toBuffer();
   const media=(name:string)=>({image_versions2:{candidates:[{url:'https://fixture.cdninstagram.com/'+name+'.png',width:640,height:480}]}});
   const one={owner:{username:'fixture'},code:'SYNTHETIC1',taken_at:1600000000,caption:{text:'Captured carousel ☀️'},carousel_media:[media('a'),media('b')],...media('a')};
@@ -33,22 +34,23 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   const capture=await context.newPage();await capture.goto(`chrome-extension://${extensionID}/export.html?tab=${tabID}`);
   await expect(capture.getByLabel('My Instagram username')).toHaveValue('fixture');
   await expect(capture.getByLabel('Scroll my profile to find older uploads')).toBeChecked();
-  await capture.getByRole('button',{name:'Scan my uploads',exact:true}).click();
-  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos · 2 uploads selected',{exact:true})).toBeVisible({timeout:90000}).catch(async error=>{
+  await capture.getByRole('button',{name:'Scan and download my uploads',exact:true}).click();
+  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos',{exact:true})).toBeVisible({timeout:90000}).catch(async error=>{
    // This browser contains synthetic fixtures only; log capture status, not login fields.
    console.log('Synthetic capture status:',await capture.locator('body').innerText());
    console.log('Fixture tab locations:',await Promise.all(context.pages().map(async p=>({url:p.url(),title:await p.title().catch(()=>'(closed)')}))));
    throw error;
   });
-  await expect(capture.getByRole('button',{name:'Scan my uploads',exact:true})).toBeEnabled({timeout:60000});
+  await expect(capture.getByRole('button',{name:'Scan and download my uploads',exact:true})).toBeEnabled({timeout:60000});
   const output=process.env.MYSOCIAL_TEST_OUTPUT||'../docs/screenshots';await mkdir(output,{recursive:true});
   await expect(capture.getByText('Foreign post must not be downloaded',{exact:true})).toHaveCount(0);
   await expect(capture.getByText('Unverified owner must not be downloaded',{exact:true})).toHaveCount(0);
   await capture.screenshot({path:path.join(output,'instagram-extension-desktop.png'),fullPage:true});
   await capture.setViewportSize({width:390,height:844});expect(await capture.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await capture.screenshot({path:path.join(output,'instagram-extension-mobile.png'),fullPage:true});
-  await capture.getByRole('button',{name:'Download my media ZIPs',exact:true}).click();
+  await expect(capture.getByRole('button',{name:'Download my media ZIPs',exact:true})).toHaveCount(0);
   await expect(capture.getByText(/4 photos and 0 videos saved in 1 ZIP files · 0 uploads incomplete/)).toBeVisible({timeout:30000});
+  expect(sequence.indexOf('download first')).toBeGreaterThanOrEqual(0);expect(sequence.indexOf('read second')).toBeGreaterThan(sequence.indexOf('download first'));
   const [download]=await worker.evaluate(async()=>await(chrome as any).downloads.search({}));expect(download.state).toBe('complete');
   const resolved=path.resolve(download.filename);expect(resolved.startsWith(path.resolve(root)+path.sep)).toBe(true);const archive=await readFile(resolved);
   const app=await context.newPage();
@@ -62,6 +64,6 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   await app.goto((process.env.MYSOCIAL_TEST_URL||'http://localhost:29113')+'/#instagram');await app.getByLabel('Instagram export ZIP').setInputFiles({name:'extension-export.zip',mimeType:'application/zip',buffer:archive});await app.getByRole('button',{name:'Preview ZIP',exact:true}).click();
   await expect(app.getByText('2 posts found · 2 available · 0 unavailable',{exact:true})).toBeVisible();await expect(app.getByLabel('Who can see imported posts?')).toHaveValue('private');await app.getByRole('button',{name:'Select available posts',exact:true}).click();await app.getByRole('button',{name:'Import selected posts',exact:true}).click();await expect(app.getByText('2 imported · 0 already imported · 0 failed. Successful posts are saved; you can retry failed posts safely.',{exact:true})).toBeVisible();
   await app.goto((process.env.MYSOCIAL_TEST_URL||'http://localhost:29113')+'/#profile');await expect(app.getByText('Captured carousel ☀️',{exact:true})).toBeVisible();await expect(app.getByText('Second captured post',{exact:true})).toBeVisible();
-  await writeFile(path.join(output,'instagram-extension-acceptance.json'),JSON.stringify({realMV3Extension:true,usernamePrefixedLinks:true,otherOwnersExcluded:true,renderedPostFallback:true,photosAndVideosNamedClearly:true,syntheticInstagramOnly:true,postPageEnrichment:true,downloadedZIPImportedByNativeMySocial:true,carouselDatesCaptionsPreserved:true,privateDefault:true,phoneWidthNoOverflow:true,ownerDataUsed:false},null,2));
+  await writeFile(path.join(output,'instagram-extension-acceptance.json'),JSON.stringify({realMV3Extension:true,automaticReadAndDownload:true,usernamePrefixedLinks:true,otherOwnersExcluded:true,renderedPostFallback:true,photosAndVideosNamedClearly:true,syntheticInstagramOnly:true,postPageEnrichment:true,downloadedZIPImportedByNativeMySocial:true,carouselDatesCaptionsPreserved:true,privateDefault:true,phoneWidthNoOverflow:true,ownerDataUsed:false},null,2));
  }finally{await context.close()}
 });

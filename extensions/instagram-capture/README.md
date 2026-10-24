@@ -2,14 +2,16 @@
 
 A personal-use Manifest V3 Chrome extension that downloads **your own Instagram
 uploads** as actual photo/video files in ZIP archives. Open your profile in
-Instagram, click the extension and confirm the detected username. Choose **Scan my
-uploads**. Scrolling older uploads and scanning your Reels grid are enabled by
+Instagram, click the extension and confirm the detected username. Choose **Scan and download my uploads**. Scrolling older uploads and scanning your Reels grid are enabled by
 default. Each discovered upload is inspected for photos, videos and carousel
 slides; a temporary background tab is used when a normal page response is only a
 shell. Feed, saved, tagged and other accounts' posts are excluded.
 
-Review the thumbnails/counts, then click **Download my media ZIPs**. Scanning alone
-does not download files. Chrome saves ZIPs in **Downloads/MySocial**. Unzip them and
+Each upload is read and its media downloaded before reading the next upload. ZIP
+parts are saved automatically every 10 uploads or before the 400 MiB part limit,
+with a final part at completion or Stop. Turn off **Download each upload immediately**
+only when you want to review/select uploads before clicking **Download my media ZIPs**.
+Chrome saves ZIPs in **Downloads/MySocial**. Unzip them and
 open **media/posts/** for the photos/videos. The **Show downloaded ZIP in folder**
 button reveals the download. Partial recoveries are under **capture/incomplete/**;
 **capture/report.json** lists file paths and failures. A ZIP with zero media files
@@ -79,3 +81,10 @@ Recognises both `/p/code/` and `/username/p/code/` links (and corresponding Reel
 including long codes. Defaults to an explicit profile scan, skips other owners,
 shows photo/video previews and actual download locations, and distinguishes
 incomplete previews from full media. No account-wide completeness claim is made.
+
+## 0.1.2 immediate downloads
+
+The default action now reads and downloads each upload in sequence. It does not
+wait for all upload pages before fetching media. Each ZIP part remains independently
+importable. Stop or a reader error saves media already fetched; keep the tab open
+until that final ZIP download completes. Closing the tab can lose unsaved buffers.

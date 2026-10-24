@@ -66,3 +66,13 @@ extension files are installed locally. Following user completion of the native
 folder picker, Chrome confirms the unpacked extension0.1.0 is enabled in the
 selected profile, with its capture toolbar button available. Existing installed Social5 accepts its ZIP format. Native Social6 has
 not been installed by this extension task.
+
+
+The own-uploads correction0.1.1 is recorded in
+[upload-download acceptance](instagram-uploads-fix-acceptance.json). It addresses
+username-prefixed links, owner filtering, older-profile/Reels discovery, rendered
+carousel fallback and clear actual-media download locations. Both source CI and
+the separate exact-public-native-importer CI passed. The final public ZIP matches
+the updated installed folders. The user confirmed Reload of an earlier candidate;
+the capture window must refresh to load the final page-readiness correction.
+Synthetic tests do not certify a complete personal-account archive.

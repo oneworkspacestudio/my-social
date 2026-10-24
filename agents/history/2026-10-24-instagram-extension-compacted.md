@@ -1,4 +1,4 @@
-# Instagram capture extension — published; Chrome profile selection pending
+# Instagram capture extension — own-uploads fix0.1.1 released
 
 User explicitly authorizes implementation inside My Social and push/release/install.
 Canonical I:/Projects/my-social; workspace mirror is synchronized after publication.
@@ -133,3 +133,49 @@ its window. Source tests use synthetic isolated profiles, not owner browser stat
 Next: commit/push, CI, verified Chrome patch release, update matching public files
 in existing install directories without deleting old live hashed assets, request
 manual reload. Keep Chrome runtime version pending until user confirms it.
+
+
+## Final0.1.1 delivery
+
+Released v0.1.0-preview.6-capture.1 at source8cdd07fafdd812bd0d7d075c0ec479fe43964af8:
+https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.6-capture.1
+Source CI40127887717 and Chrome/public-native-importer CI40127887780 both passed.
+Six unit tests, four browser flows, restart, exact Workspace80 validator, public
+asset digests/anonymous extension ZIP retrieval and source tag verified. Native6
+EXE/ZIP are unchanged verified preview6 assets; owner server was not updated.
+
+CI initially failed on the new Reels/worker navigation. Longer waits did not fix
+it. Synthetic-only diagnostics showed the renderer waiting for the full tab load,
+blocking enrichment after finding only grid previews. Final worker starts blank,
+navigates normally, verifies the committed URL and interactive/complete document
+through scripting, and lets the collector wait for media. Optional Reels failure
+is nonfatal to main-upload enrichment. Final local/CI tests pass; do not revert to
+waiting only for tabs.status complete or removing all discovered posts on error.
+Both explicit-other-owner and unknown-owner posts are excluded; prefixed links
+normalise to canonical post URLs for fetch/navigation. A standalone fast Chrome CI
+uses the hash-pinned public native6 ZIP and repeats all4 flows without rebuilding
+Go; full source CI separately passes Go/build and the same browser checks.
+
+Both installed directories updated from the anonymous/hash-verified public0.1.1
+ZIP. Every old file was checked before replacement, no permission expansion or
+reparse paths, no old hashed assets deleted. First candidate ZIP retained locally
+as a public-code rollback. User confirmed Reload of the first candidate. The final
+readiness/recovery patch changed the export page script afterward; user has been
+told to refresh the capture window once to load it. Browser policy still forbids
+agent observation of chrome-extension pages, so no alternate-surface workaround
+or claim of live-personal-scan verification. Source acceptance explicitly records
+that final refresh is required. Old browser-install0.1.0 notes above are history.
+
+The user's existing local download was located and linked back to them privately;
+its content/counts/path are not repository fixtures or release evidence. No owner
+media was downloaded or imported by this agent. Do not claim all account uploads
+were backed up. Actual media remains in downloaded ZIPs (media/posts; partials
+capture/incomplete; report lists files/failures). New workflow: refresh capture
+window, Scan my uploads, then Download my media ZIPs. Existing Social importer
+accepts those ZIPs; importing into Social is the destination step.
+
+Remaining product maintenance: native preview6's convenience download link still
+points to its original immutable0.1.0 extension asset. The new patch release lists
+the correct0.1.1 asset and current source guide. Update that convenience link in a
+future native release; do not mutate already-public preview6 assets or needlessly
+install a different native server for this browser-component correction.

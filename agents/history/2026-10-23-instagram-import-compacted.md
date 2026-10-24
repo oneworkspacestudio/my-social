@@ -111,3 +111,47 @@ Next: publish native7, validate fresh five-package and legacy four-package Socia
 contracts with exact Workspace83, promote public channel, normal backed-up
 Social-only installation preserving manager83 and every other app. Evidence
 I:/Projects/tooling/social-import-progress-20261024. Do not mutate old releases.
+
+
+### Preview7 delivered
+
+Public source2ce4a4aa83ba034404d1d0a423417011ca8823b8, release
+https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.7
+Core CI40134982983 and capture-only CI40134982994 pass. All10 release assets
+match GitHub digests/lengths; anonymous native ZIP/EXE/manifest and source tag
+verified. Native7 SHA6c9fd7be7f9092b93c4fd518d0e0416a34005c7cbfb53fc88ee9c304780364f8.
+Chrome0.1.2 is unchanged. Workspace channel promotion merged concurrent Cinema
+records at1f147be; raw anonymous Social7 and withheld builds verified.
+
+Exact83 fresh5/legacy4 manifest checks and negative ownership regressions pass.
+Normal isolated83/Social6->Social7 backed-up upgrade, real Accounts/OIDC sign-in
+and same-data restart pass. Synthetic fixtures stopped and removed.
+
+A concurrent Cinema owner update held the native lock and upgraded Workspace84.
+Waited for its actual exit/healthy27-service baseline. Our83-bundle preflight
+correctly rejected a version regression BEFORE mutation. Rebuilt a Social-only
+bundle from the locally built84 bundle, verified every166 payload hashes/sizes
+and current manager match; exact84 updater source matches native commit083716e.
+No claim that84 was publicly released at this checkpoint. Preflight and final
+receipt prove manager84, Cinema and every other app/package/executable retained.
+
+Normal protected Social-only update exit0, full5.2GB recovery, preserved owner
+identity/OIDC/recovery credentials, roots/ports/preferences/selection and legacy
+document registration. All27 runtime services and direct app probes healthy;
+public runtime healthy and Social keeps its sign-in gate. Exact deployed JS/CSS
+match tested build. Unauthenticated public app probes require browser-compatible
+headers (Cloudflare1010 otherwise) and sign-in; Vault has a special route, not a
+generic public health endpoint. Do not treat those auth responses as failed apps.
+
+Newest recovery manifest matches its registered checksum. Normal cleanup removed
+one superseded automatic backup; older unknown partial files conservatively kept
+with pre-existing warning. Keep newest usable recovery; do not sweep owner state.
+Idle83 maintenance helper closed through authenticated local API and current84
+helper reopened normally. Fresh check confirms Social7 current, unavailable=false,
+no reason/review warning. Local Python POST can reset its response connection
+after accepting the operation; verify fresh operation timestamp/completion/state.
+Evidence docs/instagram-import-progress-acceptance.json and task tooling.
+
+No required implementation/publication/installation work remains. Refresh My
+Social and choose the ZIP again to use the progress bar and five-post sample.
+Do not import owner content as test fixtures or change immutable published assets.

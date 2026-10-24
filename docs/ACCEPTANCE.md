@@ -77,3 +77,5 @@ the separate exact-public-native-importer CI passed. The final public ZIP matche
 the updated installed folders. The user confirmed Reload of an earlier candidate;
 the capture window must refresh to load the final page-readiness correction.
 Synthetic tests do not certify a complete personal-account archive.
+
+Preview7 delivery is verified in [Import progress acceptance](instagram-import-progress-acceptance.json): five synthetic native browser flows, live progress, a five-post sample, one-click101-post import, exact published/installed bytes, protected Social-only update, retained current Workspace/other apps, verified recovery and27 running services. Public Social routes retain the native sign-in gate.

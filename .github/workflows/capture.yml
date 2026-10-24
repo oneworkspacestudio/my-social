@@ -1,0 +1,40 @@
+name: Verify Instagram Capture against published Social
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'extensions/instagram-capture/**'
+      - 'web/tests/extension.spec.ts'
+      - 'web/scripts/build-instagram-extension.mjs'
+      - '.github/workflows/capture.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: web
+      - run: npm --prefix web run extension:build
+      - run: npm --prefix web run extension:test
+      - run: npx playwright install chromium --no-shell
+        working-directory: web
+      - name: Use exact published native importer
+        shell: pwsh
+        run: |
+          $zip=Join-Path $env:RUNNER_TEMP 'social6.zip'
+          Invoke-WebRequest 'https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.6/my-social-0.1.0-preview.6-windows-amd64.zip' -OutFile $zip
+          if((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -ine 'bc093877190cd491b643b633ec78f2643b46227b3a6ed10c5fcd1faa39e063d9'){throw 'Published native fixture checksum mismatch'}
+          Expand-Archive -LiteralPath $zip -DestinationPath dist
+      - run: node scripts/browser-verify.mjs
+        env:
+          MYSOCIAL_TEST_EXE: ${{ github.workspace }}\dist\MySocial.exe
+          MYSOCIAL_TEST_ROOT: ${{ runner.temp }}\social-capture-private
+          MYSOCIAL_TEST_ARTIFACTS: ${{ runner.temp }}\social-capture-evidence

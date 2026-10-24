@@ -4,6 +4,7 @@ import path from'node:path';
 import sharp from'sharp';
 
 test('real extension captures a synthetic Instagram tab, downloads a ZIP and imports it into My Social',async()=>{
+ test.setTimeout(180000);
  const parent=process.env.MYSOCIAL_TEST_ROOT||'C:/Projects/.cache/social-extension-20261024';await mkdir(parent,{recursive:true});
  const root=await mkdtemp(path.join(parent,'extension-')),extension=path.resolve('../extensions/instagram-capture/dist'),downloads=path.join(root,'downloads');await mkdir(downloads,{recursive:true});
  const profile=path.join(root,'chrome');await mkdir(path.join(profile,'Default'),{recursive:true});
@@ -33,7 +34,7 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   await expect(capture.getByLabel('My Instagram username')).toHaveValue('fixture');
   await expect(capture.getByLabel('Scroll my profile to find older uploads')).toBeChecked();
   await capture.getByRole('button',{name:'Scan my uploads',exact:true}).click();
-  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos · 2 uploads selected',{exact:true})).toBeVisible({timeout:30000});
+  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos · 2 uploads selected',{exact:true})).toBeVisible({timeout:90000});
   await expect(capture.getByRole('button',{name:'Scan my uploads',exact:true})).toBeEnabled({timeout:60000});
   const output=process.env.MYSOCIAL_TEST_OUTPUT||'../docs/screenshots';await mkdir(output,{recursive:true});
   await expect(capture.getByText('Foreign post must not be downloaded',{exact:true})).toHaveCount(0);

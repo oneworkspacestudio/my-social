@@ -7,7 +7,7 @@ export const Row=(p:P)=>React.createElement('div',{className:'row'},p.children);
 export const Card=(p:P)=>React.createElement('section',{className:'card '+(p.variant||'')},p.children);
 export const Heading=(p:P)=>React.createElement('h'+(p.level||2),{},p.children);
 export const Text=(p:P)=>React.createElement('p',{className:p.variant||''},p.children);
-export const Image=(p:P)=>React.createElement('img',{src:p.src,alt:p.alt,width:p.width,height:p.height});
+export const Image=(p:P)=>React.createElement('img',{className:p.variant||'',src:p.src,alt:p.alt,width:p.width,height:p.height});
 export const Badge=(p:P)=>React.createElement('span',{className:'badge'},p.children);
 export const Alert=(p:P)=>React.createElement('p',{className:'alert '+(p.tone||''),role:p.tone==='error'?'alert':'status'},p.children);
 export const Link=(p:P)=>React.createElement('a',{href:p.href,target:p.external?'_blank':undefined,rel:'noopener noreferrer'},p.children);
@@ -15,3 +15,5 @@ export const Button=(p:P)=>{const c=useContext(Fields);return React.createElemen
 export const Field=(p:P)=>React.createElement('label',{className:'field'},p.label,React.createElement(Label.Provider,{value:p.label},p.children));
 export const Select=(p:P)=>{const c=useContext(Fields),label=useContext(Label);return React.createElement('select',{'aria-label':label,value:c.fields[p.name],disabled:c.disabled,onChange:(e:any)=>c.setField(p.name,e.target.value)},...(p.options||[]).map((o:any)=>React.createElement('option',{key:o,value:o},o)))};
 export const Checkbox=(p:P)=>{const c=useContext(Fields);return React.createElement('label',{className:'check'},React.createElement('input',{type:'checkbox',checked:!!c.fields[p.name],disabled:c.disabled,onChange:(e:any)=>c.setField(p.name,e.target.checked)}),p.children)};
+
+export const Input=(p:P)=>{const c=useContext(Fields),label=useContext(Label);return React.createElement('input',{'aria-label':label,type:p.type||'text',value:c.fields[p.name]||'',placeholder:p.placeholder,disabled:c.disabled,onChange:(e:any)=>c.setField(p.name,e.target.value)})};

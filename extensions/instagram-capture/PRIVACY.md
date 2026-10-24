@@ -21,3 +21,8 @@ Permissions:
 - downloads: save ZIPs and wait for their completion before releasing buffers.
 
 No all-sites, cookies, history, debugger or external-messaging permission.
+
+The own-uploads scan limits candidates to the selected username and profile grids.
+It may open one temporary inactive Instagram tab for the Reels grid or rendered
+post/carousel pages. That tab is closed after scanning, failure or cancellation.
+It does not crawl feed recommendations, saved or tagged content.

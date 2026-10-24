@@ -31,3 +31,11 @@ test('part boundaries retain matching manifests, stories and reels, and report c
 test('cancelled and malicious archive member paths are safe',async()=>{
  assert.throws(()=>zipBlob([{name:'../escape',data:image()}]),/Unsafe/);const controller=new AbortController();controller.abort();let emitted=false;const result=await exportPosts([post('AAA')],{signal:controller.signal,emit:()=>{emitted=true}});assert(!emitted);assert(result.cancelled);
 });
+
+test('preview-only media is recovered without pretending it is a complete upload',async()=>{
+ const archives=[],p=post('PREVIEW');p.incompleteMedia=true;
+ const result=await exportPosts([p],{fetchFile:async()=>({data:image(),ext:'png'}),emit:async b=>archives.push(b)});
+ assert.equal(result.importable,0);assert.equal(result.photos,1);assert.equal(result.mediaFiles,1);assert.equal(result.failed,1);
+ const files=await unzip(archives[0]);assert.equal(JSON.parse(files['content/posts_1.json']).length,0);
+ const report=JSON.parse(files['capture/report.json']);assert(report.posts[0].files[0].startsWith('capture/incomplete/'));assert(files[report.posts[0].files[0]]);
+});

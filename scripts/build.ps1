@@ -30,7 +30,8 @@ try {
  python scripts/notices.py --go $Go --out $Out
  if($LASTEXITCODE){throw 'Dependency notices failed'}
  Copy-Item -LiteralPath (Join-Path $Out 'THIRD-PARTY-LICENSES.txt') -Destination 'extensions/instagram-capture/dist/THIRD-PARTY-LICENSES.txt' -Force
- $extensionZip=Join-Path (Split-Path $Out -Parent) 'my-social-instagram-capture-0.1.0.zip'
+ $extensionVersion=(Get-Content -LiteralPath 'extensions/instagram-capture/manifest.json' -Raw | ConvertFrom-Json).version
+ $extensionZip=Join-Path (Split-Path $Out -Parent) ('my-social-instagram-capture-'+$extensionVersion+'.zip')
  Compress-Archive -Path 'extensions/instagram-capture/dist/*' -DestinationPath $extensionZip -Force
  Copy-Item -LiteralPath 'extensions/instagram-capture/install-files.ps1' -Destination (Join-Path (Split-Path $Out -Parent) 'install-instagram-capture.ps1') -Force
  foreach($file in @('LICENSE','NOTICE','README.md','SECURITY.md','CHANGELOG.md','compatibility.json')){Copy-Item -LiteralPath $file -Destination $Out -Force}

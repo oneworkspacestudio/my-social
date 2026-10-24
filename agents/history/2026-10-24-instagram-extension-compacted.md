@@ -92,3 +92,44 @@ are historical and superseded. Public preview6 assets/tag remain unchanged. Both
 verified file copies remain; do not remove either while browser source paths are
 in use. Named synthetic C test cache was cleaned after process/reparse checks.
 The full original request (build/push/release/install extension) is complete.
+
+
+## Own uploads correction — implementation follow-up
+
+User clarified that their own uploaded media is the purpose, not arbitrary feed
+posts or importer instructions. Live profile read (no personal media fixture or
+export) confirmed username-prefixed /username/p/code URLs.0.1.0 matched only root
+/p/code URLs, so it could miss that grid entirely; scrolling was off by default.
+Do not claim the user's complete archive or all their files have been downloaded.
+
+Extension0.1.1 now accepts prefixed/long post and Reel links; explicit username,
+own profile/Reels scope, other-owner filtering, default100-step bounded scroll,
+rendered inactive-tab fallback and carousel-next traversal. Preview-only media is
+reported incomplete and excluded from native manifests. Previews/photo-video
+counts, clear Scan/Download actions, downloaded ZIP folder reveal, report file
+paths and zero-media failure notice address the confusing importer-first flow.
+Actual files are in Downloads/MySocial ZIPs: media/posts, partials capture/incomplete.
+Profile/account source is runtime-only; no personal username/media is in fixtures.
+AUI authoritative. Permission set unchanged. Temporary worker tab closed in finally.
+
+Six unit tests and all4 native browser workflows/restart passed using unchanged
+public Social6 EXE. Synthetic regression covers prefixed links, other-owner denial,
+HTML-shell fallback, DOM carousel2slides, real ZIP4photos/native2post import and
+390px previews. Initial assertion expected scan button ready before the longer
+scan finished; updated wait to60s and passed. Desktop/phone screenshots reviewed.
+Metadata/last polling robustness change will be covered by source CI.
+
+Publishing a Chrome-component patch with unchanged native6 assets and a matching
+managed Workspace manifest retains newest-release discovery compatibility. Keep
+published preview6 immutable; tag/patch release notes must clearly state native
+app version6 unchanged. Do not rebuild/install owner server for this browser fix.
+
+Browser Use denies observing chrome-extension:// pages (allowed protocols HTTP/S
+only), explicitly forbidding alternate-surface workaround. Respect that deny:
+no native automation/CDP to inspect the blocked extension page. Public Instagram
+profile HTTP/S was read normally and returned to its grid. After verified files
+are updated in the known installed folders, user must Reload extension and reopen
+its window. Source tests use synthetic isolated profiles, not owner browser state.
+Next: commit/push, CI, verified Chrome patch release, update matching public files
+in existing install directories without deleting old live hashed assets, request
+manual reload. Keep Chrome runtime version pending until user confirms it.

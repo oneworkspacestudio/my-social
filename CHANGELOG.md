@@ -42,3 +42,11 @@ and feature gaps. No full Instagram parity or production acceptance claim.
 ## 0.1.0-preview.3
 
 Add, replace and remove a profile photo in Edit profile & photo. Photos appear on profiles, posts, suggestions and the account button. Images are cropped to a small square; original files stay protected. Existing profiles and posts are preserved.
+
+## Instagram Capture 0.1.1
+
+Fix username-prefixed Instagram post/Reel URLs being missed. Target a selected
+profile's own uploads, scroll older uploads by default, inspect rendered post
+pages/carousel slides when HTML is only a shell, show media previews/counts and
+clearly locate downloaded photo/video ZIPs. Preview-only media is reported as
+incomplete and kept out of native import manifests.

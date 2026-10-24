@@ -47,7 +47,7 @@ export async function fetchMedia(url,signal){
 // releasing its buffers; all parts stay below the existing 512 MiB importer cap.
 /** @param {Array<any>} posts @param {any} options */
 export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProgress=(_message)=>{},profile={},now=Math.floor(Date.now()/1000),partLimit=PART_LIMIT}={}){
- let files=[],entries=[],report=[],bytes=0,part=0,importable=0,failed=0;
+ let files=[],entries=[],report=[],bytes=0,part=0,importable=0,failed=0,mediaFiles=0,photos=0,videos=0;
  const flush=async()=>{
   if(!files.length&&!report.length)return;
   const archive=zipBlob([...files,jsonFile('content/posts_1.json',entries.filter(x=>x.kind!=='reel'&&x.kind!=='story').map(x=>x.entry)),jsonFile('content/reels.json',{ig_reels_media:entries.filter(x=>x.kind==='reel').map(x=>x.entry)}),jsonFile('content/stories.json',{ig_stories:entries.filter(x=>x.kind==='story').map(x=>x.entry)}),jsonFile('capture/report.json',{format:'my-social-instagram-capture-v1',capturedAt:now,profile,posts:report,limitations:['Only accessible tab/page content was captured. Missing items are reported.','Dates marked capture-time are not original publication dates.','Carousels larger than 10 items are split into multiple My Social posts.','Long captions are shortened for import; full captions remain in this report.','My Social video import requires FFmpeg/FFprobe and videos up to 90 seconds.']} )]);
@@ -63,6 +63,7 @@ export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProg
    catch(e){errors.push('Media '+(i+1)+': '+(e.name==='AbortError'?'Interrupted or timed out':e.message))}
   }
   const id=String(post.code||('post-'+index)).replace(/[^A-Za-z0-9_-]/g,'').slice(0,70)||'post-'+index;
+  if(post.incompleteMedia)errors.push('Only a preview or incomplete player/carousel was accessible');
   const complete=!errors.length&&downloaded.length===post.media.length&&downloaded.length>0;
   if(!complete)failed++;
   let group=[],groupBytes=0;
@@ -70,14 +71,14 @@ export async function exportPosts(posts,{fetchFile=fetchMedia,emit,signal,onProg
    if(!group.length)return;
    if(bytes+groupBytes>partLimit||entries.length>=100||report.length>=100)await flush();
    const media=[];
-   for(const f of group){const name=(complete?'media/posts/':'capture/incomplete/')+id+'-'+index+'-'+f.index+'.'+f.ext;files.push({name,data:f.data});bytes+=f.data.length;media.push({uri:name,creation_timestamp:post.created||now,title:importCaption(post.caption)})}
+   for(const f of group){const name=(complete?'media/posts/':'capture/incomplete/')+id+'-'+index+'-'+f.index+'.'+f.ext;files.push({name,data:f.data});bytes+=f.data.length;mediaFiles++;if(['mp4','webm'].includes(f.ext))videos++;else photos++;media.push({uri:name,creation_timestamp:post.created||now,title:importCaption(post.caption)})}
    if(complete){entries.push({kind:post.kind,entry:{title:importCaption(post.caption),creation_timestamp:post.created||now,media}});importable++}
-   report.push({permalink:post.permalink,caption:post.caption||'',owner:post.owner||'',created:post.created||now,dateSource:post.created?'original':'capture-time',origin:post.origin,importable:complete,expectedMedia:post.media.length,capturedMedia:group.length,errors,altText:group.map(f=>post.media[f.index].alt||''),videoDurations:group.map(f=>post.media[f.index].duration||0),visibleComments:post.comments||''});
+   report.push({permalink:post.permalink,caption:post.caption||'',owner:post.owner||'',created:post.created||now,dateSource:post.created?'original':'capture-time',origin:post.origin,importable:complete,expectedMedia:post.media.length,capturedMedia:group.length,files:media.map(m=>m.uri),errors,altText:group.map(f=>post.media[f.index].alt||''),videoDurations:group.map(f=>post.media[f.index].duration||0),visibleComments:post.comments||''});
    group=[];groupBytes=0;
   };
   for(const f of downloaded){if(group.length>=10||groupBytes+f.data.length>Math.min(partLimit,350*1024*1024))await commit();group.push(f);groupBytes+=f.data.length}
   if(!downloaded.length){if(report.length>=100)await flush();report.push({permalink:post.permalink,importable:false,expectedMedia:post.media.length,capturedMedia:0,errors})}
   await commit();if(signal?.aborted)break;
  }
- await flush();return {parts:part,importable,failed,cancelled:!!signal?.aborted};
+ await flush();return {parts:part,importable,failed,mediaFiles,photos,videos,cancelled:!!signal?.aborted};
 }

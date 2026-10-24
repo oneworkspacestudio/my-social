@@ -29,6 +29,10 @@ try {
  if($LASTEXITCODE){throw 'Windows executable build failed'}
  python scripts/notices.py --go $Go --out $Out
  if($LASTEXITCODE){throw 'Dependency notices failed'}
+ Copy-Item -LiteralPath (Join-Path $Out 'THIRD-PARTY-LICENSES.txt') -Destination 'extensions/instagram-capture/dist/THIRD-PARTY-LICENSES.txt' -Force
+ $extensionZip=Join-Path (Split-Path $Out -Parent) 'my-social-instagram-capture-0.1.0.zip'
+ Compress-Archive -Path 'extensions/instagram-capture/dist/*' -DestinationPath $extensionZip -Force
+ Copy-Item -LiteralPath 'extensions/instagram-capture/install-files.ps1' -Destination (Join-Path (Split-Path $Out -Parent) 'install-instagram-capture.ps1') -Force
  foreach($file in @('LICENSE','NOTICE','README.md','SECURITY.md','CHANGELOG.md','compatibility.json')){Copy-Item -LiteralPath $file -Destination $Out -Force}
  Copy-Item -LiteralPath docs -Destination $Out -Recurse -Force
  $commit=(git rev-parse HEAD).Trim()
@@ -38,7 +42,7 @@ try {
  $source=Join-Path (Split-Path $Out -Parent) 'my-social-source.zip'
  git archive --format=zip --output=$source HEAD
  if($LASTEXITCODE){throw 'Source archive failed'}
- $hashes=foreach($file in @((Join-Path $Out 'MySocial.exe'),$zip,$source)){((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant())+'  '+(Split-Path $file -Leaf)}
+ $hashes=foreach($file in @((Join-Path $Out 'MySocial.exe'),$zip,$source,$extensionZip)){((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant())+'  '+(Split-Path $file -Leaf)}
  [IO.File]::WriteAllLines((Join-Path (Split-Path $Out -Parent) 'SHA256SUMS.txt'),$hashes)
  Write-Output ('Built '+$zip)
 }finally{Pop-Location}

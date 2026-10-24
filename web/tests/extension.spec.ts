@@ -34,7 +34,12 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   await expect(capture.getByLabel('My Instagram username')).toHaveValue('fixture');
   await expect(capture.getByLabel('Scroll my profile to find older uploads')).toBeChecked();
   await capture.getByRole('button',{name:'Scan my uploads',exact:true}).click();
-  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos · 2 uploads selected',{exact:true})).toBeVisible({timeout:90000});
+  await expect(capture.getByText('2 uploads discovered · 4 photos · 0 videos · 2 uploads selected',{exact:true})).toBeVisible({timeout:90000}).catch(async error=>{
+   // This browser contains synthetic fixtures only; log capture status, not login fields.
+   console.log('Synthetic capture status:',await capture.locator('body').innerText());
+   console.log('Fixture tab locations:',await Promise.all(context.pages().map(async p=>({url:p.url(),title:await p.title().catch(()=>'(closed)')}))));
+   throw error;
+  });
   await expect(capture.getByRole('button',{name:'Scan my uploads',exact:true})).toBeEnabled({timeout:60000});
   const output=process.env.MYSOCIAL_TEST_OUTPUT||'../docs/screenshots';await mkdir(output,{recursive:true});
   await expect(capture.getByText('Foreign post must not be downloaded',{exact:true})).toHaveCount(0);

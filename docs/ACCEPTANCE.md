@@ -62,6 +62,7 @@ real-account completeness, all Instagram layouts and physical phones are not cer
 
 Preview6 publication and synthetic extension/import checks are recorded in
 [extension acceptance](instagram-extension-acceptance.json). The verified public
-extension files are installed locally; loading the intended Chrome profile is
-pending. Existing installed Social5 accepts its ZIP format. Native Social6 has
+extension files are installed locally. Following user completion of the native
+folder picker, Chrome confirms the unpacked extension0.1.0 is enabled in the
+selected profile, with its capture toolbar button available. Existing installed Social5 accepts its ZIP format. Native Social6 has
 not been installed by this extension task.

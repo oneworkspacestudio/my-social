@@ -67,3 +67,28 @@ free space, F nearly full; do not attempt owner native update without sufficient
 NTFS rollback capacity, remove unknown caches/backups, or move unencrypted owner
 backups onto exFAT. Current Workspace80 must not be downgraded. Final user-facing
 status must distinguish released/installed files from pending Chrome enablement.
+
+
+Follow-up: user selected their profile; normal Chrome window confirms the selected
+profile. Native helper could open Load unpacked but rejected modal input with
+geometry/target-window errors. No successful Chrome card verification yet. Asked
+user to select the folder manually. AppData is hidden in their folder navigation,
+so a second copy was installed using the verified public helper at visible
+C:/Projects/MySocial/InstagramCapture; every ZIP member hash checked. Both copies
+are intact. The latest async question asks user to paste that visible path in the
+Folder box, click Select Folder and reply done. Resume with read-only extension
+card/name/version/enabled verification, then mark acceptance complete and push.
+Use unique task-scoped node_repl globals (e.g. mySocialInstall20261024) to avoid
+state collisions; refresh exact returned windows. Do not keep retrying rejected
+modal coordinates or alter browser security/preferences to force installation.
+
+
+Installation completed: user selected the visible verified folder and replied done.
+Read-only native Chrome UI confirms exactly My Social Instagram Capture, version
+0.1.0, Unpacked extension, On/extension enabled, with capture toolbar button
+available. No personal Instagram content was captured or imported by this task.
+Acceptance now records successful browser installation; prior pending notes above
+are historical and superseded. Public preview6 assets/tag remain unchanged. Both
+verified file copies remain; do not remove either while browser source paths are
+in use. Named synthetic C test cache was cleaned after process/reparse checks.
+The full original request (build/push/release/install extension) is complete.

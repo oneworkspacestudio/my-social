@@ -25,7 +25,13 @@
   "samePrivateDataRestartHealthy": true,
   "compatibleWithInstalledSocialPreview5": true,
   "extensionFilesInstalledFromVerifiedPublicZIP": true,
-  "chromeProfileLoaded": false,
-  "chromeInstallationPending": "Intended Chrome profile selection; duplicate profile labels in normal profile picker",
-  "nativeSocialPreview6Installed": false
+  "chromeProfileLoaded": true,
+  "nativeSocialPreview6Installed": false,
+  "chromeProfileSelected": true,
+  "visibleInstallationCopyVerified": true,
+  "chromeInstallationVerified": true,
+  "chromeEnabledCardVersion": "0.1.0",
+  "chromeUnpackedSourceVerified": true,
+  "chromeToolbarButtonAvailable": true,
+  "manualFolderSelectionCompletedByUser": true
 }

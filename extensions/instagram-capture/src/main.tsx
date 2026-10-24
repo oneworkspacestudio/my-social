@@ -40,9 +40,17 @@ function App(){
   running.current=true;controller.current=new AbortController();const signal=controller.current.signal;let workerID:number|undefined;
   const renderPage=async(url:string)=>{
    const parsed=new URL(url),segments=parsed.pathname.split('/').filter(Boolean);if(segments.length===3&&['p','reel','tv'].includes(segments[1]))url=parsed.origin+'/'+segments.slice(-2).join('/')+'/';
-   if(workerID===undefined){const w=await chrome.tabs.create({url,active:false});workerID=w.id}else await chrome.tabs.update(workerID,{url});
-   for(let n=0;n<120&&!signal.aborted;n++){await pause(250);const t=await chrome.tabs.get(workerID);if(t.status==='complete'&&(t.url||'').split(/[?#]/)[0].replace(/\/$/,'')===url.replace(/\/$/,''))return workerID!}
-   throw Error(signal.aborted?'Scan stopped':'Instagram page did not finish loading.');
+   if(workerID===undefined){const w=await chrome.tabs.create({url:'about:blank',active:false});workerID=w.id}
+   await chrome.tabs.update(workerID,{url});
+   for(let n=0;n<120&&!signal.aborted;n++){
+    await pause(250);const t=await chrome.tabs.get(workerID);
+    if((t.url||'').split(/[?#]/)[0].replace(/\/$/,'')!==url.replace(/\/$/,''))continue;
+    // Usable media can be ready while analytics/images keep tabs.status loading.
+    try{const result=await chrome.scripting.executeScript({target:{tabId:workerID},world:'ISOLATED',func:()=>({url:location.origin+location.pathname,ready:document.readyState})});
+     const state=result?.[0]?.result;if(state?.url.replace(/\/$/,'')===url.replace(/\/$/,'')&&state.ready!=='loading')return workerID!;
+    }catch{/* Navigation has not committed its accessible document yet. */}
+   }
+   throw Error(signal.aborted?'Scan stopped':'Instagram page did not become readable.');
   };
   try{
    if(name==='capture'){
@@ -73,7 +81,11 @@ function App(){
     };
     const postsID=new URL(current.url).pathname.replace(/\/$/,'')==='/'+username?tabID:await renderPage('https://www.instagram.com/'+username+'/');
     await scanGrid(postsID,'posts');
-    if(fields.reels&&!signal.aborted){setBusy('Opening your Reels grid…');await scanGrid(await renderPage('https://www.instagram.com/'+username+'/reels/'),'Reels')}
+    if(fields.reels&&!signal.aborted){
+     setBusy('Opening your Reels grid…');
+     try{await scanGrid(await renderPage('https://www.instagram.com/'+username+'/reels/'),'Reels')}
+     catch(e:any){notes.add('Reels grid could not be read; continuing with the uploads already found. '+e.message)}
+    }
     if(fields.enrich){
      const discoveredLinks=[...links];
      for(let i=0;i<discoveredLinks.length&&!signal.aborted;i++){

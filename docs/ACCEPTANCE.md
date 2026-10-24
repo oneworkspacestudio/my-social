@@ -59,3 +59,9 @@ A real MV3 extension in an isolated Chromium profile captures synthetic Instagra
 pages, downloads its ZIP, and imports it through the native Social importer.
 Desktop and 390px screenshots are reviewed. These fixtures contain no owner data;
 real-account completeness, all Instagram layouts and physical phones are not certified.
+
+Preview6 publication and synthetic extension/import checks are recorded in
+[extension acceptance](instagram-extension-acceptance.json). The verified public
+extension files are installed locally; loading the intended Chrome profile is
+pending. Existing installed Social5 accepts its ZIP format. Native Social6 has
+not been installed by this extension task.

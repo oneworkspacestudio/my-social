@@ -1,65 +1,69 @@
-# Instagram capture extension — implementation in progress
+# Instagram capture extension — published; Chrome profile selection pending
 
-User explicitly requests a Chrome extension inside My Social, maximum practical
-capture from an open Instagram tab, ZIPs compatible with the existing importer,
-and commit/push/release/install. Base cd2fa9f with installed/public Social5.
-Canonical source I:/Projects/my-social; workspace mirror currently same base.
+User explicitly authorizes implementation inside My Social and push/release/install.
+Canonical I:/Projects/my-social; workspace mirror is synchronized after publication.
+Source a5fc1bcc44bab6a0746e49603c4ff014a784fe68 on main and codex/instagram-capture.
+Commits48322e0/231ed0b implement/package the extension; a5fc1bc improves test login
+synchronization only. Production binary is the exact231ed0b build, unchanged by
+that test-only delta; build-info explicitly records both commits.
 
-Implementation in extensions/instagram-capture: MV3 action opens an export tab;
-user-started capture, optional bounded scroll and sequential normal post-page
-GETs from the source tab, then selection and local ZIP downloads. Captures
-hydrated JSON/JSON-LD/visible article/preview media without private API, cookies,
-credentials, raw HTML/script export or uploads. Only Instagram pages and CDN
-hosts, no all-sites/history/debugger permission. Source security/DM pages blocked.
+Public release v0.1.0-preview.6, extension0.1.0:
+https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.6
+CI40107462751 passed. Release assets/digests, anonymous public extension/native ZIP
+retrieval, ZIP CRC/member hashes and tag commit verified. Evidence tooling lives
+under I:/Projects/tooling/social-extension-20261024, release6/public6/native6.
+No private owner information was used as a fixture or included in public evidence.
 
-AUI screen and generated TSX, React control logic, standalone ZIP/CRC writer,
-capture reports, original dates or explicit capture-time fallback, full captions
-in report/truncated import caption when needed, 10-media carousel splitting,
-sub-400MiB self-contained ZIP parts, 100MiB/file and 350MiB/post capture budget.
-Incomplete carousels excluded from native manifests; recovered files retained
-under capture/incomplete. Existing server import limits still apply (90s video).
-Nothing captured automatically on extension install. No personal content used
-as a fixture. User initiates capture/export after installation.
+MV3 action opens a user-started export tab. Optional bounded scrolling and ordinary
+sequential post-page reads; metadata from hydrated JSON/JSON-LD/visible article/OG
+previews. No private API, cookies/passwords/tokens, DMs, raw script/HTML export or
+server upload. Instagram/CDN-only permissions. Select posts and download standard
+STORE ZIPs compatible with Social5 importer. Comments/profile details retained as
+report, not native recreated objects. Best effort; some layouts/media unavailable.
+Preserves dates/captions/order where accessible; explicit capture-time fallback,
+2200-byte import captions with full text in report, 10-item splits, sub400MiB ZIP
+parts,100MiB/file and350MiB/post caps. Incomplete carousel fragments/report retained
+outside import manifest. Native90s video/image/storage validation still applies.
+AUI export screen authoritative; generated TSX. React/152 dependency notices ship.
 
-Releasing Social6 with extension0.1.0 and an importer download link. A separate
-extension-only GitHub release would obstruct the installed Workspace updater's
-newest-release scan; preserve the managed manifest/native package release flow.
-No new schema. Web/scripts/build-instagram-extension.mjs uses current web deps;
-CI builds/types/tests extension and installs Chromium for its synthetic E2E.
+Five ZIP/permission unit tests passed. All4 native browser workflows and same-data
+restart passed on packaged6; realMV3 synthetic Instagram capture/download/import,
+carousel/emoji/dates/private default, 390px screenshots reviewed. Existing public5
+importer also passed that workflow. First fixture charset failure was fixed; first
+CI login timing failure fixed by settling initial session check and asserting POST
+login200 before30s Home wait. A redundant full mod verify repeat was stopped after
+only test synchronization changed; previous full build/mod verify/Go tests/native
+FFmpeg/vet/frontend tests had passed. Final CI and exact EXE browser suite passed.
+Playwright download lock fails on exFAT; initial browser download completed on NTFS,
+then verified completed browser binaries moved to I tooling. Private synthetic test
+state remained isolated NTFS. Named C fixture cache can be cleaned after processes
+exit. Never use owner app data for fixtures.
 
-Local ZIP tests5 passed. Initial I: browser download lock failed on exFAT; exact
-Playwright Chromium now downloaded into named NTFS temporary cache under
-C:/Projects/.cache/social-extension-20261024/browsers (required for its lock).
-Keep build/evidence on I:/Projects/tooling/social-extension-20261024. Clean only
-that named C fixture tree after browsers/server/tests exit; never owner data.
-Current browser harness tests real MV3 in an isolated profile with synthetic
-Instagram/CDN routes and imports its downloaded ZIP into a fresh native Social.
-Initial missing-browser test failed before Chromium installation; existing3
-app regression flows passed. Ongoing test exec session51001; inspect its result.
+Managed release follows standard native/source/license/manifest packaging because
+an extension-only newest tag would obstruct Workspace's newest-release discovery.
+Exact public Workspace80 validator requires five owned Social packages, including
+social-contract at docs/MySocial/compatibility.json (newer than prior74). Release
+manifest includes it and requires manager80. Validator confirms other apps/ports
+unchanged and rejects another app package. Initial draft missing contract rejected
+before publication, then corrected and passed; public release is immutable.
 
-Real extension E2E now passes with the existing public native Social5 importer;
-all4 browser workflows passed. Initial synthetic page omitted UTF-8 charset,
-causing mojibake; corrected the fixture and verified emoji preservation end to end.
-Phone/desktop screenshots reviewed. ZIP unit tests5 pass. Browser binaries are
-being moved from the named NTFS cache to I tooling after successful download
-(the I download lock failed, but running completed binaries from I is supported).
+Verified public extension ZIP SHA256:
+15fd07418baea0c17c48dde528575bcb06c8f090e5d6b32d1d7593f5590f14e6
+Public install helper safely extracted to stable
+%LOCALAPPDATA%/MySocial/InstagramCapture, with install metadata. Does not overwrite
+existing install, edit browser prefs, policy/registry or auto-capture personal data.
+**Not yet loaded into Chrome.** Normal Chrome profile picker has ambiguous duplicate
+labels; async user question asks them to open intended Instagram profile and reply
+ready. No profile selected, no extension install card verified. Continue via normal
+Chrome chrome://extensions → Developer mode → Load unpacked → stable folder; inspect
+enabled card/name/version0.1.0, then update acceptance/history and commit/push.
+Use computer-use skill sky API only for native UI/file picker. Fresh list_apps and
+returned window, observe then one action+refresh. No auth/security barrier bypass.
+Do not repeat install-files helper: stable directory already exists correctly.
 
-Next: final Social6 release/package and exact-executable tests, source/CI push,
-public immutable assets, Chrome unpacked installation via normal UI.
-The requested install is the Chrome extension. Existing installed Social5 already
-accepts its ZIPs; a server update is not needed for that browser workflow. New6
-also publishes a convenient extension download link in the app. C drive has less
-than1GiB free before moving the task browser cache; F NTFS is also full. Do not
-attempt a native owner update without enough NTFS rollback capacity, remove
-unknown data/backups, or put unencrypted owner backups on exFAT. Browser extension
-files are small and can be installed independently of a server update.
-Owner Workspace is now80 (not74); inspect current public manager/installer/bundle
-and all concurrent native updaters before installation. Do not downgrade it or
-reuse the old74 installation driver unchanged. Existing Social5 must stay intact.
-Use the computer-use skill sky API for native Chrome settings/file-picker UI.
-Chrome window selected from list_apps has app Chrome, returned window197194;
-refresh selection before input. No auth/security-barrier bypass, registry forced
-extension installs, profile preference tampering or disabling protections.
-Install files using verified ZIP into stable LocalAppData/MySocial/InstagramCapture;
-then load that exact folder unpacked and verify the extension card/version.
-No source commit or public release yet at this handoff; do not claim installation.
+Native owner Social remains preview5, which already imports extension ZIPs.
+No native Social6 update is needed for this requested Chrome workflow. C has low
+free space, F nearly full; do not attempt owner native update without sufficient
+NTFS rollback capacity, remove unknown caches/backups, or move unencrypted owner
+backups onto exFAT. Current Workspace80 must not be downgraded. Final user-facing
+status must distinguish released/installed files from pending Chrome enablement.

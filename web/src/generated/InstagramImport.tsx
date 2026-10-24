@@ -8,6 +8,8 @@ export function InstagramImport({ data, onAction }: { data: any; onAction: (name
         <Card>
           <Heading level={2}>Bring your Instagram moments</Heading>
           <Text>Import your photos, videos, captions, original dates and carousels into My Social.</Text>
+          <Link href="https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.6/my-social-instagram-capture-0.1.0.zip" external={true}>Download Chrome capture extension</Link>
+          <Text variant="caption">The extension can capture accessible posts from an open Instagram tab and create import ZIPs. Extract it, then use Chrome → Extensions → Developer mode → Load unpacked.</Text>
           <Text>In Instagram, open Accounts Center → Your information and permissions → Export your information. Choose JSON, include posts and media, and download the ZIP.</Text>
           <Text variant="caption">ZIP up to 512 MiB · 1,000 posts per ZIP · import up to 100 selected posts at a time. For larger exports, choose a smaller date range.</Text>
           <Text variant="caption">JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · videos up to 90 seconds need FFmpeg and FFprobe.</Text>

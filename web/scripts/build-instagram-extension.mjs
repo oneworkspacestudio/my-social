@@ -1,0 +1,15 @@
+import{readFile,writeFile,mkdir,copyFile}from'node:fs/promises';
+import{fileURLToPath}from'node:url';
+import{build}from'vite';
+import react from'@vitejs/plugin-react';
+import{parse,compileReact}from'@codedia/parser';
+import sharp from'sharp';
+const root=fileURLToPath(new URL('../../extensions/instagram-capture/',import.meta.url)),web=fileURLToPath(new URL('../',import.meta.url));
+await mkdir(root+'/src/generated',{recursive:true});
+await writeFile(root+'/src/generated/Export.tsx','// Generated from screens/Export.aui; edit the AUI source.\n'+compileReact(parse(await readFile(root+'/src/screens/Export.aui','utf8'))));
+await build({root,configFile:false,plugins:[react()],resolve:{alias:{'@':root+'/src','react':web+'/node_modules/react','react-dom':web+'/node_modules/react-dom'}},build:{outDir:root+'/dist',emptyOutDir:true,rollupOptions:{input:{export:root+'/export.html',background:root+'/src/background.mjs'},output:{entryFileNames:chunk=>chunk.name==='background'?'background.js':'assets/[name]-[hash].js'}}}});
+await copyFile(root+'/manifest.json',root+'/dist/manifest.json');await mkdir(root+'/dist/icons',{recursive:true});
+for(const size of [16,32,48,128])await sharp(web+'/public/logo.svg').resize(size,size).png().toFile(root+'/dist/icons/'+size+'.png');
+for(const name of ['README.md','PRIVACY.md'])await copyFile(root+'/'+name,root+'/dist/'+name);
+for(const name of ['LICENSE','NOTICE'])await copyFile(web+'/../'+name,root+'/dist/'+name);
+console.log('Built My Social Instagram Capture extension');

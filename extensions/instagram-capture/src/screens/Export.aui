@@ -1,0 +1,59 @@
+Page Export
+  Stack
+    Row
+      Image src="icons/48.png" alt="My Social" width=48 height=48
+      Stack
+        Text variant=eyebrow "MY SOCIAL"
+        Heading level=1 "Bring your Instagram moments"
+    Card
+      Heading level=2 "1. Capture your tab"
+      Text "Open a profile, feed, post or Reel on Instagram, then click this extension. Keep both tabs open during capture."
+      Text variant=caption $source
+      Checkbox name=scroll "Scroll the Instagram tab to load more posts"
+      Field label="Maximum scroll steps"
+        Select name=scrolls options=$scrollOptions
+      Checkbox name=enrich "Read discovered post pages for better captions, dates and carousels"
+      Text variant=caption "Only accessible page content is collected. No private API, password or cookie export. Messages and account/security pages are excluded."
+      Row
+        Button action=capture disabled=$noSource "Capture content"
+        If condition=$busy
+          Button action=stop cancel=true variant=secondary "Stop"
+      If condition=$busy
+        Alert $busy
+      If condition=$error
+        Alert tone=error $error
+      If condition=$notice
+        Alert $notice
+    If condition=$hasPosts
+      Card
+        Heading level=2 "2. Choose your posts"
+        Text $summary
+        Row
+          Button action=all variant=secondary "Select all"
+          Button action=none variant=secondary "Clear selection"
+          Button action=export disabled=$noSelection "Download import ZIPs"
+        Text variant=caption "ZIP parts include their own media and manifest. Import each ZIP in My Social → Settings → Import Instagram ZIP. Captures are held in memory until this tab closes."
+        Text variant=caption "Missing dates use the capture date and are marked below. Larger carousels are split at 10 items. Videos over 90 seconds may be archived but cannot be imported unchanged into My Social."
+        For each=$posts
+          Card variant=post
+            Row
+              Badge $item.kind
+              Text variant=caption $item.owner
+              Text variant=caption $item.date
+            Text $item.caption
+            Text variant=caption $item.details
+            If condition=$item.warning
+              Alert tone=warning $item.warning
+            Link href=$item.permalink external=true "View source post"
+            Button action=toggle item=$item.permalink variant=$item.variant aria-pressed=$item.selected $item.label
+    If condition=$hasDownloads
+      Card
+        Heading level=2 "Your downloaded ZIPs"
+        For each=$downloads
+          Text $item.label
+    If condition=$hasWarnings
+      Card
+        Heading level=2 "Capture notes"
+        For each=$warnings
+          Text $item.text
+    Text variant=caption "This is a best-effort capture of content available to your tab. Use Instagram’s official JSON export for the most complete account archive. Capture only content you own or have permission to copy. Nothing is uploaded by this extension."

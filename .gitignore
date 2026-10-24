@@ -7,3 +7,4 @@
 go.work*
 test-results/
 playwright-report/
+/extensions/instagram-capture/dist/

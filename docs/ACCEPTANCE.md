@@ -50,3 +50,12 @@ same-data executable restart. These are synthetic local development checks;
 publication and protected installation evidence is recorded separately.
 
 Preview5 delivery is verified in [Instagram import acceptance](instagram-import-acceptance.json): public assets/CI/native checks, exact installed executable and frontend files, normal backed-up Social-only update, preserved other apps and identity, and all25 local/public services healthy. This does not certify physical-device behavior.
+
+The Chrome Instagram Capture extension is described in
+[its guide](../extensions/instagram-capture/README.md). It is a best-effort capture
+of accessible tab content, not a complete account export. ZIP unit tests cover
+part boundaries, Unicode, failed carousels, dates, cancellation and host limits.
+A real MV3 extension in an isolated Chromium profile captures synthetic Instagram
+pages, downloads its ZIP, and imports it through the native Social importer.
+Desktop and 390px screenshots are reviewed. These fixtures contain no owner data;
+real-account completeness, all Instagram layouts and physical phones are not certified.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-preview.6
+
+- Add a personal-use Chrome extension that captures accessible Instagram tab content into self-contained My Social import ZIPs.
+- Include optional scrolling/post-page enrichment, selection, local downloads and capture reports.
+- Link the extension download from the Instagram importer.
+
 ## 0.1.0-preview.5
 
 - Import Instagram JSON export ZIPs from Settings with preview, selection and an Only me default.

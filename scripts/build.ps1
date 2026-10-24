@@ -1,4 +1,4 @@
-param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.5',[string]$Rsrc='')
+param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.6',[string]$Rsrc='')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root
@@ -12,6 +12,10 @@ try {
  if($LASTEXITCODE){throw 'Frontend build failed'}
  npm --prefix web test
  if($LASTEXITCODE){throw 'Frontend checks failed'}
+ npm --prefix web run extension:build
+ if($LASTEXITCODE){throw 'Extension build failed'}
+ npm --prefix web run extension:test
+ if($LASTEXITCODE){throw 'Extension tests failed'}
  & $Go test ./...
  if($LASTEXITCODE){throw 'Go tests failed'}
  & $Go vet ./...

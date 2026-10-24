@@ -1,0 +1,17 @@
+import React,{createContext,useContext}from'react';
+export const Fields=createContext<any>({fields:{},setField:()=>{},disabled:false,select:()=>{}});
+const Label=createContext('');type P=Record<string,any>;
+export const Page=(p:P)=>React.createElement('main',{},p.children);
+export const Stack=(p:P)=>React.createElement('div',{className:'stack'},p.children);
+export const Row=(p:P)=>React.createElement('div',{className:'row'},p.children);
+export const Card=(p:P)=>React.createElement('section',{className:'card '+(p.variant||'')},p.children);
+export const Heading=(p:P)=>React.createElement('h'+(p.level||2),{},p.children);
+export const Text=(p:P)=>React.createElement('p',{className:p.variant||''},p.children);
+export const Image=(p:P)=>React.createElement('img',{src:p.src,alt:p.alt,width:p.width,height:p.height});
+export const Badge=(p:P)=>React.createElement('span',{className:'badge'},p.children);
+export const Alert=(p:P)=>React.createElement('p',{className:'alert '+(p.tone||''),role:p.tone==='error'?'alert':'status'},p.children);
+export const Link=(p:P)=>React.createElement('a',{href:p.href,target:p.external?'_blank':undefined,rel:'noopener noreferrer'},p.children);
+export const Button=(p:P)=>{const c=useContext(Fields);return React.createElement('button',{type:'button',className:p.variant||'',disabled:p.disabled||(c.disabled&&!p.cancel),'aria-pressed':p['aria-pressed'],onClick:()=>{if(p.item)c.select(p.item);p.onClick?.()}},p.children)};
+export const Field=(p:P)=>React.createElement('label',{className:'field'},p.label,React.createElement(Label.Provider,{value:p.label},p.children));
+export const Select=(p:P)=>{const c=useContext(Fields),label=useContext(Label);return React.createElement('select',{'aria-label':label,value:c.fields[p.name],disabled:c.disabled,onChange:(e:any)=>c.setField(p.name,e.target.value)},...(p.options||[]).map((o:any)=>React.createElement('option',{key:o,value:o},o)))};
+export const Checkbox=(p:P)=>{const c=useContext(Fields);return React.createElement('label',{className:'check'},React.createElement('input',{type:'checkbox',checked:!!c.fields[p.name],disabled:c.disabled,onChange:(e:any)=>c.setField(p.name,e.target.checked)}),p.children)};

@@ -24,6 +24,10 @@ jobs:
       - run: node web/scripts/icons.mjs
       - run: npm --prefix web run build
       - run: npm --prefix web test
+      - run: npm --prefix web run extension:build
+      - run: npm --prefix web run extension:test
+      - run: npx playwright install chromium --no-shell
+        working-directory: web
       - run: go test ./...
       - run: go vet ./...
       - run: New-Item -ItemType Directory -Force dist; go build -trimpath -o dist/MySocial.exe ./cmd/my-social

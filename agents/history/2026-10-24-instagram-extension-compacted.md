@@ -216,3 +216,34 @@ User needs Chrome Reload and reopen capture tab to use one-click downloads. Live
 owner capture remains unverified due browser restriction; no owner media downloaded
 or imported by agent. Public proof: docs/instagram-stream-download-acceptance.json.
 The previous two-step0.1.1 flow remains only the optional manual-review mode.
+
+## Correction: legacy managed-update layouts
+
+User reported native My Social5 could not update: extra social-contract rejected.
+Public73/80/82 catalogs do include five Social packages, but older independently
+updated installations can retain only four. Prior acceptance proved the fresh
+catalog layout only; it did not cover that supported legacy layout. Do not remove
+contract metadata universally (that breaks fresh installs), edit owner catalogs
+or mutate published release assets.
+
+Workspace83 source09b3b9fb43cbc78897ce4f494b1df2b88d631eb3 fixes validation: only
+an unregistered same-app compatibility document at its exact documentation path
+is skipped, matching the existing scope filter. Tracked docs still update;
+foreign/runtime/path-changing packages remain rejected. A release-link-only
+Chrome component change no longer offers redundant native updates. Regression
+checks cover both layouts, normal selection/staging and strict rejection cases.
+Native protected82-to83/Social2-to6 fixture update, real Accounts/OIDC sign-in and
+same-data restart passed; no owner used as fixture. Publication/channel promotion
+and authorized owner Workspace/Social update are being completed in the paired
+Workspace task. Extension0.1.2 files remain unchanged. Workspace worktree is
+I:/Projects/one-workspace-update-docs; artifact handoff tooling named
+social-update-contract-20261024. Record final delivery in both histories.
+
+Delivery confirmed: Workspace83 and native Social6 installed through the normal
+verified backup/update path, exit0. All26 services healthy; other app contracts,
+package pins/executable bytes, identity, credentials, selection and locations kept.
+New83 controller's live public-channel check reports Social6 Up to date with no
+Review release warning and no redundant Chrome-component native update. Public83
+release and anonymous raw channel promotion verified; Capture.2 is also promoted.
+Workspace source proof is docs/evidence/update-document-compatibility-20261024.json
+in the paired repo. No owner media used for tests, no Chrome files changed here.

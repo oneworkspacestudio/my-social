@@ -33,7 +33,14 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   await expect(capture.getByText(/1 ZIP parts downloaded · 2 importable posts · 0 posts incomplete/)).toBeVisible({timeout:30000});
   const [download]=await worker.evaluate(async()=>await(chrome as any).downloads.search({}));expect(download.state).toBe('complete');
   const resolved=path.resolve(download.filename);expect(resolved.startsWith(path.resolve(root)+path.sep)).toBe(true);const archive=await readFile(resolved);
-  const app=await context.newPage();await app.goto(process.env.MYSOCIAL_TEST_URL||'http://localhost:29113');await app.getByLabel('Email address').fill('creator@example.test');await app.getByLabel('Password',{exact:true}).fill(process.env.MYSOCIAL_TEST_PASSWORD!);await app.getByRole('button',{name:'Sign in',exact:true}).click();await expect(app.getByRole('heading',{name:'The everyday, shared.'})).toBeVisible();
+  const app=await context.newPage();
+  // Settle the fresh profile's initial session check before submitting login.
+  const initialSession=app.waitForResponse(r=>new URL(r.url()).pathname==='/api/me');
+  await app.goto(process.env.MYSOCIAL_TEST_URL||'http://localhost:29113');expect((await initialSession).status()).toBe(401);
+  await app.getByLabel('Email address').fill('creator@example.test');await app.getByLabel('Password',{exact:true}).fill(process.env.MYSOCIAL_TEST_PASSWORD!);
+  const loginResponse=app.waitForResponse(r=>new URL(r.url()).pathname==='/api/login'&&r.request().method()==='POST');
+  await app.getByRole('button',{name:'Sign in',exact:true}).click();expect((await loginResponse).status()).toBe(200);
+  await expect(app.getByRole('heading',{name:'The everyday, shared.'})).toBeVisible({timeout:30000});
   await app.goto((process.env.MYSOCIAL_TEST_URL||'http://localhost:29113')+'/#instagram');await app.getByLabel('Instagram export ZIP').setInputFiles({name:'extension-export.zip',mimeType:'application/zip',buffer:archive});await app.getByRole('button',{name:'Preview ZIP',exact:true}).click();
   await expect(app.getByText('2 posts found · 2 available · 0 unavailable',{exact:true})).toBeVisible();await expect(app.getByLabel('Who can see imported posts?')).toHaveValue('private');await app.getByRole('button',{name:'Select available posts',exact:true}).click();await app.getByRole('button',{name:'Import selected posts',exact:true}).click();await expect(app.getByText('2 imported · 0 already imported · 0 failed. Successful posts are saved; you can retry failed posts safely.',{exact:true})).toBeVisible();
   await app.goto((process.env.MYSOCIAL_TEST_URL||'http://localhost:29113')+'/#profile');await expect(app.getByText('Captured carousel ☀️',{exact:true})).toBeVisible();await expect(app.getByText('Second captured post',{exact:true})).toBeVisible();

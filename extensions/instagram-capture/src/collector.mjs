@@ -17,7 +17,9 @@ export async function collectPage(options = {}) {
   if(options.wait){for(let i=0;i<40;i++){if(document.querySelector('article img,article video,main a[href*="/p/"],main a[href*="/reel/"]'))break;await new Promise(r=>setTimeout(r,250))}}
   let doc=document,url=source.href.split(/[?#]/)[0];
   if(options.url){
-    const target=postURL(options.url);if(!target)throw Error('Invalid Instagram post link');
+    const link=postURL(options.url);if(!link)throw Error('Invalid Instagram post link');
+    const parsed=new URL(link),segments=parsed.pathname.split('/').filter(Boolean);
+    const target=parsed.origin+'/'+segments.slice(-2).join('/')+'/';
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
     try {
       const response=await fetch(target,{credentials:'same-origin',signal:controller.signal,redirect:'error'});
@@ -51,7 +53,10 @@ export async function collectPage(options = {}) {
     if(!p?.permalink||!p.media?.length)return;
     const owner=String(p.owner||'').replace(/^@/,'').toLowerCase();
     if(currentCode&&p.code!==currentCode)return;
-    if(username&&(owner?owner!==username:!currentCode&&!profileLinks.has(p.code)))return;
+    const anchor=profileLinks.get(p.code),bits=anchor?new URL(anchor.getAttribute('href'),source).pathname.split('/').filter(Boolean):[];
+    const trusted=!!(currentCode&&options.trustedProfileCode)||(bits.length===3&&bits[0].toLowerCase()===username);
+    if(username&&(owner?owner!==username:!trusted)){if(!owner)warnings.push('An upload was skipped because its account could not be verified.');return}
+    p.ownerVerified=owner===username||trusted;
     if(username&&!owner)p.owner=username;
     const old=posts.get(p.permalink);
     if(!old){posts.set(p.permalink,p);return}
@@ -94,7 +99,8 @@ export async function collectPage(options = {}) {
   // Profile thumbnails show what was discovered, but are never passed off as full uploads.
   for(const [code,a] of profileLinks){
     const el=a.querySelector('img');const image=mediaURL(el?.currentSrc||el?.src);
-    if(image)merge({permalink:postURL(a.getAttribute('href')),code,kind:a.href.includes('/reel/')?'reel':'post',owner:username,caption:'',created:0,media:[{url:image,type:'image',alt:cleanText(el.alt),id:new URL(image).pathname}],comments:'',origin:'grid-preview',incompleteMedia:true});
+    const anchorBits=new URL(a.getAttribute('href'),source).pathname.split('/').filter(Boolean);
+    if(image)merge({permalink:postURL(a.getAttribute('href')),code,kind:a.href.includes('/reel/')?'reel':'post',owner:anchorBits.length===3?username:'',caption:'',created:0,media:[{url:image,type:'image',alt:cleanText(el.alt),id:new URL(image).pathname}],comments:'',origin:'grid-preview',incompleteMedia:true});
   }
   for(const article of doc.querySelectorAll('article')){ 
     const anchor=Array.from(article.querySelectorAll('a[href]')).find(a=>postURL(a.getAttribute('href')));
@@ -116,7 +122,7 @@ export async function collectPage(options = {}) {
         if(step===99)warnings.push('A carousel reached the 100-slide scan limit.');
       }
     }
-    const ownerLink=article.querySelector('header a[href]');
+    const ownerLink=article.querySelector('header a[href]')||Array.from(article.querySelectorAll('a[href]')).find(a=>{try{return new URL(a.getAttribute('href'),source).pathname.split('/').filter(Boolean).length===1}catch{return false}});
     const ownerPath=ownerLink?new URL(ownerLink.getAttribute('href'),source).pathname.split('/').filter(Boolean):[];
     const owner=ownerPath.length===1?ownerPath[0]:'';
     if(unavailableVideo)warnings.push('A video uses a non-downloadable player source. It is marked incomplete rather than exported as a photo.');

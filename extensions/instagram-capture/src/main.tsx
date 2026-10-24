@@ -39,6 +39,7 @@ function App(){
   if(!/^[a-z0-9_.]{1,30}$/.test(username)){setError('Enter your Instagram username or open your profile and click the extension again.');return}
   running.current=true;controller.current=new AbortController();const signal=controller.current.signal;let workerID:number|undefined;
   const renderPage=async(url:string)=>{
+   const parsed=new URL(url),segments=parsed.pathname.split('/').filter(Boolean);if(segments.length===3&&['p','reel','tv'].includes(segments[1]))url=parsed.origin+'/'+segments.slice(-2).join('/')+'/';
    if(workerID===undefined){const w=await chrome.tabs.create({url,active:false});workerID=w.id}else await chrome.tabs.update(workerID,{url});
    for(let n=0;n<120&&!signal.aborted;n++){await pause(250);const t=await chrome.tabs.get(workerID);if(t.status==='complete'&&(t.url||'').split(/[?#]/)[0].replace(/\/$/,'')===url.replace(/\/$/,''))return workerID!}
    throw Error(signal.aborted?'Scan stopped':'Instagram page did not finish loading.');
@@ -58,7 +59,7 @@ function App(){
      }
      for(const link of result.links){const code=link.split('/').filter(Boolean).at(-1);if(links.size<1000)links.set(code,link)}
      for(const note of result.warnings)notes.add(note);
-     setDiscovered(links.size);setPosts([...found.values()]);setSelected([...found.values()].map(p=>p.permalink));setWarnings([...notes]);
+     setDiscovered(found.size);setPosts([...found.values()]);setSelected([...found.values()].map(p=>p.permalink));setWarnings([...notes]);
     };
     const scanGrid=async(id:number,label:string)=>{
      let previous='',stale=0;const steps=fields.scroll?Math.min(100,Math.max(1,Number(fields.scrolls)||100)):1;
@@ -78,9 +79,10 @@ function App(){
      for(let i=0;i<discoveredLinks.length&&!signal.aborted;i++){
       const[code,url]=discoveredLinks[i];setBusy(`Reading your upload ${i+1} of ${discoveredLinks.length} · photos, videos and carousel slides`);
       try{
-       add(await call({username,url}));const p=found.get(code);
+       const bits=new URL(url).pathname.split('/').filter(Boolean),trustedProfileCode=(bits.length===3&&bits[0].toLowerCase()===username)||!!found.get(code)?.ownerVerified;
+       add(await call({username,url,trustedProfileCode}));const p=found.get(code);
        if(!p||p.incompleteMedia||!['page-data','structured-data'].includes(p.origin)){
-        const id=await renderPage(url);add(await call({username,wait:true,carousel:true},id));
+        const id=await renderPage(url);add(await call({username,wait:true,carousel:true,trustedProfileCode},id));
        }
       }catch(e:any){notes.add('An upload could not be read: '+e.message);if(/HTTP (403|429)/.test(e.message)){notes.add('Instagram limited page reads. Download the available files and try again later.');break}}
       await pause(750);

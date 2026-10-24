@@ -18,8 +18,10 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   const foreign={...one,code:'NOT_MY_UPLOAD',owner:{username:'someone_else'},caption:{text:'Foreign post must not be downloaded'}};
   const delayedArticle='<article><header><a href="/fixture/">fixture</a></header><h1>Second captured post</h1><time datetime="2020-09-13T12:26:41Z"></time><img width="640" height="480" src="https://fixture.cdninstagram.com/c.png"><button aria-label="Next" onclick="const i=document.createElement(\'img\');i.width=640;i.height=480;i.src=\'https://fixture.cdninstagram.com/d.png\';this.before(i);this.disabled=true">Next slide</button></article>';
   await context.route('https://www.instagram.com/**',route=>{
-   const u=new URL(route.request().url()),profile=u.pathname==='/fixture/'||u.pathname==='/fixture/reels/';
-   const body=profile?html([one,foreign],'<a href="/fixture/p/SYNTHETIC1/">First</a><a href="/fixture/p/SYNTHETIC2/">Second<img width="640" height="480" src="https://fixture.cdninstagram.com/c.png"></a><a href="/someone_else/p/NOT_MY_UPLOAD/">Other account</a>'):u.pathname.includes('SYNTHETIC2')?html([],`<div id="delayed"></div><script>setTimeout(()=>document.getElementById('delayed').innerHTML=${JSON.stringify(delayedArticle)},100)</script>`):html([one,foreign]);
+   const u=new URL(route.request().url());if(/^\/fixture\/(p|reel)\//.test(u.pathname))return route.fulfill({status:302,headers:{location:'/'+u.pathname.split('/').filter(Boolean).slice(-2).join('/')+'/'}});
+   const profile=u.pathname==='/fixture/'||u.pathname==='/fixture/reels/';
+   const unknown={...one,code:'UNVERIFIED',owner:undefined,caption:{text:'Unverified owner must not be downloaded'}};
+   const body=profile?html([one,foreign,unknown],'<a href="/fixture/p/SYNTHETIC1/">First</a><a href="/fixture/p/SYNTHETIC2/">Second<img width="640" height="480" src="https://fixture.cdninstagram.com/c.png"></a><a href="/someone_else/p/NOT_MY_UPLOAD/">Other account</a><a href="/p/UNVERIFIED/">Unverified<img width="640" height="480" src="https://fixture.cdninstagram.com/unknown.png"></a>'):u.pathname.includes('UNVERIFIED')?html([unknown],'<article><h1>Unverified owner must not be downloaded</h1><img width="640" height="480" src="https://fixture.cdninstagram.com/unknown.png"></article>'):u.pathname.includes('SYNTHETIC2')?html([],`<div id="delayed"></div><script>setTimeout(()=>document.getElementById('delayed').innerHTML=${JSON.stringify(delayedArticle)},100)</script>`):html([one,foreign]);
    return route.fulfill({contentType:'text/html',body});
   });
   await context.route('https://fixture.cdninstagram.com/**',route=>route.fulfill({contentType:'image/png',body:png}));
@@ -35,6 +37,7 @@ test('real extension captures a synthetic Instagram tab, downloads a ZIP and imp
   await expect(capture.getByRole('button',{name:'Scan my uploads',exact:true})).toBeEnabled({timeout:60000});
   const output=process.env.MYSOCIAL_TEST_OUTPUT||'../docs/screenshots';await mkdir(output,{recursive:true});
   await expect(capture.getByText('Foreign post must not be downloaded',{exact:true})).toHaveCount(0);
+  await expect(capture.getByText('Unverified owner must not be downloaded',{exact:true})).toHaveCount(0);
   await capture.screenshot({path:path.join(output,'instagram-extension-desktop.png'),fullPage:true});
   await capture.setViewportSize({width:390,height:844});expect(await capture.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await capture.screenshot({path:path.join(output,'instagram-extension-mobile.png'),fullPage:true});

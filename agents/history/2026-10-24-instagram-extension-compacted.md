@@ -200,3 +200,19 @@ AUI regenerated; permission set and archive format unchanged.
 Next: push, verify CI, publish component patch capture.2 with unchanged native6
 and validated Workspace manifest; replace matching installed public files and
 leave Chrome Reload/refresh to user due to the extension-page browser restriction.
+
+###0.1.2 delivery complete
+
+Published v0.1.0-preview.6-capture.2 from84e8f7cf431ce632372f051ddc862c6c0941a5e1:
+https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.6-capture.2
+Fast Chrome CI40129624905 and full source CI40129624893 both succeeded. Exact
+Workspace80 validator passed before/after publication; asset digests, anonymous
+public extension ZIP/CRC/source tag verified. Native6 assets unchanged. Public ZIP
+SHA256 f9c8f0d08addf75e9228c99fa4fe9936175b7cc24abc5ff313f11c780cfd42fc.
+Both existing installed folders match every new public ZIP member. Prior0.1.1
+members verified before replacement; permission set unchanged, old live hashed
+assets retained, no reparse paths. Metadata says capture-window refresh required.
+User needs Chrome Reload and reopen capture tab to use one-click downloads. Live
+owner capture remains unverified due browser restriction; no owner media downloaded
+or imported by agent. Public proof: docs/instagram-stream-download-acceptance.json.
+The previous two-step0.1.1 flow remains only the optional manual-review mode.

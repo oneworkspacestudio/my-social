@@ -14,6 +14,14 @@ export function InstagramImport({ data, onAction }: { data: any; onAction: (name
           <Text variant="caption">ZIP up to 512 MiB · 1,000 posts per ZIP · import all available posts with one click. For larger exports, choose a smaller date range.</Text>
           <Text variant="caption">JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · imported videos up to 10 minutes need FFmpeg and FFprobe.</Text>
           <Text variant="caption">Stories and archived posts stay archived in Creator Studio. Followers, messages, likes, comments and profile details are not imported.</Text>
+          <Button onClick={() => onAction("native")}>Choose ZIP for background upload</Button>
+          <Text variant="caption">Windows opens a file picker. Select your ZIP, then you can close this page while it uploads. Keep the computer on and the ZIP in place.</Text>
+          {data.nativeLink && (
+            <Link href={data.nativeLink}>Open Windows file picker</Link>
+          )}
+          <Link href={data.nativeDownload} external={true}>Install Windows uploader on this computer</Link>
+          <Text variant="caption">The uploader is included on your Workspace PC. On another Windows computer, download and run it once, then return here.</Text>
+          <Heading level={3}>Or upload in this tab</Heading>
           <Field label="Instagram export ZIP"><Input name="archive" type="file" accept=".zip,application/zip" /></Field>
           {data.filename && (
             <Text variant="caption">{data.filename}</Text>

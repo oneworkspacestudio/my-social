@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-preview.9
+
+- Windows background ZIP uploads keep transferring after the browser closes, retry connection failures and resume the encrypted queue at sign-in.
+- Native ZIP picker, scoped single-file permissions and live server progress retain the five-post sample and explicit Import action.
+- Requires Workspace89 for the dedicated authenticated native transfer route. Browser uploads remain available on other devices.
+
+
 ## 0.1.0-preview.8
 
 - Upload Instagram ZIPs in resumable, checksum-verified chunks.

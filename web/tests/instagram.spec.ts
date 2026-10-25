@@ -1,7 +1,9 @@
 import{test,expect}from'@playwright/test';
 import sharp from'sharp';
 import{crc32}from'node:zlib';
-import{mkdir}from'node:fs/promises';
+import{mkdir,writeFile}from'node:fs/promises';
+import{spawn}from'node:child_process';
+import{randomBytes}from'node:crypto';
 import path from'node:path';
 
 // Small uncompressed ZIP fixture: no personal export and no new dependency.
@@ -72,4 +74,19 @@ test('Closing the tab resumes saved upload chunks and server import completes wi
  const queued=resumed.waitForResponse(r=>r.url().endsWith('/'+job.id+'/import')&&r.status()===202);await resumed.getByRole('button',{name:'Import 1 post',exact:true}).click();await queued;await resumed.close();
  await expect.poll(async()=>{const result=await(await context.request.get('/api/imports/instagram/jobs/'+job.id)).json();return result.state},{timeout:30000}).toBe('completed');
  const returned=await context.newPage();await returned.goto('/#instagram');await expect(returned.getByText('1 imported · 0 already imported · 0 failed. Successful posts are saved; you can retry failed posts safely.',{exact:true})).toBeVisible();await expect(returned.locator('.card--import-item')).toHaveCount(1);await returned.close();
+});
+
+
+test('Native Windows transfer finishes after the browser closes without file reselection',async({page,context})=>{
+ test.skip(process.platform!=='win32'||!process.env.MYSOCIAL_TEST_EXE,'Requires the exact Windows executable');test.setTimeout(120000);
+ await page.goto('/');await page.getByLabel('Email address').fill('creator@example.test');await page.getByLabel('Password',{exact:true}).fill(process.env.MYSOCIAL_TEST_PASSWORD!);await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('heading',{name:'The everyday, shared.'})).toBeVisible();await page.goto('/#instagram');
+ await expect(page.getByRole('button',{name:'Choose ZIP for background upload',exact:true})).toBeVisible();
+ const launch=await page.evaluate(async()=>{const me=await(await fetch('/api/me')).json();const r=await fetch('/api/imports/instagram/native',{method:'POST',headers:{'X-CSRF-Token':me.csrf,'Content-Type':'application/json'},body:'{}'});if(!r.ok)throw Error('Cannot create native upload permission');return (await r.json()).launch});
+ const photo=await sharp({create:{width:40,height:30,channels:3,background:'#2d8167'}}).png().toBuffer();const archive=zip({'content/posts_1.json':Buffer.from(JSON.stringify([{title:'Native upload completed with no browser open',creation_timestamp:1570000000,media:[{uri:'media/posts/a.png'}]}])),'media/posts/a.png':photo,'padding.bin':randomBytes(12*1024*1024)});
+ const clientRoot=path.join(process.env.MYSOCIAL_TEST_ROOT!,'native-client-'+Date.now());await mkdir(clientRoot,{recursive:true});const file=path.join(clientRoot,'native-background.zip');await writeFile(file,archive);
+ await page.close();expect(context.pages()).toHaveLength(0);
+ const child=spawn(process.env.MYSOCIAL_TEST_EXE!,['--mysocial-upload-file',launch,file],{windowsHide:true,env:{...process.env,LOCALAPPDATA:clientRoot},stdio:'ignore'});let exited=false;const result=new Promise<number|null>((resolve,reject)=>{child.once('exit',code=>{exited=true;resolve(code)});child.once('error',reject)});
+ try{expect(await result).toBe(0);expect(context.pages()).toHaveLength(0);const jobs=await(await context.request.get('/api/imports/instagram/jobs')).json();const j=jobs.jobs.find((j:any)=>j.filename==='native-background.zip');expect(j.nativeUpload).toBe(true);expect(j.received).toBe(archive.length);await expect.poll(async()=>{const current=await(await context.request.get('/api/imports/instagram/jobs/'+j.id)).json();return current.state},{timeout:30000}).toBe('ready');
+ const returned=await context.newPage();await returned.goto('/#instagram');await expect(returned.getByText('1 posts found · 1 available · 0 unavailable',{exact:true})).toBeVisible();await expect(returned.locator('.card--import-item')).toHaveCount(1);await returned.getByRole('button',{name:'Import 1 post',exact:true}).click();await expect(returned.getByText('1 imported · 0 already imported · 0 failed. Successful posts are saved; you can retry failed posts safely.',{exact:true})).toBeVisible();const output=process.env.MYSOCIAL_TEST_OUTPUT||'../docs/screenshots';await returned.screenshot({path:path.join(output,'native-upload-desktop.png'),fullPage:true});await returned.setViewportSize({width:390,height:844});expect(await returned.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await returned.screenshot({path:path.join(output,'native-upload-mobile.png'),fullPage:true});await returned.close();
+ }finally{if(!exited)child.kill()}
 });

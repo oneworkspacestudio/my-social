@@ -61,6 +61,8 @@ type instagramJob struct {
 	Updated     int64             `json:"updated"`
 	Retained    bool              `json:"retained"`
 	Revision    int64             `json:"revision"`
+	NativeGrant string            `json:"nativeGrant"`
+	Native      bool              `json:"native"`
 }
 
 func instagramArchive(id string) string { return "generated/imports/job-" + id + ".zip" }
@@ -129,35 +131,44 @@ func instagramJobView(j instagramJob) map[string]any {
 	if j.State == "cancelled" {
 		label = "Cancelled. Completed posts are kept."
 	}
-	return map[string]any{"id": j.ID, "state": j.State, "filename": j.Filename, "size": j.Size, "received": j.Received, "chunks": j.Chunks, "fingerprint": j.Fingerprint, "revision": j.Revision, "retained": j.Retained, "chunkSize": instagramChunkSize, "digest": j.Digest, "items": sample, "postCount": len(j.Items), "ready": ready, "unavailable": unavailable, "label": label, "done": j.Done, "total": j.Total, "error": j.Error, "imported": imported, "duplicates": duplicates, "failed": failed, "created": j.Created, "updated": j.Updated, "visibility": j.Visibility}
+	return map[string]any{"nativeGrant": j.NativeGrant, "nativeUpload": j.Native, "id": j.ID, "state": j.State, "filename": j.Filename, "size": j.Size, "received": j.Received, "chunks": j.Chunks, "fingerprint": j.Fingerprint, "revision": j.Revision, "retained": j.Retained, "chunkSize": instagramChunkSize, "digest": j.Digest, "items": sample, "postCount": len(j.Items), "ready": ready, "unavailable": unavailable, "label": label, "done": j.Done, "total": j.Total, "error": j.Error, "imported": imported, "duplicates": duplicates, "failed": failed, "created": j.Created, "updated": j.Updated, "visibility": j.Visibility}
 }
+
+type instagramUploadInput struct {
+	Filename    string
+	Size        int64
+	Fingerprint string
+}
+
 func (a *App) createInstagramJob(w http.ResponseWriter, r *http.Request) {
-	var in struct {
-		Filename    string
-		Size        int64
-		Fingerprint string
-	}
+	var in instagramUploadInput
 	if !apphost.Decode(w, r, &in) {
 		return
 	}
-	if in.Size < 22 || in.Size > instagramZIPLimit || len(in.Filename) > 255 || in.Filename == "" || path.Base(in.Filename) != in.Filename || strings.ContainsAny(in.Filename, "\\\x00") || len(in.Fingerprint) != 64 {
-		apphost.Problem(w, 400, "Choose an Instagram ZIP up to 512 MiB")
+	j, status, e := a.allocateInstagramJob(r.Context(), uid(r), in)
+	if e != nil {
+		apphost.Problem(w, status, e.Error())
 		return
+	}
+	apphost.JSON(w, status, instagramJobView(j))
+}
+func (a *App) allocateInstagramJob(ctx context.Context, owner string, in instagramUploadInput) (instagramJob, int, error) {
+	var empty instagramJob
+	bad := func(status int, msg string) (instagramJob, int, error) { return empty, status, errors.New(msg) }
+	if in.Size < 22 || in.Size > instagramZIPLimit || len(in.Filename) > 255 || in.Filename == "" || path.Base(in.Filename) != in.Filename || strings.ContainsAny(in.Filename, "\\\x00") || len(in.Fingerprint) != 64 {
+		return bad(400, "Choose an Instagram ZIP up to 512 MiB")
 	}
 	if _, e := hex.DecodeString(in.Fingerprint); e != nil {
-		apphost.Problem(w, 400, "Invalid upload fingerprint")
-		return
+		return bad(400, "Invalid upload fingerprint")
 	}
-	if a.storageCheck(r.Context()) != nil {
-		apphost.Problem(w, 503, "Connect protected My Photos/My Social storage before uploading")
-		return
+	if a.storageCheck(ctx) != nil {
+		return bad(503, "Connect protected My Photos/My Social storage before uploading")
 	}
 	a.instagramMu.Lock()
 	defer a.instagramMu.Unlock()
-	rows, e := a.H.DB.Query("SELECT id FROM instagram_import_jobs WHERE owner=? AND state='uploading' ORDER BY created DESC", uid(r))
+	rows, e := a.H.DB.Query("SELECT id FROM instagram_import_jobs WHERE owner=? AND state='uploading' ORDER BY created DESC", owner)
 	if e != nil {
-		a.fail(w, e)
-		return
+		return bad(503, "Could not read saved uploads")
 	}
 	ids := []string{}
 	for rows.Next() {
@@ -167,28 +178,24 @@ func (a *App) createInstagramJob(w http.ResponseWriter, r *http.Request) {
 	}
 	rows.Close()
 	for _, id := range ids {
-		j, e := a.loadInstagramJob(id, uid(r))
+		j, e := a.loadInstagramJob(id, owner)
 		if e == nil && j.Size == in.Size && j.Filename == in.Filename && j.Fingerprint == in.Fingerprint {
-			apphost.JSON(w, 200, instagramJobView(j))
-			return
+			return j, 200, nil
 		}
 	}
 	var count, global int
-	if a.H.DB.QueryRow("SELECT count(*) FROM instagram_import_jobs WHERE owner=? AND retained=1", uid(r)).Scan(&count) != nil || a.H.DB.QueryRow("SELECT count(*) FROM instagram_import_jobs WHERE retained=1").Scan(&global) != nil {
-		a.fail(w, errors.New("job count"))
-		return
+	if a.H.DB.QueryRow("SELECT count(*) FROM instagram_import_jobs WHERE owner=? AND retained=1", owner).Scan(&count) != nil || a.H.DB.QueryRow("SELECT count(*) FROM instagram_import_jobs WHERE retained=1").Scan(&global) != nil {
+		return bad(503, "Could not check saved uploads")
 	}
 	if count >= 2 || global >= 4 {
-		apphost.Problem(w, 429, "Finish or cancel an existing ZIP before uploading another")
-		return
+		return bad(429, "Finish or cancel an existing ZIP before uploading another")
 	}
-	j := instagramJob{ID: apphost.ID(), Owner: uid(r), State: "uploading", Filename: in.Filename, Size: in.Size, Fingerprint: in.Fingerprint, Visibility: "private", Label: "Waiting for ZIP upload", Created: a.now().Unix(), Updated: a.now().Unix(), Chunks: []instagramChunk{}, Results: []instagramResult{}, Retained: true}
+	j := instagramJob{ID: apphost.ID(), Owner: owner, State: "uploading", Filename: in.Filename, Size: in.Size, Fingerprint: in.Fingerprint, Visibility: "private", Label: "Waiting for ZIP upload", Created: a.now().Unix(), Updated: a.now().Unix(), Chunks: []instagramChunk{}, Results: []instagramResult{}, Retained: true}
 	_, e = a.H.DB.Exec("INSERT INTO instagram_import_jobs VALUES(?,?,?,?,?,?,?)", j.ID, j.Owner, j.State, encode(j), j.Created, j.Updated, 1)
 	if e != nil {
-		a.fail(w, e)
-		return
+		return bad(503, "Could not save upload")
 	}
-	apphost.JSON(w, 201, instagramJobView(j))
+	return j, 201, nil
 }
 func (a *App) listInstagramJobs(w http.ResponseWriter, r *http.Request) {
 	rows, e := a.H.DB.Query("SELECT id FROM instagram_import_jobs WHERE owner=? ORDER BY created DESC,rowid DESC LIMIT 10", uid(r))
@@ -304,6 +311,7 @@ func (a *App) uploadInstagramChunk(w http.ResponseWriter, r *http.Request) {
 	previous := j.Received
 	j.Received += n
 	j.Label = "Uploading ZIP"
+	j.Error = ""
 	if e = a.saveInstagramJob(&j); e != nil {
 		j.Received = previous
 		a.fail(w, e)

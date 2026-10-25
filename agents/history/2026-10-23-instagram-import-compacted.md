@@ -256,3 +256,46 @@ reselecting identical ZIP. Ten-minute import-only video limit fixed2long clips.
 Task-owned stopped NTFS fixtures removed after process/reparse/path checks. Public
 proof: docs/instagram-server-jobs-acceptance.json; local detailed evidence under
 I:/Projects/tooling/social-server-jobs-20261025. Do not move runtime tag/assets.
+
+
+## Native Windows upload implementation (25 October, publication pending)
+
+User explicitly authorizes native background transfer, push/release/install both.
+Candidate Social9 / Workspace89 (88 reserved by concurrent MyAI managed-projects
+source6f14ff1; preserve that source and wait for its public bundle as baseline).
+Social adds single-EXE modes for URI activation, Windows ZIP picker, encrypted
+current-user DPAPI queue, independent chunk worker, login resume and source file
+read sharing that prevents mutation. Per-user registered mysocial-upload protocol
+and HKCU Run use a verified protected content-addressed copy, so server updates
+can replace MySocial.exe without locking the active uploader. Standalone fixtures
+skip registration; Windows registry tests use private test keys only. Direct CLI
+file-selection mode enables exact-native acceptance without automating owner UI.
+
+Migration4 stores hashed expiring grants. Browser-authenticated/CSRF grant creation,
+10minute unclaimed ticket, rotated client key bound to ONE job for24h; only claim,
+receipt/chunk/complete/problem allowed. No sign-in, publication/generalAPI rights.
+Native endpoints recheck immutable account/storage guard, keep backup locks and
+existing chunk checksum/offset behavior. Initial credential cannot access client
+API, replay with another client fails, disabled/expired/cross-user checks pass.
+Workspace89 narrow public proxy boundary delegates validation to Social; ordinary
+routes retain portal sign-in. Native/client records never expose captions/media.
+
+All7 candidate native browser checks pass, including starting actual packaged
+Windows transfer with all tabs closed, returning to review/import and phone layout.
+Core transfer passes actual Host close/reopen with all browser sessions removed,
+nonzero resume offsets, receipt/source matching and encrypted queue/registry tests.
+Authorized original221742001-byte ZIP transfers fully via new client core and
+server recognizes99 posts in isolated NTFS; source media/captions not public or
+inserted into live owner profile. Final tiny timeout/startup-recovery refinements
+require final build/browser check before publication. Full Social tests/vet and
+front-end build/tests pass; gateway/portal/proxy/distribution/catalog tests/vet pass.
+
+Next: final checks/source commits/CI; publish9(minimum89), build89 from public88
+preserving concurrent MyAI5, fresh real Accounts/Drive/Social native-grant flow,
+verify public assets/promote both; normal backed-up BOTH-PC updates selecting only
+Workspace+Social with actual latest baseline/locks. Preserve every unselected app,
+credential/config/path and latest verified rollback; never downgrade88/MyAI5.
+Artifacts I:/Projects/tooling/social-native-upload-20261025, private fixtures only
+C:/Projects/.cache/social-native-upload-20261025. No owner installation as fixture.
+
+Final Social9 candidate re-passed all7 native flows and same-data executable restart after timeout/startup refinements. Workspace88/MyAI5 public assets are now verified and promoted (source6f14ff1, channel5353b2a); derive89 from that exact public88 bundle. Native grant creation refuses older managers without the explicit89 runtime capability instead of offering a failing transfer. Source/publication/normal two-PC delivery remain next.

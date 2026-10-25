@@ -9,6 +9,13 @@ Page InstagramImport
       Text variant=caption "ZIP up to 512 MiB · 1,000 posts per ZIP · import all available posts with one click. For larger exports, choose a smaller date range."
       Text variant=caption "JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · imported videos up to 10 minutes need FFmpeg and FFprobe."
       Text variant=caption "Stories and archived posts stay archived in Creator Studio. Followers, messages, likes, comments and profile details are not imported."
+      Button action=native "Choose ZIP for background upload"
+      Text variant=caption "Windows opens a file picker. Select your ZIP, then you can close this page while it uploads. Keep the computer on and the ZIP in place."
+      If condition=$nativeLink
+        Link href=$nativeLink "Open Windows file picker"
+      Link href=$nativeDownload external=true "Install Windows uploader on this computer"
+      Text variant=caption "The uploader is included on your Workspace PC. On another Windows computer, download and run it once, then return here."
+      Heading level=3 "Or upload in this tab"
       Field label="Instagram export ZIP"
         Input name=archive type=file accept=".zip,application/zip"
       If condition=$filename

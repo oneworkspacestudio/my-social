@@ -131,7 +131,7 @@ func TestProfilePhotoAdditiveMigration(t *testing.T) {
 		t.Fatal("restart changed existing profile", p)
 	}
 	var version int
-	if e = h.DB.QueryRow("SELECT max(version) FROM host_migrations").Scan(&version); e != nil || version != 3 {
+	if e = h.DB.QueryRow("SELECT max(version) FROM host_migrations").Scan(&version); e != nil || version != 4 {
 		t.Fatal("restart changed migration version", version, e)
 	}
 }

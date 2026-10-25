@@ -5,9 +5,26 @@ request an export in **JSON** format, including your posts and media. Upload
 the downloaded ZIP and review a sample of up to five posts with captions, dates,
 carousel sizes and availability. Choose an audience and select **Import N posts**
 to import all available posts, including those beyond the sample. Upload bytes, checking counts, import counts and elapsed time show progress.
-ZIPs upload in resumable 2 MiB chunks. Keep the page open until upload finishes.
-If you leave during upload, choose the same ZIP to resume saved chunks; completed
-chunk checksums are verified before resuming. **Pause upload** keeps saved chunks.
+On Windows, select **Choose ZIP for background upload** and allow the Windows
+uploader to open. Choose the ZIP in the native file picker. You can then close
+the browser: the native uploader sends the file independently and retries broken
+connections automatically. Keep the computer on and the ZIP in place. Return to
+Social for progress, the five-post sample and the Import button. The uploader
+cannot publish posts; you still choose an audience and import in Social.
+
+Workspace89 and later installs the uploader on its Windows PC. On another
+Windows computer, use **Install Windows uploader on this computer**, run the
+public MySocialUploader.exe once and return to Social. A new destination requires
+native confirmation before selecting a ZIP. Only HTTPS Social addresses are
+accepted, with loopback HTTP reserved for local installations. The Windows
+uploader stores its queue encrypted for the current Windows user and resumes
+pending transfers at the next Windows sign-in. Files moved or changed require
+selection again; canceling the Social job stops the native transfer.
+
+**Or upload in this tab** remains available on other devices. Those browser
+uploads use resumable 2 MiB chunks and require the page to stay open until upload
+finishes. If interrupted, choose the same ZIP to resume saved chunks; checksums
+are verified first. **Pause upload** keeps saved chunks.
 
 After upload, checking and importing run as persistent server jobs. You can leave
 the page or close the tab and return to the progress and results. A server restart
@@ -60,8 +77,9 @@ archives with failed posts remain available for retry for up to 24 hours. Result
 are retained briefly (up to eight days including cleanup). Two retained ZIPs per
 account and four globally bound staging storage to at most 2 GiB.
 
-SQLite migration 3 stores resumable upload receipts, checksum lists, job progress
-and results. Jobs pause at post boundaries for normal backup/checkpointing.
+SQLite migration 4 stores resumable upload receipts, checksum lists, job progress
+and results. Migration4 adds hashed, expiring, single-file native upload permissions.
+The native client has no general API or account/session access. Jobs pause at post boundaries for normal backup/checkpointing.
 Existing per-post atomic commits, quota, identity, CSRF and storage guards remain.
 Completed imports deduplicate after an interrupted process. Older request-bound
 API clients still work, with their existing request lifetime and 15-minute budget.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/oneworkspacestudio/my-social/internal/uploader"
 	"github.com/oneworkspacestudio/one-workspace/pkg/apphost"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ type App struct {
 	publishMu                                sync.Mutex
 	importMu                                 sync.Mutex
 	instagramMu                              sync.Mutex
+	nativeMu                                 sync.Mutex
 	instagramCancel                          map[string]context.CancelFunc
 	Root, Guard, GuardToken, FFmpeg, FFprobe string
 	now                                      func() time.Time
@@ -44,7 +46,12 @@ func New(h *apphost.Host) (*App, error) {
 			return nil, e
 		}
 	}
-	if e := h.Migrate(3, instagramJobSchema); e != nil {
+	if current < 3 {
+		if e := h.Migrate(3, instagramJobSchema); e != nil {
+			return nil, e
+		}
+	}
+	if e := h.Migrate(4, instagramNativeSchema); e != nil {
 		return nil, e
 	}
 	a := &App{H: h, Root: os.Getenv("MYSOCIAL_PHOTOS_ROOT"), Guard: os.Getenv("MYSOCIAL_STORAGE_GUARD_URL"), GuardToken: os.Getenv("MYSOCIAL_STORAGE_GUARD_TOKEN"), FFmpeg: os.Getenv("MYSOCIAL_FFMPEG"), FFprobe: os.Getenv("MYSOCIAL_FFPROBE"), now: time.Now, limits: map[string][]time.Time{}}
@@ -52,12 +59,21 @@ func New(h *apphost.Host) (*App, error) {
 	if e := a.recoverJobs(); e != nil {
 		return nil, e
 	}
+	if e := uploader.AutoInstall(h.Config.Version, h.Config.Origin, h.Config.WorkspaceURL); e != nil {
+		h.Log.Warn("Windows uploader setup needs attention")
+	}
 	a.routes()
 	return a, nil
 }
-func uid(r *http.Request) string { return apphost.Current(r).User.ID }
-func encode(v any) string        { b, _ := json.Marshal(v); return string(b) }
-func validID(s string) bool      { return regexp.MustCompile(`^[a-f0-9]{48}$`).MatchString(s) }
+func uid(r *http.Request) string {
+	if id := apphost.Current(r).User.ID; id != "" {
+		return id
+	}
+	u, _ := r.Context().Value(instagramOwnerKey{}).(apphost.User)
+	return u.ID
+}
+func encode(v any) string   { b, _ := json.Marshal(v); return string(b) }
+func validID(s string) bool { return regexp.MustCompile(`^[a-f0-9]{48}$`).MatchString(s) }
 func (a *App) fail(w http.ResponseWriter, e error) {
 	a.H.Log.Error("social operation failed", "type", fmtType(e))
 	apphost.Problem(w, 503, "This operation could not finish. Check My Photos and retry; nothing has been published.")
@@ -105,6 +121,11 @@ func (a *App) allowedLimit(user string, limit int) bool {
 	return true
 }
 func (a *App) routes() {
+	a.route("POST", "/api/imports/instagram/native", a.createNativeUpload)
+	a.route("GET", "/api/imports/instagram/native", a.nativeUploadInfo)
+	for _, method := range []string{"GET", "POST", "PUT"} {
+		a.H.Mux.HandleFunc(method+" /api/imports/instagram/native/{grant}/{action}", a.nativeUploadRequest)
+	}
 	a.route("POST", "/api/imports/instagram/jobs", a.createInstagramJob)
 	a.route("GET", "/api/imports/instagram/jobs", a.listInstagramJobs)
 	a.route("GET", "/api/imports/instagram/jobs/{id}", a.getInstagramJob)

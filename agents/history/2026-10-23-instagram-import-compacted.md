@@ -299,3 +299,5 @@ Artifacts I:/Projects/tooling/social-native-upload-20261025, private fixtures on
 C:/Projects/.cache/social-native-upload-20261025. No owner installation as fixture.
 
 Final Social9 candidate re-passed all7 native flows and same-data executable restart after timeout/startup refinements. Workspace88/MyAI5 public assets are now verified and promoted (source6f14ff1, channel5353b2a); derive89 from that exact public88 bundle. Native grant creation refuses older managers without the explicit89 runtime capability instead of offering a failing transfer. Source/publication/normal two-PC delivery remain next.
+
+Final queue refinement uses a Windows mutex per transfer, so selecting another ZIP can claim its ten-minute permission immediately while an earlier upload is still running. Queue inspection also occurs under that mutex, avoiding concurrent receipt-file replacement. Rechecking the final native artifact before publication.

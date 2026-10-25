@@ -265,10 +265,7 @@ func AutoInstall(version, origin, workspace string) error {
 	entries, _ := os.ReadDir(filepath.Join(root, "queue"))
 	for _, entry := range entries {
 		if strings.HasSuffix(entry.Name(), ".upload") {
-			s, e := loadAt(filepath.Join(root, "queue", entry.Name()))
-			if e == nil && (s.Status == "queued" || s.Status == "uploading" || s.Status == "reconnecting") {
-				return spawnWorker(root)
-			}
+			return spawnWorker(root)
 		}
 	}
 	return nil
@@ -390,52 +387,56 @@ func spawnWorker(root string) error {
 	_ = c.Process.Release()
 	return nil
 }
+
+// A mutex belongs to one queue item. A second selected ZIP can claim its
+// short-lived permission immediately instead of waiting behind a long upload.
 func worker(root string) error {
-	name, _ := windows.UTF16PtrFromString(`Local\MySocialUploader-` + func() string { h := sha256.Sum256([]byte(root)); return hex.EncodeToString(h[:16]) }())
-	m, e := windows.CreateMutex(nil, false, name)
+	entries, e := os.ReadDir(filepath.Join(root, "queue"))
 	if e != nil {
 		return e
 	}
-	defer windows.CloseHandle(m)
-	v, e := windows.WaitForSingleObject(m, 30000)
-	if e != nil || v != windows.WAIT_OBJECT_0 && v != windows.WAIT_ABANDONED {
-		return nil
-	}
-	defer windows.ReleaseMutex(m)
-	for {
-		entries, e := os.ReadDir(filepath.Join(root, "queue"))
-		if e != nil {
-			return e
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".upload") {
+			continue
 		}
-		active := false
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".upload") {
-				continue
+		id := strings.TrimSuffix(entry.Name(), ".upload")
+		if !isSecret(id) {
+			continue
+		}
+		func() {
+			sum := sha256.Sum256([]byte(root + "\x00" + id))
+			name, _ := windows.UTF16PtrFromString(`Local\MySocialUpload-` + hex.EncodeToString(sum[:16]))
+			m, e := windows.CreateMutex(nil, false, name)
+			if e != nil {
+				return
 			}
+			defer windows.CloseHandle(m)
+			v, e := windows.WaitForSingleObject(m, 0)
+			if e != nil || v != windows.WAIT_OBJECT_0 && v != windows.WAIT_ABANDONED {
+				return
+			}
+			defer windows.ReleaseMutex(m)
 			p := filepath.Join(root, "queue", entry.Name())
-			s, e := loadAt(p)
-			if e != nil || entry.Name() != s.ID+".upload" {
-				continue
+			state, e := loadAt(p)
+			if e != nil || state.ID != id {
+				return
 			}
-			if s.Status == "uploaded" || s.Status == "cancelled" || s.Status == "failed" {
-				if time.Now().Unix() > s.Expires {
+			if state.Status == "uploaded" || state.Status == "cancelled" || state.Status == "failed" {
+				if time.Now().Unix() > state.Expires {
 					_ = os.Remove(p)
 				}
-				continue
+				return
 			}
-			active = true
-			e = Transfer(context.Background(), &s, func(s *State) error { return saveAt(root, s) })
+			e = Transfer(context.Background(), &state, func(s *State) error { return saveAt(root, s) })
 			if e != nil {
-				s.Status = "failed"
-				s.Error = e.Error()
-				_ = saveAt(root, &s)
-				reportProblem(&s)
+				state.Status = "failed"
+				state.Error = e.Error()
+				_ = saveAt(root, &state)
+				reportProblem(&state)
 			}
-		}
-		if !active {
-			return nil
-		}
+		}()
 	}
+	return nil
 }
 func Main(args []string, version string) (bool, error) {
 	// An explicit CLI file argument is also a user selection. The registered URI

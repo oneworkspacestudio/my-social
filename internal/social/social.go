@@ -19,6 +19,8 @@ type App struct {
 	storageMu                                sync.Mutex
 	publishMu                                sync.Mutex
 	importMu                                 sync.Mutex
+	instagramMu                              sync.Mutex
+	instagramCancel                          map[string]context.CancelFunc
 	Root, Guard, GuardToken, FFmpeg, FFprobe string
 	now                                      func() time.Time
 	limitsMu                                 sync.Mutex
@@ -37,10 +39,16 @@ func New(h *apphost.Host) (*App, error) {
 			return nil, e
 		}
 	}
-	if e := h.Migrate(2, `CREATE TABLE profile_photos(user_id TEXT PRIMARY KEY REFERENCES profiles(user_id),media_id TEXT NOT NULL REFERENCES media(id));`); e != nil {
+	if current < 2 {
+		if e := h.Migrate(2, `CREATE TABLE profile_photos(user_id TEXT PRIMARY KEY REFERENCES profiles(user_id),media_id TEXT NOT NULL REFERENCES media(id));`); e != nil {
+			return nil, e
+		}
+	}
+	if e := h.Migrate(3, instagramJobSchema); e != nil {
 		return nil, e
 	}
 	a := &App{H: h, Root: os.Getenv("MYSOCIAL_PHOTOS_ROOT"), Guard: os.Getenv("MYSOCIAL_STORAGE_GUARD_URL"), GuardToken: os.Getenv("MYSOCIAL_STORAGE_GUARD_TOKEN"), FFmpeg: os.Getenv("MYSOCIAL_FFMPEG"), FFprobe: os.Getenv("MYSOCIAL_FFPROBE"), now: time.Now, limits: map[string][]time.Time{}}
+	a.instagramCancel = map[string]context.CancelFunc{}
 	if e := a.recoverJobs(); e != nil {
 		return nil, e
 	}
@@ -63,7 +71,13 @@ func fmtType(e error) string {
 func (a *App) route(method, path string, fn http.HandlerFunc) {
 	a.H.Mux.HandleFunc(method+" "+path, a.H.Require(func(w http.ResponseWriter, r *http.Request) {
 		a.ensureProfile(apphost.Current(r).User)
-		if r.Method != "GET" && !a.allowed(uid(r)) {
+		key, limit := uid(r), 120
+		if method == "PUT" && path == "/api/imports/instagram/jobs/{id}/chunks" {
+			key += ":instagram-chunks"
+			limit = 512
+		}
+		if r.Method != "GET" && !a.allowedLimit(key, limit) {
+			w.Header().Set("Retry-After", "60")
 			apphost.Problem(w, 429, "Too many changes. Wait a minute and retry.")
 			return
 		}
@@ -71,6 +85,9 @@ func (a *App) route(method, path string, fn http.HandlerFunc) {
 	}))
 }
 func (a *App) allowed(user string) bool {
+	return a.allowedLimit(user, 120)
+}
+func (a *App) allowedLimit(user string, limit int) bool {
 	a.limitsMu.Lock()
 	defer a.limitsMu.Unlock()
 	now := a.now()
@@ -81,13 +98,18 @@ func (a *App) allowed(user string) bool {
 			kept = append(kept, v)
 		}
 	}
-	if len(kept) >= 120 {
+	if len(kept) >= limit {
 		return false
 	}
 	a.limits[user] = append(kept, now)
 	return true
 }
 func (a *App) routes() {
+	a.route("POST", "/api/imports/instagram/jobs", a.createInstagramJob)
+	a.route("GET", "/api/imports/instagram/jobs", a.listInstagramJobs)
+	a.route("GET", "/api/imports/instagram/jobs/{id}", a.getInstagramJob)
+	a.route("PUT", "/api/imports/instagram/jobs/{id}/chunks", a.uploadInstagramChunk)
+	a.route("POST", "/api/imports/instagram/jobs/{id}/{action}", a.instagramJobAction)
 	a.route("POST", "/api/imports/instagram/{action}", func(w http.ResponseWriter, r *http.Request) {
 		if action := r.PathValue("action"); action != "preview" && action != "apply" {
 			http.NotFound(w, r)
@@ -138,6 +160,9 @@ func (a *App) bootstrap(w http.ResponseWriter, r *http.Request) {
 	apphost.JSON(w, 200, map[string]any{"profile": a.getProfile(uid(r)), "photosConnected": a.storageCheck(r.Context()) == nil, "videoRendering": a.FFmpeg != "" && a.FFprobe != "", "pushKey": os.Getenv("MYSOCIAL_VAPID_PUBLIC"), "chatURL": a.H.Config.WorkspaceURL + "/_workspace/open/chat", "capabilities": map[string]bool{"live": false, "chatAdapter": false, "autoCaptions": false, "licensedMusic": false, "payments": false}})
 }
 func (a *App) Run(ctx context.Context) error {
+	done := make(chan struct{})
+	go func() { defer close(done); a.instagramWorker(ctx) }()
+	defer func() { <-done }()
 	ticker := time.NewTicker(time.Second * 3)
 	defer ticker.Stop()
 	for {

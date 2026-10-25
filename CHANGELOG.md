@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-preview.8
+
+- Upload Instagram ZIPs in resumable, checksum-verified chunks.
+- Run checking and imports as persistent server jobs that continue after leaving the page and resume after server restart.
+- Keep the five-post sample, import all available posts from the stored ZIP, and restore progress/results when returning.
+- Support imported videos up to ten minutes; retain completed posts on cancellation and retries.
+- Add migration 3 for private job state without changing existing accounts or media.
+
 ## 0.1.0-preview.7
 
 - Show upload bytes, ZIP checking and import progress with elapsed time and Stop.

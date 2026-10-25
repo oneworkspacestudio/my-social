@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-var version = "0.1.0-preview.6"
+var version = "0.1.0-preview.8"
 
 func main() {
 	if e := apphost.Main(apphost.Config{ID: "social", Name: "My Social", Version: version, Listen: "127.0.0.1:9013", MediaCapture: true}, webui.Files(), func(h *apphost.Host) (apphost.Application, error) { return social.New(h) }); e != nil {

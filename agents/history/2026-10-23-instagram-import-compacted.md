@@ -155,3 +155,66 @@ Evidence docs/instagram-import-progress-acceptance.json and task tooling.
 No required implementation/publication/installation work remains. Refresh My
 Social and choose the ZIP again to use the progress bar and five-post sample.
 Do not import owner content as test fixtures or change immutable published assets.
+
+
+## Preview8 persistent server imports (25 October, delivery in progress)
+
+User reports no successful ZIP upload and explicitly authorizes testing a ZIP in
+Downloads, fix/push/release/install on both existing PCs. Use private source data
+only in isolated NTFS tests, never publish/archive its captions/media/screenshots
+or seed synthetic posts into owner installations. The supplied221,742,001-byte
+ZIP has99 recognized posts; initial new-job test imported97 with2 failures due
+to the former90-second cap. Imported clips now allow10minutes (100MiB originals,
+120MiB outputs,10minute conversion budget); a second full private test imported
+all99 with0failed in128seconds. Ordinary editor/video limits remain unchanged.
+
+Migration3 stores instagram_import_jobs (private JSON, indexed owner/state,
+retained staging reservations). h.Migrate2 is conditional, latest3 still rejects
+future schemas. Two retained archives per account/four globally (2GiB max) include
+failed-post retry archives. Upload chunks2MiB have SHA256/offset receipts, Sync
+before DB commit, truncate uncommitted suffixes after interruption. Chunk requests
+have a separate512/minute budget; other mutations retain120/minute. Uploads still
+need an open tab until complete; after closure, reselect identical ZIP and verify
+all stored chunk checksums before resuming. Do not promise browser-closed bytes
+can be sent. No giant request, no re-upload on Import, no client-side batching.
+
+New owner/CSRF-protected /api/imports/instagram/jobs create/list/detail/chunks/
+complete/import/cancel/retry routes; older multipart API remains compatible.
+Run(ctx) worker persists checking/importing, resumes across actual Host close/New
+with existing per-post dedupe. Each post and all worker writes hold backup read
+locks, released between posts. Durable owner issuer/subject feeds storage guard;
+new sessions are not required for background work. Disabled accounts cannot
+import; account deletion orders publish/job locks and cancels jobs. Explicit
+Cancel differs from pausing a browser upload; completed posts remain.
+
+Server results expose only five sample items/full counts, chunks and actual job
+progress; monotonic revisions stop stale polls reverting state. AUI source owns
+UI; leaving/unmount aborts only in-flight upload, never server jobs. Return restores
+server jobs and audience. Completed ZIP removed, retry failures/ready/upload expire
+after24h, result records after7days plus cleanup allowance. Empty and canceled
+reservations expire safely; legacy cleanup never touches job-* archives.
+
+Six native Chromium flows passed final candidate8 including actual tab close
+mid-upload, resume from saved offsets and import complete with no page open.
+Empty-upload expiry was tightened and the exact final artifact then passed all6
+flows again plus same-data restart. Go tests/vet and frontend build/editor tests
+pass. Current evidence I:/Projects/tooling/social-server-jobs-20261025.
+
+Source canonical I:/Projects/my-social, mirror under OneWorkspace/my-social.
+Workspace paired worktree one-workspace-update-docs fast-forwarded to6830a20;
+AGENTS says no Actions for Workspace and promote every app release. Native owners
+advanced to86; remote Social6, local Social7 before this update. Another MyAI task
+is preparing87. Never downgrade/update unselected apps: use current public native
+maintenance Social-only selection, verify actual baseline/locks immediately before
+install. SSH alias m8e-pc authentication fails; use existing authenticated Chrome3
+workspace-2.m8e.co.uk/updates page. A new task-owned tab585734234 is bound as
+remoteSocialUpdates in cua_repl; don't commandeer other task tab585734233. It showed
+86/Cinema5 and Social7 offered over6; do not apply7 while preparing8. No operation
+started there. User RDP tab585733890 exists but normal Updates UI is sufficient.
+
+Next: finish exact final8 six-flow browser check; commit/push, CI, package verified
+EXE/source/notices/managed5-package manifest (minimum83), publish immutable8,
+promote raw channel preserving concurrent/withheld releases, run normal backed-up
+Social-only updates on both PCs, verify versions/bytes/other apps/current UI.
+Keep newest owner recovery; C space is constrained by other apps and recovery,
+never bypass normal backup guards or delete/move owner content.

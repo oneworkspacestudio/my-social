@@ -12,20 +12,32 @@ export function InstagramImport({ data, onAction }: { data: any; onAction: (name
           <Text variant="caption">The extension can capture accessible posts from an open Instagram tab and create import ZIPs. Extract it, then use Chrome → Extensions → Developer mode → Load unpacked.</Text>
           <Text>In Instagram, open Accounts Center → Your information and permissions → Export your information. Choose JSON, include posts and media, and download the ZIP.</Text>
           <Text variant="caption">ZIP up to 512 MiB · 1,000 posts per ZIP · import all available posts with one click. For larger exports, choose a smaller date range.</Text>
-          <Text variant="caption">JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · videos up to 90 seconds need FFmpeg and FFprobe.</Text>
+          <Text variant="caption">JPEG, PNG, GIF, WebP, MP4 and WebM · 100 MiB per file · imported videos up to 10 minutes need FFmpeg and FFprobe.</Text>
           <Text variant="caption">Stories and archived posts stay archived in Creator Studio. Followers, messages, likes, comments and profile details are not imported.</Text>
           <Field label="Instagram export ZIP"><Input name="archive" type="file" accept=".zip,application/zip" /></Field>
           {data.filename && (
             <Text variant="caption">{data.filename}</Text>
           )}
-          <Button onClick={() => onAction("preview")} disabled={data.previewDisabled}>Preview ZIP</Button>
+          <Button onClick={() => onAction("preview")} disabled={data.previewDisabled}>{data.previewLabel}</Button>
+          {data.serverMessage && (
+            <Text>{data.serverMessage}</Text>
+          )}
           {data.busy && (
             <>
               <Alert>{data.busy}</Alert>
               <Spinner variant="import-progress" value={data.progress} label={data.busy} />
+              <Text variant="caption">{data.phaseCounts}</Text>
               <Text variant="caption">{data.elapsedText}</Text>
-              <Button onClick={() => onAction("stop")} cancel={true} variant="secondary">Stop</Button>
             </>
+          )}
+          {data.showPause && (
+            <Button onClick={() => onAction("pause")} cancel={true} variant="secondary">Pause upload</Button>
+          )}
+          {data.showCancel && (
+            <Button onClick={() => onAction("cancel")} cancel={true} variant="secondary">Cancel import</Button>
+          )}
+          {data.showRetry && (
+            <Button onClick={() => onAction("retry")} cancel={true} variant="secondary">Retry server processing</Button>
           )}
           {data.error && (
             <Alert tone="error">{data.error}</Alert>
@@ -34,6 +46,14 @@ export function InstagramImport({ data, onAction }: { data: any; onAction: (name
             <Alert tone="success">{data.notice}</Alert>
           )}
         </Card>
+        {data.hasJobs && (
+          <Card>
+            <Heading level={2}>Recent imports</Heading>
+            {data.jobs.map((item, i) => (
+              <Button key={i} onClick={() => onAction("openJob")} item={item.id} variant="secondary">{item.label}</Button>
+            ))}
+          </Card>
+        )}
         {data.review && (
           <Card>
             <Heading level={2}>Review your import</Heading>

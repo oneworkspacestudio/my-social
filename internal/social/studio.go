@@ -348,12 +348,20 @@ func (a *App) deleteAccount(w http.ResponseWriter, r *http.Request) {
 		apphost.Problem(w, 400, "Type DELETE MY SOCIAL ACCOUNT to confirm")
 		return
 	}
+	a.publishMu.Lock()
+	defer a.publishMu.Unlock()
+	a.instagramMu.Lock()
+	defer a.instagramMu.Unlock()
 	tx, e := a.H.DB.Begin()
 	if e != nil {
 		a.fail(w, e)
 		return
 	}
 	defer tx.Rollback()
+	if _, e = tx.Exec("UPDATE instagram_import_jobs SET state='cancelled' WHERE owner=?", uid(r)); e != nil {
+		a.fail(w, e)
+		return
+	}
 	for _, q := range []string{"UPDATE posts SET state='deleted' WHERE owner=?", "DELETE FROM host_sessions WHERE user_id=?", "DELETE FROM drafts WHERE owner=?", "DELETE FROM push_subscriptions WHERE owner=?", "DELETE FROM preferences WHERE user_id=?", "DELETE FROM profile_photos WHERE user_id=?", "DELETE FROM highlights WHERE owner=?", "DELETE FROM events WHERE user_id=?", "UPDATE profiles SET bio='',links='[]',private=1 WHERE user_id=?", "UPDATE host_users SET role='disabled',name='Deleted account',email='' WHERE id=?"} {
 		if _, e = tx.Exec(q, uid(r)); e != nil {
 			a.fail(w, e)

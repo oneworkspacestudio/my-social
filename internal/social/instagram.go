@@ -33,6 +33,7 @@ import (
 
 const instagramZIPLimit = 512 << 20
 const instagramMediaLimit = 100 << 20
+const instagramVideoSeconds = 10 * 60
 
 type instagramMedia struct {
 	URI     string `json:"uri"`
@@ -355,7 +356,7 @@ func (a *App) instagram(w http.ResponseWriter, r *http.Request) {
 		entries, _ := dir.ReadDir(-1)
 		dir.Close()
 		for _, entry := range entries {
-			if info, err := entry.Info(); err == nil && info.Mode().IsRegular() && strings.HasSuffix(entry.Name(), ".zip") && time.Since(info.ModTime()) > time.Hour {
+			if info, err := entry.Info(); err == nil && info.Mode().IsRegular() && !strings.HasPrefix(entry.Name(), "job-") && strings.HasSuffix(entry.Name(), ".zip") && time.Since(info.ModTime()) > time.Hour {
 				root.Remove("generated/imports/" + entry.Name())
 			}
 		}
@@ -511,6 +512,10 @@ func (a *App) importInstagramPost(ctx context.Context, root *os.Root, owner, vis
 	defer a.storageMu.Unlock()
 	a.publishMu.Lock()
 	defer a.publishMu.Unlock()
+	var role string
+	if a.H.DB.QueryRow("SELECT role FROM host_users WHERE id=?", owner).Scan(&role) != nil || role == "disabled" {
+		return "", false, errors.New("This account is no longer active")
+	}
 	key := "instagram:" + item.Key
 	if a.H.DB.QueryRow("SELECT id FROM posts WHERE owner=? AND request_key=?", owner, key).Scan(&id) == nil {
 		return id, true, nil
@@ -689,13 +694,13 @@ func (a *App) instagramVideo(ctx context.Context, root *os.Root, original, rende
 		return errors.New("cannot read video duration")
 	}
 	duration, e := strconv.ParseFloat(info.Format.Duration, 64)
-	if e != nil || math.IsNaN(duration) || math.IsInf(duration, 0) || duration <= 0 || duration > 90 {
-		return errors.New("videos must be at most 90 seconds; this clip was not imported")
+	if e != nil || math.IsNaN(duration) || math.IsInf(duration, 0) || duration <= 0 || duration > instagramVideoSeconds {
+		return errors.New("imported videos must be at most 10 minutes; this clip was not imported")
 	}
 	if e = root.MkdirAll(filepath.FromSlash(path.Dir(rendered)), 0700); e != nil {
 		return errors.New("cannot create video preview")
 	}
-	runCtx, stop := context.WithTimeout(ctx, 3*time.Minute)
+	runCtx, stop := context.WithTimeout(ctx, 10*time.Minute)
 	defer stop()
 	cmd = exec.CommandContext(runCtx, a.FFmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-max_alloc", "134217728", "-n", "-protocol_whitelist", "file,pipe", "-threads", "2", "-i", source, "-map", "0:v:0", "-map", "0:a:0?", "-vf", "scale=1280:1280:force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1", "-c:v", "libx264", "-preset", "veryfast", "-crf", "25", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", "-threads", "2", "-t", number(duration), "-map_metadata", "-1", filepath.Join(a.Root, filepath.FromSlash(rendered)))
 	cmd.Dir = a.Root

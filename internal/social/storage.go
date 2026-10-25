@@ -55,6 +55,9 @@ func (a *App) storageCheck(ctx context.Context) error {
 	}
 	req.Header.Set("Authorization", "Bearer "+a.GuardToken)
 	user := apphost.Current((&http.Request{}).WithContext(ctx)).User
+	if user.Subject == "" {
+		user, _ = ctx.Value(instagramOwnerKey{}).(apphost.User)
+	}
 	if user.Subject != "" {
 		req.Header.Set("X-Social-Subject", user.Subject)
 		req.Header.Set("X-Social-Issuer", user.Issuer)

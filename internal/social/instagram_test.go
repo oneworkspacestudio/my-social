@@ -286,7 +286,7 @@ func TestInstagramVideoAndMixedCarousel(t *testing.T) {
 		t.Fatal(w.Code)
 	}
 	longVideo := filepath.Join(t.TempDir(), "too-long.mp4")
-	if output, e := exec.Command(ff, "-nostdin", "-v", "error", "-f", "lavfi", "-i", "color=c=blue:s=16x16:r=1:d=91", "-c:v", "libx264", "-pix_fmt", "yuv420p", longVideo).CombinedOutput(); e != nil {
+	if output, e := exec.Command(ff, "-nostdin", "-v", "error", "-f", "lavfi", "-i", "color=c=blue:s=16x16:r=1:d=601", "-c:v", "libx264", "-pix_fmt", "yuv420p", longVideo).CombinedOutput(); e != nil {
 		t.Fatal(e, string(output))
 	}
 	longBytes, e := os.ReadFile(longVideo)
@@ -296,7 +296,7 @@ func TestInstagramVideoAndMixedCarousel(t *testing.T) {
 	tooLong := instagramZIP(t, map[string][]byte{"content/reels.json": []byte(`{"ig_reels_media":[{"title":"Too long","creation_timestamp":1600000002,"media":[{"uri":"media/reels/long.mp4"}]}]}`), "media/reels/long.mp4": longBytes})
 	longPlan := f.instagramPreview(t, tooLong)
 	w = f.instagramCall(t, "apply", "alice", tooLong, instagramOptions{Digest: longPlan.Digest, Keys: []string{longPlan.Items[0].Key}, Visibility: "private"})
-	if w.Code != 200 || !strings.Contains(w.Body.String(), "at most 90 seconds") || countRows(t, f, "posts") != 2 || countRows(t, f, "media") != 3 {
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "at most 10 minutes") || countRows(t, f, "posts") != 2 || countRows(t, f, "media") != 3 {
 		t.Fatal("long video was imported or left partial data", w.Body.String())
 	}
 	f.a.FFmpeg = ""

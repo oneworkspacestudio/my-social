@@ -4,9 +4,16 @@ Open **Settings → Import Instagram ZIP**. In Instagram's Accounts Center,
 request an export in **JSON** format, including your posts and media. Upload
 the downloaded ZIP and review a sample of up to five posts with captions, dates,
 carousel sizes and availability. Choose an audience and select **Import N posts**
-to import all available posts, including those beyond the sample. Upload bytes,
-checking counts, import counts and elapsed time show progress. **Stop** cancels
-the current operation while keeping completed posts.
+to import all available posts, including those beyond the sample. Upload bytes, checking counts, import counts and elapsed time show progress.
+ZIPs upload in resumable 2 MiB chunks. Keep the page open until upload finishes.
+If you leave during upload, choose the same ZIP to resume saved chunks; completed
+chunk checksums are verified before resuming. **Pause upload** keeps saved chunks.
+
+After upload, checking and importing run as persistent server jobs. You can leave
+the page or close the tab and return to the progress and results. A server restart
+resumes interrupted processing without duplicating completed posts. One Import
+click processes every available post directly from the stored ZIP; the ZIP is
+not uploaded again. **Cancel import** stops that job and keeps completed posts.
 The default audience is **Only me**. You can view imported posts on your profile
 and manage them in Creator Studio. Stories and archived posts remain archived;
 importing an old Story does not publish it again for another 24 hours.
@@ -23,11 +30,11 @@ historical Latin-1 encoding of UTF-8 captions is repaired when unambiguous.
 Images are sanitized into JPEG derivatives. Animated GIFs become still images.
 MP4/WebM videos are transcoded to MP4 with their aspect ratio and optional audio;
 the owner must configure FFmpeg and FFprobe. Video duration is checked during
-import, with a 90-second limit and no silent trimming. Mixed image/video
+import, with a 10-minute limit for imported clips and no silent trimming. Mixed image/video
 carousels are supported. No external media URLs are fetched.
 
 Limits: 512 MiB ZIP, 2 GiB expanded ZIP, 20,000 entries, 16 MiB combined content
-metadata, 1,000 posts in a ZIP, 100 posts per request (automatically batched after one Import click), 1–10 media items
+metadata, 1,000 posts in a ZIP, 1,000 posts per server job (the older multipart API keeps its 100-post request limit), 1–10 media items
 per post, 100 MiB per original, 24 megapixels per image, and the existing 2 GiB
 per-account preview media quota. Export smaller date ranges for larger accounts.
 ZIP64, encrypted and multi-volume archives are unsupported. Media absent from a
@@ -40,17 +47,24 @@ Retrying the same content skips completed imports without changing their audienc
 Duplicate identity includes the content hashes, original date, caption and kind,
 so re-uploading/repacking the same export is safe. Editing those fields can make
 the content a different import. Imports do not create historical notifications.
-Keep the page open during import; after a lost response or cancellation, preview
-and retry the ZIP to find completed posts. The request has a 15-minute processing
-budget, with a three-minute conversion budget per video.
+Return to the import page to read server results. Failed server checks can retry
+the stored ZIP; failed posts can retry without uploading again. Jobs have a
+12-hour processing budget per run and a 10-minute conversion budget per video.
+Account deletion cancels its jobs; authenticated immutable ownership and storage
+isolation are checked for every upload and background import.
 
-The ZIP is temporarily spooled inside the guarded My Photos/My Social adapter
-and removed when preview/import returns. Entries are never extracted to paths
-from the ZIP. Interrupted media writes are recovered before the next import;
-temporary ZIPs left by a process crash are removed on a subsequent import once
-an hour old. The importer uses the existing account identity, CSRF checks,
-media authorization, storage isolation guard and quota. Private originals are
-never exposed as shared folder links. No database schema change is needed.
+The ZIP stays inside the guarded My Photos/My Social adapter and is never
+extracted using archive paths or exposed through a download URL. Upload and ready
+ZIPs expire after 24 hours without activity. Successful imports delete their ZIP;
+archives with failed posts remain available for retry for up to 24 hours. Results
+are retained briefly (up to eight days including cleanup). Two retained ZIPs per
+account and four globally bound staging storage to at most 2 GiB.
+
+SQLite migration 3 stores resumable upload receipts, checksum lists, job progress
+and results. Jobs pause at post boundaries for normal backup/checkpointing.
+Existing per-post atomic commits, quota, identity, CSRF and storage guards remain.
+Completed imports deduplicate after an interrupted process. Older request-bound
+API clients still work, with their existing request lifetime and 15-minute budget.
 
 Followers, follow relationships, likes, comments, private messages, profile
 details, stickers, music licences and original Instagram URLs are not migrated.

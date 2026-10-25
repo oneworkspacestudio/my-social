@@ -44,7 +44,7 @@ and archived Stories with captions and original dates. [Supported layouts and
 limits](INSTAGRAM-IMPORT.md) apply. Local Go tests include malformed/unsafe ZIPs,
 CSRF/account/storage checks, per-post rollback, retry deduplication, quota and
 interruption recovery. Native FFmpeg checks cover mixed carousels and rejection
-of videos over 90 seconds. The native Chrome importer flow covers live progress,
+of imported videos over ten minutes. The native Chrome importer flow covers live progress,
 a five-post sample, one-click import of all available posts (including 101 posts
 in automatic batches), private default, duplicates, persistence and 390px layout, followed by
 same-data executable restart. These are synthetic local development checks;
@@ -79,3 +79,5 @@ the capture window must refresh to load the final page-readiness correction.
 Synthetic tests do not certify a complete personal-account archive.
 
 Preview7 delivery is verified in [Import progress acceptance](instagram-import-progress-acceptance.json): five synthetic native browser flows, live progress, a five-post sample, one-click101-post import, exact published/installed bytes, protected Social-only update, retained current Workspace/other apps, verified recovery and27 running services. Public Social routes retain the native sign-in gate.
+
+Preview8 adds checksum-verified resumable uploads and persistent server jobs. Synthetic checks cover request disconnects, actual host restart, resumable chunk offsets, explicit cancellation, account ownership, storage identity and expiry. A user-authorized 221,742,001-byte private archive imported99 posts with0 failures in an isolated NTFS test; no private media or captions are published as evidence. Browser tab-close and installed-delivery checks are recorded separately.

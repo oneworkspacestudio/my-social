@@ -1,3 +1,5 @@
+> Current status: Social10 / Workspace90 background uploads delivered on both PCs. See the final delivery section and `docs/instagram-native-upload-acceptance.json`.
+
 # Instagram ZIP importer — preview5 delivered
 
 Human requested the importer and then explicitly authorized commit/push, release
@@ -328,3 +330,78 @@ same-private-data restart. Authorized221742001-byte original ZIP reran through
 corrected native protocol and server recognized99 posts in isolated NTFS. Native
 GUI requires HTTPS even for loopback; explicit CLI selection permits local test
 servers. File picker itself is implemented but was not automatically driven.
+
+Corrected releases are PUBLIC/promoted: Social10 source9eb978ddba2281ed9000e482ac334843e5e87e73,
+CI40225083247 green, exact EXE d115b837418293966c1ff6c2980c05ddf18d81b9e0a8cf671fb4fd03f79d8917.
+Workspace90 source1a1af034525a8a31debfffe5ef420db2961b47b6 bundles public88
+plus Social10 and existing public MyAI6;166 payload hashes pass,26 other defaults
+unchanged. Full fresh setup/Accounts/Drive/native-transfer/restart six checks pass.
+Channel566c891 and anonymous exact manager/catalog/app assets verified; source
+tags immutable,9/89 still withheld. Canonical/mirror Social source synchronized.
+Primary SDK --check-only --public confirms public/offline exact target and all
+unselected contracts/packages retained. Owner remains88/Social8/MyAI6; apply NOT
+started because C free fell below ~11GB backup/rollback reserve during other disk
+activity. Explicit async question asks user to free C or supply another NTFS
+folder. Newest recovery retained and SDK-verified before/after lossless compression.
+Package-cache compression preserves hashes/files but did NOT reclaim enough; do
+not delete Downloads, change OS/pagefile or bypass normal SDK reserve.
+Secondary normal UI selected ONLY Workspace+Social and applied ONCE at19:35 UTC;
+was downloading bundle at this handoff. Do not repeat install. Continue via task
+Chrome tab585734245, then verify normal completion/health/recovery and native
+installed-info, all other26 displayed versions retained. User still requests BOTH.
+Isolated private/program test fixtures stopped and removed with path/process/
+reparse guards; originals in Downloads untouched. All receipts/artifacts in
+I:/Projects/tooling/social-native-upload-20261025; OwnerDelivery90.exe is corrected
+exact-public SDK operator for primary normal offline backed-up update when space
+is sufficient. Final installed acceptance is outstanding; do not claim both done.
+
+Delivery advanced: C free became12.7GB; capacity question is resolved. Primary
+normal exact-public SDK update STARTED ONCE around19:59 UTC, not blocked now.
+CLI session85611, live sanitized primary-progress.json; do not reapply. Backup
+5268648206 bytes copied, verifying21867 files before program replacement. Public
+standalone native helper10 was also normally installed/verified on primary, with
+protocol/login-resume exact binary hash checked; no live upload fixture run.
+Secondary COMPLETED27m47s:90/10 up to date,27 services healthy, native-info
+installed:true/version10; owner registry copy self-check binds running binary.
+Only Workspace+Social selected;24 other displayed version rows retained (26
+rows TOTAL, correcting the prior26-other wording). Newest verified recovery
+update-20261025T194020-0d9574fe62b3 retained; normal cleanup removed one older
+automatic copy. Fresh90 helper closed/reopened/checked, pair still current.
+No independent remote filesystem/credential audit claimed. Receipts and cropped
+proof secondary-social10.png outside repo. Existing secondary ready ZIP preview
+has99 recognized/84 available/15 unavailable; videoRendering:false (pre-existing
+optional FFmpeg/FFprobe configuration), not a transfer failure or owner test. Do
+not click Import as an installation fixture; existing posts/jobs preserved.
+Next finish primary existing transaction; audit receipt/config/credentials/all
+other app bytes, health, native registration and recovery; refresh current helper.
+Then finalize sanitized acceptance/histories/docs-only pushes and mirror sync.
+
+DELIVERY COMPLETE (25 October): both PCs run Workspace0.3.0-preview.90 and
+Social0.1.0-preview.10. Both native uploader registrations verified; primary
+protected cache/URI/login-resume commands and immutable owner pairing match exact
+public native SHA. Primary normal SDK update completed, all27 services healthy,
+all other executable bytes/contracts/packages, configuration and decrypted
+credentials/identities retained. HTTP-served JS/CSS match final tested build. New
+primary recovery update-20261025T200005-18f4a00c3e3e verified/retained, one older
+automatic copy removed; the existing legacy verification warning stays preserved.
+Current primary90 updater binary/fresh public check confirms90/10 current, no
+pending transaction. A closed older controller and empty-202/reset response in
+the local wrapper were resolved by launching90 and reading its completed check;
+no repeated apply, forced recovery or bypass occurred.
+Secondary normal completion27m47s, all27 services healthy,24 other displayed
+version rows unchanged, native-info installed:true/version10 and fresh90 helper
+check passed; newest recovery retained and one older automatic copy retired.
+Scope is remote normal-update/UI/app self-check, not an independent disk/credential
+audit. Capacity question is RESOLVED: C free became12.7GB before primary apply;
+Downloads and OS/pagefile settings were not modified by this task. Native helper
+standalone10 also installed/verified on primary before the server update.
+Final app acceptance in docs/instagram-native-upload-acceptance.json (Social);
+private receipts/screenshots outside repos at tooling/social-native-upload-20261025.
+All task fixture servers and private/program fixture roots stopped/removed with
+path/process/reparse guards. No owner content imported or used as a fixture.
+Native Windows picker implemented, not automatically GUI-driven; exact Windows
+client mode and all7 browser/six fresh managed flows tested. Existing optional
+video-helper limitation remains explicit (secondary videoRendering:false); never
+claim all99 owner posts were imported. No required background-uploader delivery
+work remains. Refresh Social, choose background upload, select local ZIP, keep
+computer/file available; browser may close, return for five-post sample/Import.

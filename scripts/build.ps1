@@ -1,4 +1,4 @@
-param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.9',[string]$Rsrc='')
+param([string]$Go='go',[string]$Out='dist/release',[string]$Version='0.1.0-preview.10',[string]$Rsrc='')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 Push-Location $root

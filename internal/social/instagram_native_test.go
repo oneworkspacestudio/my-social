@@ -52,6 +52,10 @@ func TestNativeUploadContinuesWithoutSessionAndRecoversHostRestart(t *testing.T)
 	server := httptest.NewServer(handler)
 	f.a.H.Config.Origin = server.URL
 	s := nativePermission(t, f)
+	account, e := uploader.Describe(s)
+	if e != nil || account.ID != f.users["alice"] || account.Email != "alice@example.test" {
+		t.Fatal("recipient verification failed", e)
+	}
 	file := filepath.Join(t.TempDir(), "native.zip")
 	padding := make([]byte, 6<<20)
 	rand.Read(padding)
@@ -64,7 +68,7 @@ func TestNativeUploadContinuesWithoutSessionAndRecoversHostRestart(t *testing.T)
 	}
 	ctx, stop := context.WithCancel(context.Background())
 	cancel = stop
-	e := uploader.Transfer(ctx, &s, func(*uploader.State) error { return nil })
+	e = uploader.Transfer(ctx, &s, func(*uploader.State) error { return nil })
 	stop()
 	if e == nil {
 		t.Fatal("interruption not exercised")
@@ -102,6 +106,7 @@ func TestNativeUploadContinuesWithoutSessionAndRecoversHostRestart(t *testing.T)
 	}
 	r := httptest.NewRequest("GET", f.a.H.Config.Origin+"/api/imports/instagram/native/"+s.Grant+"/status", nil)
 	r.Header.Set("Authorization", "Bearer "+s.Client)
+	r.Header.Set("X-Upload-Recipient", s.Recipient)
 	w := httptest.NewRecorder()
 	f.a.H.Handler().ServeHTTP(w, r)
 	if w.Code != 200 || strings.Contains(w.Body.String(), "items") || strings.Contains(w.Body.String(), "caption") {
@@ -111,6 +116,7 @@ func TestNativeUploadContinuesWithoutSessionAndRecoversHostRestart(t *testing.T)
 func nativeCall(f *fixture, s uploader.State, action, method, token string, body []byte, extra string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, f.a.H.Config.Origin+"/api/imports/instagram/native/"+s.Grant+"/"+action, bytes.NewReader(body))
 	r.Header.Set("Authorization", "Bearer "+token)
+	r.Header.Set("X-Upload-Recipient", s.Recipient)
 	r.Header.Set("X-Upload-Client", extra)
 	w := httptest.NewRecorder()
 	f.a.H.Handler().ServeHTTP(w, r)
@@ -127,8 +133,14 @@ func TestNativePermissionIsSingleFileAccountAndTransferOnly(t *testing.T) {
 		t.Fatal("grant replay", w.Code)
 	}
 	if w := nativeCall(f, s, "status", "GET", s.Token, nil, ""); w.Code != 401 {
-		t.Fatal("initial permission reused as client", w.Code)
+		t.Fatal("claimed initial ticket described or accessed an upload", w.Code)
 	}
+	wrong := s
+	wrong.Recipient = f.users["bob"]
+	if w := nativeCall(f, wrong, "claim", "POST", s.Token, in, s.Client); w.Code != 403 {
+		t.Fatal("receiving-account hint changed without refusal", w.Code)
+	}
+
 	if w := nativeCall(f, s, "import", "POST", s.Client, []byte(`{"visibility":"public"}`), ""); w.Code != 404 {
 		t.Fatal("native client published", w.Code)
 	}

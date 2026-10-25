@@ -59,7 +59,7 @@ func New(h *apphost.Host) (*App, error) {
 	if e := a.recoverJobs(); e != nil {
 		return nil, e
 	}
-	if e := uploader.AutoInstall(h.Config.Version, h.Config.Origin, h.Config.WorkspaceURL); e != nil {
+	if e := uploader.AutoInstall(h.Config.Version, h.Config.Origin, h.Config.WorkspaceURL, h.Config.Issuer, h.Config.Owner); e != nil {
 		h.Log.Warn("Windows uploader setup needs attention")
 	}
 	a.routes()

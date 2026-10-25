@@ -18,10 +18,10 @@ const instagramNativeSchema = `CREATE TABLE instagram_native_uploads (
  CREATE INDEX instagram_native_owner ON instagram_native_uploads(owner,expires);`
 
 func (a *App) nativeUploadInfo(w http.ResponseWriter, r *http.Request) {
-	apphost.JSON(w, 200, map[string]any{"installed": uploader.Installed(a.H.Config.Origin), "version": a.H.Config.Version, "download": "https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.9/MySocialUploader.exe"})
+	apphost.JSON(w, 200, map[string]any{"installed": uploader.Installed(a.H.Config.Origin), "version": a.H.Config.Version, "download": "https://github.com/oneworkspacestudio/my-social/releases/download/v0.1.0-preview.10/MySocialUploader.exe"})
 }
 func (a *App) createNativeUpload(w http.ResponseWriter, r *http.Request) {
-	if a.H.Config.WorkspaceURL != "" && os.Getenv("MYSOCIAL_NATIVE_UPLOADS") != "1" {
+	if a.H.Config.WorkspaceURL != "" && os.Getenv("MYSOCIAL_NATIVE_UPLOADS") != "2" {
 		apphost.Problem(w, 409, "Update Workspace before starting a background upload")
 		return
 	}
@@ -49,7 +49,7 @@ func (a *App) createNativeUpload(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, e)
 		return
 	}
-	link := "mysocial-upload://start/?" + url.Values{"server": {base}, "ticket": {id + "." + token}}.Encode()
+	link := "mysocial-upload://start/?" + url.Values{"server": {base}, "ticket": {id + "." + token}, "account": {uid(r)}}.Encode()
 	apphost.JSON(w, 201, map[string]any{"id": id, "launch": link, "expiresIn": 600})
 }
 
@@ -82,11 +82,16 @@ func (a *App) nativeUploadRequest(w http.ResponseWriter, r *http.Request) {
 	var expires int64
 	e := a.H.DB.QueryRow("SELECT owner,token,client,job,expires FROM instagram_native_uploads WHERE id=?", r.PathValue("grant")).Scan(&owner, &initial, &client, &job, &expires)
 	expected := client
-	if action == "claim" {
+	initialStatus := action == "status" && client == "" && apphost.Equal(initial, apphost.Hash(token))
+	if action == "claim" || initialStatus {
 		expected = initial
 	}
 	if e != nil || expires < a.now().Unix() || expected == "" || !apphost.Equal(expected, apphost.Hash(token)) {
 		apphost.Problem(w, 401, "Upload permission is invalid or expired. Start a new background upload in Social.")
+		return
+	}
+	if !apphost.Equal(r.Header.Get("X-Upload-Recipient"), owner) {
+		apphost.Problem(w, 403, "Update the Windows uploader and confirm the receiving account")
 		return
 	}
 	ctx, e := a.instagramOwnerContext(r.Context(), owner)
@@ -98,6 +103,15 @@ func (a *App) nativeUploadRequest(w http.ResponseWriter, r *http.Request) {
 	if !a.allowedLimit(owner+":native-chunks", 512) {
 		w.Header().Set("Retry-After", "60")
 		apphost.Problem(w, 429, "Wait a minute before continuing the upload")
+		return
+	}
+	if initialStatus {
+		var name, email string
+		if e = a.H.DB.QueryRow("SELECT name,email FROM host_users WHERE id=?", owner).Scan(&name, &email); e != nil {
+			a.fail(w, e)
+			return
+		}
+		apphost.JSON(w, 200, map[string]any{"account": map[string]string{"id": owner, "name": name, "email": email}})
 		return
 	}
 	if action == "claim" {

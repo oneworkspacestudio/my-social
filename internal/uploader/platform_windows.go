@@ -18,6 +18,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -27,6 +28,7 @@ import (
 type installation struct {
 	Version, Executable, SHA256 string
 	Servers                     map[string]bool
+	Receivers                   map[string]string
 }
 
 func home() (string, error) {
@@ -59,6 +61,22 @@ func privateDir(p string) error {
 	}
 	if e := os.MkdirAll(p, 0700); e != nil {
 		return e
+	}
+	nativePath, e := windows.UTF16PtrFromString(p)
+	if e != nil {
+		return e
+	}
+	volume := make([]uint16, 32768)
+	if e = windows.GetVolumePathName(nativePath, &volume[0], uint32(len(volume))); e != nil {
+		return e
+	}
+	var flags uint32
+	fsName := make([]uint16, 260)
+	if e = windows.GetVolumeInformation(&volume[0], nil, 0, nil, nil, &flags, &fsName[0], uint32(len(fsName))); e != nil {
+		return e
+	}
+	if flags&windows.FILE_PERSISTENT_ACLS == 0 || windows.GetDriveType(&volume[0]) == windows.DRIVE_REMOTE {
+		return errors.New("The Windows uploader requires a local NTFS folder for its private queue")
 	}
 	token, e := windows.OpenCurrentProcessToken()
 	if e != nil {
@@ -251,7 +269,7 @@ func Install(version, origin string) error {
 	}
 	return installAt(root, source, version, strings.TrimRight(origin, "/"), `Software\Classes\mysocial-upload`, `Software\Microsoft\Windows\CurrentVersion\Run`)
 }
-func AutoInstall(version, origin, workspace string) error {
+func AutoInstall(version, origin, workspace, issuer, subject string) error {
 	if workspace == "" || os.Getenv("MYSOCIAL_UPLOADER_DISABLE") == "1" {
 		return nil
 	}
@@ -261,6 +279,22 @@ func AutoInstall(version, origin, workspace string) error {
 	root, e := home()
 	if e != nil {
 		return e
+	}
+	if issuer != "" && subject != "" {
+		var info installation
+		b, e := os.ReadFile(filepath.Join(root, "installation.json"))
+		if e != nil || json.Unmarshal(b, &info) != nil {
+			return errors.New("Could not read uploader registration")
+		}
+		if info.Receivers == nil {
+			info.Receivers = map[string]string{}
+		}
+		sum := sha256.Sum256([]byte(issuer + "\x00" + subject))
+		info.Receivers[strings.TrimRight(origin, "/")] = hex.EncodeToString(sum[:])
+		b, _ = json.Marshal(info)
+		if e = atomicWrite(filepath.Join(root, "installation.json"), b); e != nil {
+			return e
+		}
 	}
 	entries, _ := os.ReadDir(filepath.Join(root, "queue"))
 	for _, entry := range entries {
@@ -489,6 +523,9 @@ func Main(args []string, version string) (bool, error) {
 	if e != nil {
 		return true, e
 	}
+	if e = InteractiveBase(s); e != nil {
+		return true, e
+	}
 	root, e := home()
 	if e != nil {
 		return true, e
@@ -498,20 +535,24 @@ func Main(args []string, version string) (bool, error) {
 	if e != nil || json.Unmarshal(b, &i) != nil {
 		return true, errors.New("Install the Windows uploader from My Social first")
 	}
-	if !i.Servers[s.Base] {
-		if !message("Upload your selected Instagram ZIP to "+s.Base+"?\nOnly continue if this is your My Social server.", true) {
+	account, e := Describe(s)
+	if e != nil {
+		return true, e
+	}
+	if !receiverPaired(i, s.Base, account.ID) {
+		if !message("Confirm the receiving Social account\n\nAccount: "+safeLabel(account.Name)+"\nEmail: "+safeLabel(account.Email)+"\nAccount ID: "+account.ID[:12]+"\nServer: "+s.Base+"\n\nThis account is not paired with your Windows uploader. Continue only if you intend to send your ZIP to this account.", true) {
 			return true, nil
 		}
-		if i.Servers == nil {
-			i.Servers = map[string]bool{}
+		if i.Receivers == nil {
+			i.Receivers = map[string]string{}
 		}
-		i.Servers[s.Base] = true
+		i.Receivers[s.Base] = account.ID
 		b, _ = json.Marshal(i)
 		if e = atomicWrite(filepath.Join(root, "installation.json"), b); e != nil {
 			return true, e
 		}
 	}
-	file, e := chooseZIP(s.Base)
+	file, e := chooseZIP(safeLabel(account.Name) + " <" + safeLabel(account.Email) + "> · " + s.Base)
 	if e != nil || file == "" {
 		return true, e
 	}
@@ -538,9 +579,26 @@ func reportProblem(s *State) {
 		return
 	}
 	req.Header.Set("Authorization", "Bearer "+s.Client)
+	req.Header.Set("X-Upload-Recipient", s.Recipient)
 	client := http.Client{Timeout: 15 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	resp, e := client.Do(req)
 	if e == nil {
 		resp.Body.Close()
 	}
+}
+
+func safeLabel(s string) string {
+	out := []rune{}
+	for _, r := range s {
+		if !unicode.IsControl(r) && !unicode.In(r, unicode.Cf) {
+			out = append(out, r)
+			if len(out) >= 128 {
+				break
+			}
+		}
+	}
+	return string(out)
+}
+func receiverPaired(i installation, base, id string) bool {
+	return isAccount(id) && i.Receivers[base] == id
 }

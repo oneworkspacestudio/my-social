@@ -301,3 +301,30 @@ C:/Projects/.cache/social-native-upload-20261025. No owner installation as fixtu
 Final Social9 candidate re-passed all7 native flows and same-data executable restart after timeout/startup refinements. Workspace88/MyAI5 public assets are now verified and promoted (source6f14ff1, channel5353b2a); derive89 from that exact public88 bundle. Native grant creation refuses older managers without the explicit89 runtime capability instead of offering a failing transfer. Source/publication/normal two-PC delivery remain next.
 
 Final queue refinement uses a Windows mutex per transfer, so selecting another ZIP can claim its ten-minute permission immediately while an earlier upload is still running. Queue inspection also occurs under that mutex, avoiding concurrent receipt-file replacement. Rechecking the final native artifact before publication.
+
+
+Before owner installation, native9 handoff was found to name only the destination
+server, allowing a different-account grant to be mistaken for the user's own.
+Native9 / Workspace89 assets remain immutable but are WITHHELD and release notes
+warn against use. Neither owner received these builds. Public index filtering
+removes both, retains MyAI6 and all prior withholding records. Corrected target:
+Social10 / Workspace90. Do not report9/89 as installed or move their tags.
+
+Native10 URI binds a64hex immutable receiving-account hint. Before opening the
+picker, the native GUI verifies it via the authenticated server with the unclaimed
+ticket. Host-installed client pairs the configured issuer/subject owner; any other
+recipient requires explicit default-No native consent with verified name/email/ID
+and server. Picker title also names the recipient; control/bidi characters removed.
+Every native RPC carries the receiving ID; server checks it against the grant's
+immutable owner. Initial ticket describes ONLY its own recipient before claim,
+never transfer receipts afterward. Legacy client requests fail closed. Private
+queue/cache require local ACL-capable storage. SDK90 signals protocol2 capability;
+Social10 requires that signal. Tests cover tampered hint, same-name different UID,
+unknown server, initial-token replay, ownership/expiry and receipt privacy.
+
+Final corrected10 checks: full Go tests/vet, frontend build/editor tests and all7
+exact Windows binary browser flows passed, including closed-browser transfer and
+same-private-data restart. Authorized221742001-byte original ZIP reran through
+corrected native protocol and server recognized99 posts in isolated NTFS. Native
+GUI requires HTTPS even for loopback; explicit CLI selection permits local test
+servers. File picker itself is implemented but was not automatically driven.

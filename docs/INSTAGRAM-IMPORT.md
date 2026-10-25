@@ -12,11 +12,14 @@ connections automatically. Keep the computer on and the ZIP in place. Return to
 Social for progress, the five-post sample and the Import button. The uploader
 cannot publish posts; you still choose an audience and import in Social.
 
-Workspace89 and later installs the uploader on its Windows PC. On another
+Workspace90 and later installs the uploader on its Windows PC. On another
 Windows computer, use **Install Windows uploader on this computer**, run the
-public MySocialUploader.exe once and return to Social. A new destination requires
-native confirmation before selecting a ZIP. Only HTTPS Social addresses are
-accepted, with loopback HTTP reserved for local installations. The Windows
+public MySocialUploader.exe once and return to Social. The native app verifies the receiving account before opening the ZIP picker.
+An account that is not paired with this Windows user requires explicit confirmation;
+the picker shows the verified name/email and server. Account identifiers come from
+the authenticated server, rather than labels in an external link. The interactive Windows handoff requires the secure HTTPS Social address.
+Loopback HTTP is limited to explicit CLI file-selection tests; local browser
+uploads remain available. The Windows
 uploader stores its queue encrypted for the current Windows user and resumes
 pending transfers at the next Windows sign-in. Files moved or changed require
 selection again; canceling the Social job stops the native transfer.

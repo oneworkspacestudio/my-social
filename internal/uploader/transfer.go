@@ -24,8 +24,8 @@ import (
 const Limit = int64(512 << 20)
 
 type State struct {
-	ID, Base, Grant, Token, Client, File, Fingerprint, Filename, Job, Status, Error string
-	Size, Modified, Expires                                                         int64
+	ID, Base, Grant, Token, Client, File, Fingerprint, Filename, Job, Status, Error, Recipient string
+	Size, Modified, Expires                                                                    int64
 }
 type Chunk struct {
 	Offset int64  `json:"offset"`
@@ -78,8 +78,12 @@ func ParseLaunch(raw string) (State, error) {
 		return s, errors.New("Open the background uploader from My Social")
 	}
 	q, e := url.ParseQuery(u.RawQuery)
-	if e != nil || len(q) != 2 || len(q["server"]) != 1 || len(q["ticket"]) != 1 {
+	if e != nil || len(q) != 3 || len(q["server"]) != 1 || len(q["ticket"]) != 1 || len(q["account"]) != 1 {
 		return s, errors.New("Invalid upload link")
+	}
+	s.Recipient = q.Get("account")
+	if !isAccount(s.Recipient) {
+		return s, errors.New("Invalid receiving account")
 	}
 	s.Base = q.Get("server")
 	if _, e = ValidBase(s.Base); e != nil {
@@ -135,7 +139,7 @@ func Transfer(ctx context.Context, s *State, save func(*State) error) error {
 	if _, e := ValidBase(s.Base); e != nil {
 		return e
 	}
-	if !isSecret(s.Grant) || !isSecret(s.Token) || !isSecret(s.Client) {
+	if !isSecret(s.Grant) || !isSecret(s.Token) || !isSecret(s.Client) || !isAccount(s.Recipient) {
 		return errors.New("Invalid saved upload permission")
 	}
 	f, e := openSource(s.File)
@@ -159,6 +163,7 @@ func Transfer(ctx context.Context, s *State, save func(*State) error) error {
 			return receipt, errors.New("Invalid upload request")
 		}
 		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("X-Upload-Recipient", s.Recipient)
 		req.Header.Set("User-Agent", "MySocial-Uploader/1")
 		req.Header.Set("Content-Type", "application/json")
 		if action == "claim" {
@@ -305,4 +310,64 @@ func Transfer(ctx context.Context, s *State, save func(*State) error) error {
 		s.Error = ""
 		return save(s)
 	}
+}
+
+func isAccount(s string) bool {
+	if len(s) != 64 || strings.ToLower(s) != s {
+		return false
+	}
+	_, e := hex.DecodeString(s)
+	return e == nil
+}
+
+type Recipient struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+// Describe uses the TLS-authenticated server, never a name supplied by a URI.
+// No selected file is opened until the native UI verifies this recipient.
+func Describe(s State) (Recipient, error) {
+	var account Recipient
+	if _, e := ValidBase(s.Base); e != nil {
+		return account, e
+	}
+	if !isAccount(s.Recipient) || !isSecret(s.Grant) || !isSecret(s.Token) {
+		return account, errors.New("Invalid receiving account")
+	}
+	req, e := http.NewRequest("GET", s.Base+"/api/imports/instagram/native/"+s.Grant+"/status", nil)
+	if e != nil {
+		return account, errors.New("Invalid Social address")
+	}
+	req.Header.Set("Authorization", "Bearer "+s.Token)
+	req.Header.Set("X-Upload-Recipient", s.Recipient)
+	req.Header.Set("User-Agent", "MySocial-Uploader/2")
+	c := http.Client{Timeout: 30 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	resp, e := c.Do(req)
+	if e != nil {
+		return account, errors.New("Could not verify the receiving Social account. Open the uploader again when the server is available")
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return account, errors.New("Could not verify the receiving Social account. Start a new upload in Social")
+	}
+	var result struct {
+		Account Recipient `json:"account"`
+	}
+	if e = json.NewDecoder(io.LimitReader(resp.Body, 4096)).Decode(&result); e != nil || result.Account.ID != s.Recipient || !isAccount(result.Account.ID) {
+		return account, errors.New("The receiving account does not match this upload request")
+	}
+	return result.Account, nil
+}
+
+func InteractiveBase(s State) error {
+	u, e := ValidBase(s.Base)
+	if e != nil {
+		return e
+	}
+	if u.Scheme != "https" {
+		return errors.New("Open the secure HTTPS address of My Social for native background uploads")
+	}
+	return nil
 }

@@ -71,3 +71,18 @@ func TestPrivateEncryptedQueueAndIsolatedProtocolRegistration(t *testing.T) {
 		t.Fatal("upload original could change while held open")
 	}
 }
+
+func TestReceivingAccountCannotBeImpersonatedByDisplayName(t *testing.T) {
+	own := strings.Repeat("a", 64)
+	other := strings.Repeat("b", 64)
+	i := installation{Receivers: map[string]string{"https://social.example/social": own}}
+	if !receiverPaired(i, "https://social.example/social", own) {
+		t.Fatal("paired owner lost")
+	}
+	if receiverPaired(i, "https://social.example/social", other) || receiverPaired(i, "https://other.example/social", own) {
+		t.Fatal("another account or server bypassed native consent")
+	}
+	if safeLabel("Fahim\u202e\n") != "Fahim" {
+		t.Fatal("recipient label permits control characters")
+	}
+}

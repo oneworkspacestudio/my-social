@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var version = "0.1.0-preview.9"
+var version = "0.1.0-preview.10"
 
 func main() {
 	if handled, e := uploader.Main(os.Args, version); handled {

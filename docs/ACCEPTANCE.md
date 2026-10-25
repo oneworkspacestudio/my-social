@@ -45,8 +45,8 @@ limits](INSTAGRAM-IMPORT.md) apply. Local Go tests include malformed/unsafe ZIPs
 CSRF/account/storage checks, per-post rollback, retry deduplication, quota and
 interruption recovery. Native FFmpeg checks cover mixed carousels and rejection
 of imported videos over ten minutes. The native Chrome importer flow covers live progress,
-a five-post sample, one-click import of all available posts (including 101 posts
-in automatic batches), private default, duplicates, persistence and 390px layout, followed by
+a five-post sample, one-click server import of all available posts (including 101
+posts without another ZIP upload), private default, duplicates, persistence and 390px layout, followed by
 same-data executable restart. These are synthetic local development checks;
 publication and protected installation evidence is recorded separately.
 
@@ -81,3 +81,5 @@ Synthetic tests do not certify a complete personal-account archive.
 Preview7 delivery is verified in [Import progress acceptance](instagram-import-progress-acceptance.json): five synthetic native browser flows, live progress, a five-post sample, one-click101-post import, exact published/installed bytes, protected Social-only update, retained current Workspace/other apps, verified recovery and27 running services. Public Social routes retain the native sign-in gate.
 
 Preview8 adds checksum-verified resumable uploads and persistent server jobs. Synthetic checks cover request disconnects, actual host restart, resumable chunk offsets, explicit cancellation, account ownership, storage identity and expiry. A user-authorized 221,742,001-byte private archive imported99 posts with0 failures in an isolated NTFS test; no private media or captions are published as evidence. Browser tab-close and installed-delivery checks are recorded separately.
+
+Preview8 delivery is verified in [Server import acceptance](instagram-server-jobs-acceptance.json): all six exact-native browser flows, actual tab-close upload resume and unattended import, anonymous public assets and channel, and normal backed-up Social-only installations on both PCs. The primary installation also passed independent executable/frontend hashes, all other app/identity/credential invariants and 27-service health. The second installation is verified by native update completion, all-app health/recovery status and a fresh Social8 Up to date check; no independent remote filesystem or credential audit is claimed.

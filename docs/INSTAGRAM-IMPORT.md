@@ -75,4 +75,6 @@ Verification uses synthetic JSON/ZIPs and media, including native FFmpeg checks
 when configured. `go test ./...`, `go vet ./...`, frontend checks and the Chrome
 import flow cover preview/no-write behavior, account boundaries, duplicate retry,
 carousel rollback, malformed archives, limits, interruption recovery and mobile
-layout. No personal export or physical-phone acceptance is implied.
+layout. Published browser fixtures use synthetic data; additional authorized import
+and installation checks are recorded in [server import acceptance](instagram-server-jobs-acceptance.json).
+Physical-phone acceptance remains open.

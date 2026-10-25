@@ -218,3 +218,41 @@ promote raw channel preserving concurrent/withheld releases, run normal backed-u
 Social-only updates on both PCs, verify versions/bytes/other apps/current UI.
 Keep newest owner recovery; C space is constrained by other apps and recovery,
 never bypass normal backup guards or delete/move owner content.
+
+
+## Preview8 delivery completed (25 October)
+
+Published immutable v0.1.0-preview.8 at source bfcc8d4d44336d6a67930bdadae76d38c64bc4b6;
+all10 assets/digests and anonymous native ZIP/EXE/manifest verified. Native SHA
+683895f65bb9a9feac518011b4490705a5b13fe4914e0acb6794b8083cc79215.
+Core CI40179327321 and capture CI40179327364 pass. Channel promoted by Workspace
+b40fbc6, retains concurrent87/MyAI4 and all other records/withholdings; anonymous
+raw channel/tag verified. Exact current manifest selector passes fresh5/legacy4
+Social layouts, retaining manager, other apps, runtime paths and registration.
+
+Normal public native Social-only updates completed on BOTH PCs: primary7→8 and
+second6→8, both retain Workspace87. Primary operator exit0 independently verifies
+public Social bytes, manager/25 other process hashes, all contracts/package pins,
+owner identity/paths/ports/preferences/selection and every decrypted credential/
+client. All27 services/direct local apps and public runtime healthy; exact served
+JS/CSS matches final tested build. Fresh current-controller check:8 up to date,
+no Social review warning. Latest registered recovery manifest hash verified;
+normal cleanup removed one superseded automatic backup, kept unknown old partial.
+
+The second PC's prior Workspace/MyAI update completed before our separate update.
+Our single Social-only transaction finished all9 stages in19m2s, reports all apps
+healthy and newest verified recovery retained, removed one older automatic copy.
+Fresh installed release UI shows Social8 up to date; all25 other displayed versions
+(including87/MyAI4/Cinema5) retained. Remote evidence is normal native verification
+and installed-version UI, NOT an independent filesystem/decrypted-secret audit.
+No SSH credentials available; no repeated apply, guard bypass or owner fixtures.
+
+Six final native synthetic flows include actual tab close during upload/resume and
+server import with no browser page open. Authorized private222MB ZIP integration
+imported99/0failed in isolated NTFS. Those posts were test imports, not inserted
+into the owner's live Social profile. Successful upload must finish before tab
+closure can leave checking/import running unattended; partial uploads resume after
+reselecting identical ZIP. Ten-minute import-only video limit fixed2long clips.
+Task-owned stopped NTFS fixtures removed after process/reparse/path checks. Public
+proof: docs/instagram-server-jobs-acceptance.json; local detailed evidence under
+I:/Projects/tooling/social-server-jobs-20261025. Do not move runtime tag/assets.

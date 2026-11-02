@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-preview.11
+
+- Mobile-first Create flow: select photos or clips, edit, then caption and Share.
+- Prepare and upload photos while writing a caption, show progress, retain completed uploads on retries, and prevent duplicate posts from rapid taps.
+- Skip zero-value photo filters and repeated JPEG conversion; allow another creator to upload while one sender is slow.
+- Compact home header, edge-to-edge phone feed, icon navigation and post options menu.
+- Preserve private originals, audience selection, device/server drafts, carousels, Story polls and Instagram background imports.
+
 ## 0.1.0-preview.10
 
 - Verify and pair the immutable receiving account before opening the native file picker.

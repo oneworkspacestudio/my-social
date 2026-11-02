@@ -101,23 +101,34 @@ func safeImage(data []byte) ([]byte, error) {
 		w = int(float64(w) * ratio)
 		h = int(float64(h) * ratio)
 	}
-	canvas := image.NewRGBA(image.Rect(0, 0, w, h))
-	draw.CatmullRom.Scale(canvas, canvas.Bounds(), img, img.Bounds(), draw.Src, nil)
+	if w != cfg.Width || h != cfg.Height {
+		canvas := image.NewRGBA(image.Rect(0, 0, w, h))
+		draw.CatmullRom.Scale(canvas, canvas.Bounds(), img, img.Bounds(), draw.Src, nil)
+		img = canvas
+	}
 	var out bytes.Buffer
-	e = jpeg.Encode(&out, canvas, &jpeg.Options{Quality: 90})
+	e = jpeg.Encode(&out, img, &jpeg.Options{Quality: 90})
 	return out.Bytes(), e
 }
+func validateImage(data []byte) error {
+	cfg, _, e := image.DecodeConfig(bytes.NewReader(data))
+	if e != nil || cfg.Width < 1 || cfg.Height < 1 || int64(cfg.Width)*int64(cfg.Height) > 24000000 {
+		return errors.New("use a JPEG, PNG or GIF up to 24 megapixels")
+	}
+	_, _, e = image.Decode(bytes.NewReader(data))
+	return e
+}
 func (a *App) upload(w http.ResponseWriter, r *http.Request) {
-	if e := a.storageCheck(r.Context()); e != nil {
-		apphost.Problem(w, 503, "Connect the protected My Photos/My Social storage before uploading.")
+	// Bound large image bodies/decoders without letting one slow sender hold the
+	// storage commit lock for every creator.
+	select {
+	case a.uploadSlots <- struct{}{}:
+		defer func() { <-a.uploadSlots }()
+	case <-r.Context().Done():
 		return
 	}
-	a.storageMu.Lock()
-	defer a.storageMu.Unlock()
-	var used int64
-	a.H.DB.QueryRow("SELECT coalesce(sum(bytes),0) FROM media WHERE owner=?", uid(r)).Scan(&used)
-	if used > 2<<30 {
-		apphost.Problem(w, 413, "Your 2 GiB preview media quota is full.")
+	if e := a.storageCheck(r.Context()); e != nil {
+		apphost.Problem(w, 503, "Connect the protected My Photos/My Social storage before uploading.")
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 150<<20)
@@ -186,7 +197,8 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 	state := "ready"
 	if strings.HasPrefix(mime, "image/") {
 		source := original
-		if len(rendered) > 0 {
+		hasDerivative := len(rendered) > 0
+		if hasDerivative {
 			source = rendered
 		}
 		if kind == "avatars" {
@@ -198,9 +210,11 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 			apphost.Problem(w, 415, e.Error())
 			return
 		}
-		if _, e = safeImage(original); e != nil {
-			apphost.Problem(w, 415, e.Error())
-			return
+		if hasDerivative {
+			if e = validateImage(original); e != nil {
+				apphost.Problem(w, 415, e.Error())
+				return
+			}
 		}
 		mime = "image/jpeg"
 	} else if mime == "video/mp4" || mime == "video/webm" {
@@ -214,6 +228,19 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 		mime = "video/mp4"
 	} else {
 		apphost.Problem(w, 415, "Use JPEG, PNG, GIF, MP4 or WebM media")
+		return
+	}
+	// Never hold the global storage writer lock while a phone sends its body or
+	// image codecs run. Quota and filesystem/database commit remain serialized.
+	a.storageMu.Lock()
+	defer a.storageMu.Unlock()
+	if e := a.storageCheck(r.Context()); e != nil {
+		apphost.Problem(w, 503, "My Photos is unavailable. Retry when it reconnects.")
+		return
+	}
+	var used int64
+	if e := a.H.DB.QueryRow("SELECT coalesce(sum(bytes),0) FROM media WHERE owner=?", uid(r)).Scan(&used); e != nil {
+		a.fail(w, e)
 		return
 	}
 	if used+int64(len(original)) > 2<<30 {

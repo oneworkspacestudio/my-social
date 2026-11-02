@@ -22,7 +22,7 @@ export function uploadRequest(url:string,options:any,headers:Record<string,strin
    if(streaming()&&result===undefined){finish(Error('Import connection ended before completion. Preview and retry this ZIP safely.'));return}
    finish(undefined,new Response(streaming()?JSON.stringify(result):xhr.responseText,{status:xhr.status,headers:{'Content-Type':streaming()?'application/json':xhr.getResponseHeader('Content-Type')||'text/plain','X-Workspace-Account':xhr.getResponseHeader('X-Workspace-Account')||''}}));
   }catch{finish(Error('Import response could not be read. Preview and retry this ZIP safely.'))}};
-  xhr.onerror=()=>finish(Error('Connection lost. Preview and retry this ZIP; completed posts will be skipped.'));
+  xhr.onerror=()=>finish(Error(options.errorContext==='media'?'Connection lost. Retry upload; your device draft and completed photos are retained.':'Connection lost. Preview and retry this ZIP; completed posts will be skipped.'));
   xhr.onabort=()=>finish(new DOMException('Import stopped','AbortError'));
   options.signal?.addEventListener('abort',abort,{once:true});
   if(options.signal?.aborted){finish(new DOMException('Import stopped','AbortError'));return}

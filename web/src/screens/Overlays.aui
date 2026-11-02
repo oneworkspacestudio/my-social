@@ -1,4 +1,17 @@
 Page Overlays
+  If condition=$postOptionsOpen
+    Card variant=dialog aria-label="Post options"
+      Row
+        Heading level=2 "Post options"
+        Spacer
+        Button action=closeModal variant=icon aria-label="Close post options"
+          Icon name=X
+      Text variant=caption $postAudience
+      If condition=$ownPost
+        Button action=archive variant=secondary "Archive"
+        Button action=editPost variant=secondary "Edit details"
+      Else
+        Button action=report variant=secondary "Report"
   If condition=$commentsOpen
     Card variant=dialog aria-label="Post comments"
       Row

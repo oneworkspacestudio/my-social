@@ -1,9 +1,27 @@
 // Generated from screens/Overlays.aui; edit the AUI source.
-import { Badge, Button, Card, Field, Grid, Heading, Image, Input, Link, Page, Row, Section, Select, Spacer, Text } from "@/components/ui"
+import { Badge, Button, Card, Field, Grid, Heading, Icon, Image, Input, Link, Page, Row, Section, Select, Spacer, Text } from "@/components/ui"
 
 export function Overlays({ data, onAction }: { data: any; onAction: (name: string) => void }) {
   return (
     <Page>
+      {data.postOptionsOpen && (
+        <Card variant="dialog" aria-label="Post options">
+          <Row>
+            <Heading level={2}>Post options</Heading>
+            <Spacer />
+            <Button onClick={() => onAction("closeModal")} variant="icon" aria-label="Close post options"><Icon name="X" /></Button>
+          </Row>
+          <Text variant="caption">{data.postAudience}</Text>
+          {data.ownPost ? (
+            <>
+              <Button onClick={() => onAction("archive")} variant="secondary">Archive</Button>
+              <Button onClick={() => onAction("editPost")} variant="secondary">Edit details</Button>
+            </>
+          ) : (
+            <Button onClick={() => onAction("report")} variant="secondary">Report</Button>
+          )}
+        </Card>
+      )}
       {data.commentsOpen && (
         <Card variant="dialog" aria-label="Post comments">
           <Row>

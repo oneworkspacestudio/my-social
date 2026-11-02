@@ -16,16 +16,14 @@ Page Shell
     Link href="#settings" variant=nav
       Icon name=Settings2
       Text "Settings"
+    Button variant=icon action=theme aria-label="Toggle color theme"
+      Icon name=SunMoon
     If condition=$workspace
       Link href=$workspace variant=workspace-link "← One Workspace"
-  Stack variant=workspace
+  Stack variant=$workspaceVariant
     Row variant=topbar
-      Stack gap=xs
-        Text variant=eyebrow "YOUR MOMENTS. YOUR PEOPLE."
-        Heading level=1 $heading
+      Link href="#home" variant=mobile-brand "My Social"
       Spacer
-      Button variant=icon action=theme aria-label="Toggle color theme"
-        Icon name=SunMoon
       Button variant=icon action=apps aria-label="Open Workspace apps"
         Icon name=Grid2X2
       Link href="#notifications" variant=icon aria-label="Notifications"
@@ -48,8 +46,11 @@ Page Shell
           Text $busy
       Section id=screen-outlet
     Text variant=footer $versionText
-  Row variant=bottomnav
+  Row variant=$bottomVariant
     For each=$mobileNav
       Link href=$item.href variant=$item.variant aria-label=$item.title
-        Icon name=$item.icon
+        If condition=$item.avatarURL
+          Image src=$item.avatarURL variant=nav-avatar alt="Your profile" width=26 height=26
+        Else
+          Icon name=$item.icon
         Text $item.title

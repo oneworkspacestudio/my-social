@@ -1,107 +1,146 @@
 Page Create
   Stack variant=creator
-    Row variant=steps
-      Badge tone=success "01 / CAPTURE"
-      Text "02 / MAKE IT YOURS"
-      Text "03 / SHARE"
-    Card
-      Row
-        Heading level=2 "What’s your moment?"
-        Spacer
-        Button action=closeCreate variant=secondary "Close"
-      Row variant=mode-tabs
-        Button action=kindPost variant=$postVariant "Post"
-        Button action=kindStory variant=$storyVariant "Story"
-        Button action=kindReel variant=$reelVariant "Reel"
-        Button action=kindLive variant=secondary "Live · unavailable"
-      Row variant=source-actions
-        Button action=camera variant=secondary
-          Icon name=Camera
-          Text "Open camera"
+    Row variant=compose-header
+      Button action=backCreate variant=icon aria-label=$backLabel
+        Icon name=$backIcon
+      Heading level=1 $title
+      Spacer
+      If condition=$canNext
+        Button action=nextCreate variant=next disabled=$nextDisabled "Next"
+      Else
+        Button action=saveDraft variant=text "Save draft"
+    If condition=$selecting
+      Stack variant=compose-select
+        Section id=selection-preview
+        Row variant=gallery-heading
+          Heading level=2 "Photos and videos"
+          Spacer
+          Button action=camera variant=icon aria-label="Open camera"
+            Icon name=Camera
+          Button action=myPhotos variant=text "My Photos"
         Field label="Choose photos or videos"
           Input name=files type=file accept="image/jpeg,image/png,image/gif,video/mp4,video/webm" multiple=true
-        Button action=myPhotos variant=secondary "My Photos"
-      Text variant=caption "Originals are stored privately in My Photos / My Social. Only the version you publish is shared."
-      Section id=camera
-      Section id=media-strip
-    If condition=$hasMedia
-      Card variant=editor-card
-        Row
-          Heading level=2 "Make it yours"
-          Spacer
-          Button action=undo variant=icon aria-label="Undo"
-            Icon name=Undo2
-          Button action=redo variant=icon aria-label="Redo"
-            Icon name=Redo2
+        Section id=camera
+        Section id=media-strip
+        If condition=$hasMedia
+          Row variant=selection-actions
+            Text variant=caption $selectionText
+            Spacer
+            Button action=removeImage variant=text "Remove selected"
+        Else
+          Text variant=caption "Choose up to 10 photos, or video clips for a Reel."
+        Row variant=compose-modes
+          Button action=kindPost variant=$postVariant "Post"
+          Button action=kindStory variant=$storyVariant "Story"
+          Button action=kindReel variant=$reelVariant "Reel"
+    If condition=$editing
+      Stack variant=compose-edit
         Section id=editor
+        Section id=media-strip
         If condition=$isVideo
           Section id=timeline
         Else
-          Row variant=edit-tools
-            Button action=addText variant=secondary "Add text"
-            Button action=addSticker variant=secondary "Add sticker"
-            Button action=brush variant=secondary "Draw / select"
-            Button action=deleteLayer variant=secondary "Delete layer"
-            Button action=layerUp variant=secondary "Bring forward"
-            Button action=rotate variant=secondary "Rotate"
-            Button action=flip variant=secondary "Flip"
-            Button action=removeImage variant=secondary "Remove image"
-          Grid columns=3 variant=controls
-            Field label="Aspect ratio"
-              Select name=aspect options=$aspectOptions
-            Field label="Crop zoom"
-              Input name=cropZoom type=range min=1 max=3 step=0.01
-            Field label="Straighten"
-              Input name=straighten type=range min=-15 max=15 step=0.5
-            Field label="Brightness"
-              Input name=brightness type=range min=-0.5 max=0.5 step=0.01
-            Field label="Contrast"
-              Input name=contrast type=range min=-0.5 max=0.5 step=0.01
-            Field label="Saturation"
-              Input name=saturation type=range min=-1 max=1 step=0.01
-            Field label="Warmth"
-              Input name=warmth type=range min=-0.5 max=0.5 step=0.01
-            Field label="Blur"
-              Input name=blur type=range min=0 max=0.3 step=0.01
-            Field label="Filter"
-              Select name=filter options=$filterOptions
+          Row variant=compose-tools
+            Button action=toolCrop variant=$cropVariant
+              Icon name=Crop
+              Text "Crop"
+            Button action=toolFilter variant=$filterVariant
+              Icon name=SlidersHorizontal
+              Text "Adjust"
+            Button action=toolText variant=$textVariant
+              Icon name=Type
+              Text "Text"
+            Button action=toolDraw variant=$drawVariant
+              Icon name=PenLine
+              Text "Draw"
+            Button action=undo variant=icon aria-label="Undo"
+              Icon name=Undo2
+            Button action=redo variant=icon aria-label="Redo"
+              Icon name=Redo2
+          If condition=$cropTool
+            Grid columns=3 variant=controls
+              Field label="Aspect ratio"
+                Select name=aspect options=$aspectOptions
+              Field label="Crop zoom"
+                Input name=cropZoom type=range min=1 max=3 step=0.01
+              Field label="Straighten"
+                Input name=straighten type=range min=-15 max=15 step=0.5
+            Row
+              Button action=rotate variant=secondary "Rotate"
+              Button action=flip variant=secondary "Flip"
+          If condition=$filterTool
+            Grid columns=3 variant=controls
+              Field label="Filter"
+                Select name=filter options=$filterOptions
+              Field label="Brightness"
+                Input name=brightness type=range min=-0.5 max=0.5 step=0.01
+              Field label="Contrast"
+                Input name=contrast type=range min=-0.5 max=0.5 step=0.01
+              Field label="Saturation"
+                Input name=saturation type=range min=-1 max=1 step=0.01
+              Field label="Warmth"
+                Input name=warmth type=range min=-0.5 max=0.5 step=0.01
+              Field label="Blur"
+                Input name=blur type=range min=0 max=0.3 step=0.01
+          If condition=$textTool
             Field label="Overlay text / emoji"
               Input name=overlayText multiline=true placeholder="Write something… or add ✨"
-            Field label="Text size"
-              Input name=fontSize type=number min=12 max=160
-            Field label="Text / brush color"
-              Input name=color type=color
-            Field label="Font"
-              Select name=font options=$fontOptions
-            Field label="Brush width"
-              Input name=brushWidth type=range min=1 max=40 step=1
-            Checkbox name=textBackground "Text highlight"
-          Row
-            Button action=updateText variant=secondary "Apply text style"
-            Button action=template variant=secondary "Story template"
-          Text variant=caption "Drag, resize and rotate overlays using the canvas handles. Double-click text to edit. Mouse wheel zooms the composition; touch controls support pinch zoom."
-      Card variant=publish-card
-        Heading level=2 "Ready to share?"
-        Field label="Caption"
-          Input name=caption multiline=true placeholder="Tell the story behind it… #moments"
-        Grid columns=2
-          Field label="Who can see this?"
-            Select name=visibility options=$audienceOptions
-          Field label="Alt text"
-            Input name=alt placeholder="Describe the image for screen readers"
-          Field label="Location (optional)"
-            Input name=location placeholder="Add a place, never your GPS"
-          Field label="Schedule (optional)"
-            Input name=schedule type=datetime-local
+            Grid columns=3 variant=controls
+              Field label="Text size"
+                Input name=fontSize type=number min=12 max=160
+              Field label="Font"
+                Select name=font options=$fontOptions
+              Field label="Text / brush color"
+                Input name=color type=color
+              Checkbox name=textBackground "Text highlight"
+            Row variant=edit-tools
+              Button action=addText variant=secondary "Add text"
+              Button action=addSticker variant=secondary "Add sticker"
+              Button action=updateText variant=secondary "Apply text style"
+              Button action=template variant=secondary "Story template"
+          If condition=$drawTool
+            Row
+              Field label="Text / brush color"
+                Input name=color type=color
+              Field label="Brush width"
+                Input name=brushWidth type=range min=1 max=40 step=1
+              Button action=brush variant=secondary "Draw / select"
+          Row variant=edit-tools
+            Button action=deleteLayer variant=text "Delete layer"
+            Button action=layerUp variant=text "Bring forward"
+          Text variant=caption "Drag overlays to move them. Use the handles to resize and rotate."
+    If condition=$sharing
+      Stack variant=compose-share
+        Row variant=caption-entry
+          Section id=share-preview
+          Field label="Caption"
+            Input name=caption multiline=true placeholder="Add a caption…"
+        Field label="Who can see this?"
+          Select name=visibility options=$audienceOptions
+        Field label="Location (optional)"
+          Input name=location placeholder="Add location"
+        Button action=togglePostOptions variant=option-row $optionsLabel
+          Icon name=ChevronDown
+        If condition=$moreOptions
+          Stack variant=post-options
+            Field label="Alt text"
+              Input name=alt placeholder="Describe the image for screen readers"
+            Field label="Schedule (optional)"
+              Input name=schedule type=datetime-local
         If condition=$isStory
-          Row
-            Field label="Poll question (optional)"
-              Input name=poll placeholder="What do you think?"
-            Field label="Poll choices (comma separated)"
-              Input name=pollChoices placeholder="Love it, Tell me more"
-            Field label="Link sticker (HTTPS, optional)"
-              Input name=storyLink type=url
-        Row variant=publish-actions
+          Field label="Poll question (optional)"
+            Input name=poll placeholder="What do you think?"
+          Field label="Poll choices (comma separated)"
+            Input name=pollChoices placeholder="Love it, Tell me more"
+          Field label="Link sticker (HTTPS, optional)"
+            Input name=storyLink type=url
+        Stack variant=media-preparation
+          Text variant=caption $prepareText
+          If condition=$preparing
+            Spinner variant=import-progress value=$preparePercent label="Media upload progress"
+          If condition=$prepareError
+            Alert tone=error $prepareError
+            Button action=retryPreparation variant=secondary "Retry upload"
+        Row variant=share-actions
           Button action=preview variant=secondary "Preview"
-          Button action=saveDraft variant=secondary "Save draft"
-          Button action=publish "Publish moment"
+          Button action=publish variant=share "Share"

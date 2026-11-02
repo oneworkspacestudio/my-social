@@ -1,5 +1,15 @@
 # Preview acceptance and parity gaps
 
+Preview11 adds the [mobile Create flow](MOBILE-CREATE.md): distinct selection,
+editing and sharing screens, a compact feed, revision-aware pre-Share photo
+uploads, progress and retries that retain completed media. Native Chrome checks
+cover caption editing during delayed upload, partial failure/retry, re-editing a
+prepared photo and one publication on rapid double tap. Server tests cover slow
+sender isolation and rejection of a corrupt original behind a valid derivative.
+Local prepared-media sharing is measured separately from network transfer time;
+it is not a guarantee for a remote phone. Music, tagging/collaborators, Live and
+physical-phone acceptance remain the gaps listed below.
+
 The brief is implemented as staged work. This release is a functional evaluation
 preview, not a declaration of full Instagram feature parity or production safety.
 

@@ -1,5 +1,10 @@
 Page Settings
   Stack variant=settings
+    Row
+      Heading level=1 "Settings"
+      Spacer
+      Button variant=icon action=theme aria-label="Toggle color theme"
+        Icon name=SunMoon
     Card
       Heading level=2 "Import from Instagram"
       Text "Bring your posts, captions, carousels and original dates across from an Instagram JSON export ZIP. Preview and select what to import."

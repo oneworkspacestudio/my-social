@@ -1,0 +1,90 @@
+/* Compact feed and full-height mobile composer. Screen trees live in AUI. */
+.link--mobile-brand{font-size:25px;letter-spacing:-1px;font-weight:750;color:var(--text)}
+.row--topbar{height:64px;border:0}
+.stack--content{padding-top:10px}
+.card--story-strip{border:0;border-radius:0;background:none;padding:12px 0;gap:16px}
+.button--story img{width:70px;height:70px;border-color:#7760df}
+.button--story-add svg{width:70px;height:70px}
+.button--story,.button--story-add{font-size:11px;min-width:74px}
+.row--feed-tabs{padding:0 0 8px;border:0;gap:6px}
+.link--tab{background:none;border-radius:0;padding:4px 10px;color:var(--muted)}
+.link--tab.active{background:none;color:var(--text);border-bottom:2px solid var(--text)}
+.stack--feed-column{gap:10px}
+.stack--feed{gap:20px}
+.card--post{border-radius:0;border:0;background:var(--surface)}
+.row--post-header{padding:12px 10px}
+.row--post-header .text--caption{font-size:11px}
+.row--post-actions{padding:5px 3px}
+.row--post-actions svg{width:25px;height:25px}
+.card--post>.text{padding:0 12px 7px}
+.card--post>.button--text{padding:0 12px 12px}
+.stack--right-rail{padding-top:20px}
+.stack--workspace.composing>.row--topbar,.stack--workspace.composing>.text--footer,.row--bottomnav.composing{display:none}
+.stack--workspace.composing .stack--content{padding-top:0}
+.stack--creator{max-width:640px;width:100%;gap:0;background:var(--surface);min-height:calc(100dvh - 32px)}
+.row--compose-header{position:sticky;top:0;z-index:15;background:var(--surface);min-height:64px;padding:8px 12px;gap:14px;border-bottom:1px solid var(--line)}
+.row--compose-header h1{font-size:20px;letter-spacing:-.4px}
+.button--next{background:none;color:var(--primary);padding:8px;font-size:16px}
+.stack--compose-select,.stack--compose-edit,.stack--compose-share{gap:16px;padding:0 16px 24px}
+.selection-preview{width:100%;height:min(48dvh,460px);object-fit:contain;background:#101116;display:block}
+.selection-empty{display:flex;align-items:center;justify-content:center;height:min(40dvh,360px);background:var(--bg);color:var(--muted);font-size:22px;font-weight:600}
+.stack--compose-select>img,.stack--compose-select>video,.stack--compose-select>.selection-empty{width:calc(100% + 32px);max-width:none;margin:0 -16px}
+.row--gallery-heading{gap:4px}
+.row--gallery-heading h2{font-size:16px;letter-spacing:0}
+.stack--compose-select input[type=file]{padding:8px;background:var(--surface);border:1px solid var(--line);font-size:13px}
+.stack--compose-select input[type=file]::file-selector-button{border:0;border-radius:8px;background:var(--soft);color:var(--primary);padding:9px 14px;margin-right:10px;font:inherit;font-weight:600;cursor:pointer}
+.stack--compose-select .media-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;overflow:visible}
+.stack--compose-select .media-strip button{width:100%;height:auto;aspect-ratio:1;border-radius:0;padding:2px;position:relative}
+.stack--compose-select .media-strip img{border-radius:0}
+.row--compose-modes{justify-content:center;gap:10px;position:sticky;bottom:0;background:var(--surface);padding:12px 0;margin-top:auto}
+.row--compose-modes .button{border-radius:24px;padding:8px 22px;min-width:84px}
+.row--compose-modes .button--secondary{border-color:transparent;background:var(--bg)}
+.stack--compose-edit{padding-top:14px}
+.stack--compose-edit .canvas-stage{max-width:400px;width:min(100%,calc(52dvh * var(--editor-ratio)));border-radius:0}
+
+.stack--compose-edit .clip-preview{max-height:45dvh}
+.stack--compose-edit .media-strip{gap:6px}
+.stack--compose-edit .media-strip button{width:54px;height:54px;border-radius:5px}
+.row--compose-tools{overflow:auto;gap:4px;justify-content:space-between;padding-bottom:4px}
+.button--tool{display:flex;flex-direction:column;gap:4px;background:var(--bg);color:var(--text);padding:10px 12px;min-width:64px;font-size:11px}
+.button--tool.active{background:var(--soft);color:var(--primary)}
+.stack--compose-edit .grid--controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stack--compose-share{padding-top:24px;min-height:calc(100dvh - 98px)}
+.row--caption-entry{align-items:flex-start;gap:16px}
+.row--caption-entry>.preview-image,.share-preview{width:96px;height:120px;flex:none;object-fit:cover;margin:0;border-radius:6px}
+.row--caption-entry>.field{flex:1}
+.row--caption-entry .field-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.row--caption-entry textarea{background:none;border:0;padding:6px 0;min-height:120px;resize:vertical}
+.stack--compose-share>.field{padding:6px 0 16px;border-bottom:1px solid var(--line)}
+.stack--compose-share>.field input,.stack--compose-share>.field select{background:none;border:0;padding:8px 0}
+.button--option-row{background:none;color:var(--text);border:0;border-bottom:1px solid var(--line);border-radius:0;justify-content:space-between;padding:12px 0;font-weight:500}
+.stack--post-options{padding:14px;background:var(--bg);border-radius:10px}
+.stack--media-preparation{gap:8px;margin-top:auto;padding-top:16px}
+.row--share-actions{position:sticky;bottom:0;background:var(--surface);padding:12px 0 max(12px,env(safe-area-inset-bottom));gap:12px}
+.row--share-actions>.button{flex:1}
+.row--share-actions>.button--share{flex:3;border-radius:12px}
+.image--nav-avatar{width:26px;height:26px;object-fit:cover;border-radius:50%}
+.link--nav.active .image--nav-avatar{outline:2px solid var(--text);outline-offset:2px}
+@media(max-width:760px){
+ body{background:var(--surface)}
+ .stack--workspace{padding:0 0 70px}
+ .row--topbar{height:58px;padding:0 12px;gap:2px;position:sticky;top:0;background:var(--surface);z-index:16}
+ .row--topbar .link--avatar{display:none}
+ .row--topbar .link--mobile-brand{font-size:24px}
+ .stack--content{padding-top:0}
+ .stack--content>.alert,.stack--content>.row{margin:10px 12px}
+ .stack--content>.screen:has(>.stack--settings),.stack--content>.screen:has(>.stack--instagram-import){padding:16px}
+ .card--story-strip{padding:12px 10px 8px;gap:10px}
+ .row--feed-tabs{padding-left:8px;margin-bottom:2px}
+ .row--bottomnav{padding-top:3px;min-height:58px}
+ .row--bottomnav .link--nav{background:none;border-radius:0;color:var(--text);min-width:50px}
+ .row--bottomnav .link--nav.active svg{stroke-width:2.5}
+ .row--bottomnav .link--nav .text{display:none}
+ .row--bottomnav svg{width:26px;height:26px}
+ .stack--workspace.composing{padding:0}
+ .stack--creator{min-height:100dvh}
+ .stack--compose-select{min-height:calc(100dvh - 65px)}
+ .stack--compose-edit .canvas-stage{max-width:360px}
+ .row--compose-header{top:0;padding-top:max(8px,env(safe-area-inset-top))}
+ .stack--content>.screen>.stack:not(.stack--creator):not(.stack--feed-layout){margin:12px}
+}

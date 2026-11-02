@@ -18,6 +18,7 @@ import (
 type App struct {
 	H                                        *apphost.Host
 	storageMu                                sync.Mutex
+	uploadSlots                              chan struct{}
 	publishMu                                sync.Mutex
 	importMu                                 sync.Mutex
 	instagramMu                              sync.Mutex
@@ -56,6 +57,7 @@ func New(h *apphost.Host) (*App, error) {
 	}
 	a := &App{H: h, Root: os.Getenv("MYSOCIAL_PHOTOS_ROOT"), Guard: os.Getenv("MYSOCIAL_STORAGE_GUARD_URL"), GuardToken: os.Getenv("MYSOCIAL_STORAGE_GUARD_TOKEN"), FFmpeg: os.Getenv("MYSOCIAL_FFMPEG"), FFprobe: os.Getenv("MYSOCIAL_FFPROBE"), now: time.Now, limits: map[string][]time.Time{}}
 	a.instagramCancel = map[string]context.CancelFunc{}
+	a.uploadSlots = make(chan struct{}, 2)
 	if e := a.recoverJobs(); e != nil {
 		return nil, e
 	}

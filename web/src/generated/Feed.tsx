@@ -1,5 +1,5 @@
 // Generated from screens/Feed.aui; edit the AUI source.
-import { Badge, Button, Card, Heading, Icon, Image, Input, Link, Page, Row, Section, Spacer, Stack, Text } from "@/components/ui"
+import { Button, Card, Heading, Icon, Image, Input, Link, Page, Row, Section, Spacer, Stack, Text } from "@/components/ui"
 
 export function Feed({ data, onAction }: { data: any; onAction: (name: string) => void }) {
   return (
@@ -24,7 +24,6 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
                 <Link href="#home" variant={data.homeVariant}>For you</Link>
                 <Link href="#following" variant={data.followingVariant}>Following</Link>
                 <Spacer />
-                <Text variant="caption">A little closer, every day.</Text>
               </Row>
             </>
           )}
@@ -93,7 +92,7 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
                     <Text variant="caption">{item.date}</Text>
                   </Stack>
                   <Spacer />
-                  <Badge tone="muted">{item.visibility}</Badge>
+                  <Button item={item.id} onClick={() => onAction("postOptions")} variant="icon" aria-label="Post options"><Icon name="Ellipsis" /></Button>
                 </Row>
                 <Section id="post-media" item={item} />
                 <Row variant="post-actions">
@@ -106,14 +105,6 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
                 <Text variant="handle">{item.likeText}</Text>
                 <Text variant="post-caption">{item.caption}</Text>
                 <Button item={item.id} onClick={() => onAction("comments")} variant="text">{item.commentText}</Button>
-                {item.own ? (
-                  <Row>
-                    <Button item={item.id} onClick={() => onAction("archive")} variant="text">Archive</Button>
-                    <Button item={item.id} onClick={() => onAction("editPost")} variant="text">Edit details</Button>
-                  </Row>
-                ) : (
-                  <Button item={item.id} onClick={() => onAction("report")} variant="text">Report</Button>
-                )}
               </Card>
             ))}
           </Stack>
@@ -131,12 +122,6 @@ export function Feed({ data, onAction }: { data: any; onAction: (name: string) =
         </Stack>
         {data.isHome && (
           <Stack variant="right-rail">
-            <Card variant="welcome">
-              <Badge tone="success">YOUR OWN LITTLE CORNER</Badge>
-              <Heading level={2}>Good moments deserve good company.</Heading>
-              <Text>Share something you made, somewhere you went, or a small part of your day.</Text>
-              <Button onClick={() => onAction("create")}>Make a moment</Button>
-            </Card>
             <Card>
               <Heading level={3}>People to know</Heading>
               {data.suggested.map((item, i) => (

@@ -27,18 +27,15 @@ export function Shell({ data, onAction }: { data: any; onAction: (name: string) 
           <Icon name="Settings2" />
           <Text>Settings</Text>
         </Link>
+        <Button variant="icon" onClick={() => onAction("theme")} aria-label="Toggle color theme"><Icon name="SunMoon" /></Button>
         {data.workspace && (
           <Link href={data.workspace} variant="workspace-link">← One Workspace</Link>
         )}
       </Stack>
-      <Stack variant="workspace">
+      <Stack variant={data.workspaceVariant}>
         <Row variant="topbar">
-          <Stack gap="xs">
-            <Text variant="eyebrow">YOUR MOMENTS. YOUR PEOPLE.</Text>
-            <Heading level={1}>{data.heading}</Heading>
-          </Stack>
+          <Link href="#home" variant="mobile-brand">My Social</Link>
           <Spacer />
-          <Button variant="icon" onClick={() => onAction("theme")} aria-label="Toggle color theme"><Icon name="SunMoon" /></Button>
           <Button variant="icon" onClick={() => onAction("apps")} aria-label="Open Workspace apps"><Icon name="Grid2X2" /></Button>
           <Link href="#notifications" variant="icon" aria-label="Notifications"><Icon name="Bell" /></Link>
           <Link href="#settings" variant="avatar" aria-label="Account settings">
@@ -69,10 +66,14 @@ export function Shell({ data, onAction }: { data: any; onAction: (name: string) 
         </Stack>
         <Text variant="footer">{data.versionText}</Text>
       </Stack>
-      <Row variant="bottomnav">
+      <Row variant={data.bottomVariant}>
         {data.mobileNav.map((item, i) => (
           <Link key={i} href={item.href} variant={item.variant} aria-label={item.title}>
-            <Icon name={item.icon} />
+            {item.avatarURL ? (
+              <Image src={item.avatarURL} variant="nav-avatar" alt="Your profile" width={26} height={26} />
+            ) : (
+              <Icon name={item.icon} />
+            )}
             <Text>{item.title}</Text>
           </Link>
         ))}

@@ -19,6 +19,48 @@
   "githubActionsUsed": false,
   "managedManifestValidated": true,
   "databaseMigration": 4,
-  "publication": "pending",
-  "installations": "pending"
+  "publication": {
+    "url": "https://github.com/oneworkspacestudio/my-social/releases/tag/v0.1.0-preview.11",
+    "sourceCommit": "2d9896e04189cd43e8fff832d173a9b19fd7c1bb",
+    "verifiedAssets": 12,
+    "allAssetDigestsAndSizesVerified": true,
+    "anonymousAssetsAndChannelVerified": true,
+    "channelCommit": "2ab9a25"
+  },
+  "installations": {
+    "primary": {
+      "social": "0.1.0-preview.11",
+      "manager": "0.3.0-preview.109",
+      "normalProtectedUpdateComplete": true,
+      "releaseExecutableAndServedAssetBytesVerified": true,
+      "unselectedAppContractsRetained": 34,
+      "unselectedExecutableBytesAndCredentialsRetained": true,
+      "all34ServicesHealthy": true,
+      "nativeHelperBytesVerified": true,
+      "latestRecoveryID": "update-20261102T203415-39be7578404b"
+    },
+    "secondary": {
+      "social": "0.1.0-preview.11",
+      "manager": "0.3.0-preview.109",
+      "normalProtectedUpdateComplete": true,
+      "freshUpToDateCheck": true,
+      "servedAssetNamesMatchTestedBuild": true,
+      "unselectedDisplayedUpdateGroupsRetained": 32,
+      "all34ServicesHealthy": true,
+      "nativeHelperSelfCheckPassed": true,
+      "latestRecoveryID": "update-20261102T203437-addfedab76b5",
+      "independentFilesystemCredentialAudit": false
+    }
+  },
+  "managedIntegration": {
+    "publicInstaller": "0.3.0-preview.109",
+    "normalPublic10To11AppOnlyUpgrade": true,
+    "realMyAccountsAndPrivatePhotos": true,
+    "mobileCreatePublication": true,
+    "nativeTabClosedZIPAndServerImport": true,
+    "checksPassed": 8,
+    "restartPersistence": true,
+    "older90ControllerRequiredCurrentInstallerBeforeMutation": true
+  },
+  "fixturesStoppedAndRemoved": true
 }
